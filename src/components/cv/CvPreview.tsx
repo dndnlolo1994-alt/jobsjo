@@ -203,7 +203,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={cv.photo} alt={fullName} className="w-28 h-28 rounded-full object-cover border-2 border-navy-800 shadow" />
           ) : (
-            <div className="w-28 h-28 rounded-full bg-navy-800 text-white flex items-center justify-center text-4xl shadow">🧑</div>
+            <div className="w-28 h-28 rounded-full bg-white border-2 border-navy-800 shadow" />
           )}
 
           <div className="w-full space-y-4">
@@ -317,7 +317,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={cv.photo} alt={fullName} className="w-24 h-24 rounded-full object-cover border-2 border-amber-500 shadow" />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-slate-800 text-white flex items-center justify-center text-4xl border-2 border-amber-500 shadow">🧑</div>
+              <div className="w-24 h-24 rounded-full bg-white border-2 border-amber-500 shadow" />
             )}
             <div className="text-center sm:text-right">
               <h1 className="text-3xl font-extrabold tracking-wide text-amber-500">{fullName}</h1>
@@ -491,18 +491,16 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                   className="w-24 h-24 rounded-full object-cover border-4 border-white ring-4 ring-[#c2a06c] shadow-lg" 
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-emerald-50 text-emerald-700 border-4 border-white ring-4 ring-[#c2a06c] flex items-center justify-center text-4xl shadow-lg">
-                  🧑
-                </div>
+                <div className="w-24 h-24 rounded-full bg-white border-4 border-white ring-4 ring-[#c2a06c] shadow-lg" />
               )}
             </div>
           </div>
         </header>
 
-        {/* Columns Container */}
-        <div className={`flex-1 flex overflow-hidden ${isEn ? "flex-row" : "flex-row-reverse"}`}>
+        {/* Columns Container - Forced LTR to keep Left column on Left and Right column on Right */}
+        <div className="flex-1 flex flex-row overflow-hidden" dir="ltr">
           {/* Main Body */}
-          <div className="w-[67%] bg-white p-8 border-l-8 border-[#084c41] flex flex-col justify-between overflow-hidden">
+          <div className="w-[67%] bg-white p-8 border-l-[16px] border-[#084c41] flex flex-col justify-between overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
             <div className="space-y-5">
               {/* Summary */}
               {showSummary && summary && (
@@ -521,30 +519,41 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                   <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5">
                     {t("الخبرات العملية")}
                   </h2>
-                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-3" />
+                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-4" />
                   
-                  <div className="relative border-r border-[#c2a06c]/30 pr-4 mr-2 space-y-4">
-                    {pageExps.map((exp) => (
-                      <div key={exp.id} className="relative">
-                        {/* Timeline dot */}
-                        <div className="absolute right-[-22px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#c2a06c] border border-white" />
-                        
-                        <div className="flex justify-between items-baseline text-[11px]">
-                          <span className="font-extrabold text-[#084c41] text-[12px]">{exp.position}</span>
-                          <span className="text-slate-500 font-bold bg-slate-50 px-1.5 py-0.5 rounded text-[9px] shrink-0">
-                            {exp.startDate} - {exp.endDate || t("حتى الآن")}
-                          </span>
+                  <div className="relative">
+                    {/* Continuous vertical timeline line */}
+                    <div className="absolute left-[100px] top-2 bottom-2 w-[1px] bg-[#c2a06c]/30" />
+                    
+                    <div className="space-y-4">
+                      {pageExps.map((exp) => (
+                        <div key={exp.id} className="flex flex-row gap-3 items-start relative text-[11px]" dir="ltr">
+                          {/* Left: Date */}
+                          <div className="w-[80px] text-right font-bold text-slate-500 text-[10px] pt-0.5 shrink-0">
+                            {exp.startDate}
+                            <span className="block text-[9px] font-semibold text-[#c2a06c] mt-0.5">{exp.endDate || t("حتى الآن")}</span>
+                          </div>
+                          
+                          {/* Middle: Dot */}
+                          <div className="w-4 flex justify-center pt-1.5 shrink-0 z-10">
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#c2a06c] border-2 border-white shadow-sm" />
+                          </div>
+                          
+                          {/* Right: Content */}
+                          <div className="flex-1 min-w-0 text-right pr-2" dir={isEn ? "ltr" : "rtl"}>
+                            <h4 className="font-extrabold text-[#084c41] text-[12px]">{exp.position}</h4>
+                            <div className="text-[10px] text-slate-700 font-bold mt-0.5">
+                              {exp.company} {exp.city ? `• ${exp.city}` : ""}
+                            </div>
+                            {exp.description && (
+                              <p className="text-[9.5px] text-slate-500 mt-1 leading-relaxed whitespace-pre-line">
+                                {exp.description}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-slate-700 font-bold mt-0.5">
-                          {exp.company} {exp.city ? `• ${exp.city}` : ""}
-                        </div>
-                        {exp.description && (
-                          <p className="text-[9.5px] text-slate-500 mt-1 leading-relaxed whitespace-pre-line pr-1 border-r border-slate-50">
-                            {exp.description}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </section>
               )}
@@ -555,30 +564,41 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                   <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5">
                     {t("التعليم والدراسة")}
                   </h2>
-                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-3" />
+                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-4" />
                   
-                  <div className="relative border-r border-[#c2a06c]/30 pr-4 mr-2 space-y-3">
-                    {pageEdus.map((edu) => (
-                      <div key={edu.id} className="relative">
-                        {/* Timeline dot */}
-                        <div className="absolute right-[-22px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#c2a06c] border border-white" />
-                        
-                        <div className="flex justify-between items-baseline text-[11px]">
-                          <span className="font-extrabold text-[#084c41] text-[12px]">{edu.degree}</span>
-                          <span className="text-slate-500 font-bold bg-slate-50 px-1.5 py-0.5 rounded text-[9px] shrink-0">
-                            {edu.startDate} - {edu.endDate || t("حتى الآن")}
-                          </span>
+                  <div className="relative">
+                    {/* Continuous vertical timeline line */}
+                    <div className="absolute left-[100px] top-2 bottom-2 w-[1px] bg-[#c2a06c]/30" />
+                    
+                    <div className="space-y-4">
+                      {pageEdus.map((edu) => (
+                        <div key={edu.id} className="flex flex-row gap-3 items-start relative text-[11px]" dir="ltr">
+                          {/* Left: Date */}
+                          <div className="w-[80px] text-right font-bold text-slate-500 text-[10px] pt-0.5 shrink-0">
+                            {edu.startDate}
+                            <span className="block text-[9px] font-semibold text-[#c2a06c] mt-0.5">{edu.endDate || t("حتى الآن")}</span>
+                          </div>
+                          
+                          {/* Middle: Dot */}
+                          <div className="w-4 flex justify-center pt-1.5 shrink-0 z-10">
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#c2a06c] border-2 border-white shadow-sm" />
+                          </div>
+                          
+                          {/* Right: Content */}
+                          <div className="flex-1 min-w-0 text-right pr-2" dir={isEn ? "ltr" : "rtl"}>
+                            <h4 className="font-extrabold text-[#084c41] text-[12px]">{edu.degree}</h4>
+                            <div className="text-[10px] text-slate-700 font-bold mt-0.5">
+                              {edu.institution} {edu.city ? `• ${edu.city}` : ""}
+                            </div>
+                            {edu.description && (
+                              <p className="text-[9.5px] text-slate-500 mt-1 leading-relaxed">
+                                {edu.description}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-slate-700 font-bold mt-0.5">
-                          {edu.institution} {edu.city ? `• ${edu.city}` : ""}
-                        </div>
-                        {edu.description && (
-                          <p className="text-[9.5px] text-slate-500 mt-1 leading-relaxed">
-                            {edu.description}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </section>
               )}
@@ -599,7 +619,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
           </div>
 
           {/* Sidebar */}
-          <aside className="w-[33%] bg-[#f4f6f5] p-5 flex flex-col justify-between border-x border-[#084c41]/5 overflow-hidden">
+          <aside className="w-[33%] bg-[#f4f6f5] p-5 flex flex-col justify-between border-x border-[#084c41]/5 overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
             <div className="space-y-5">
               {/* Contact Info */}
               {pageNum === 1 && (
