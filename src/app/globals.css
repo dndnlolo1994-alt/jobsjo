@@ -227,21 +227,65 @@ html {
 /* --------------------------------- */
 
 @media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
   body, html {
     background: #fff !important;
-    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
   }
-  .no-print {
+  header, footer, nav, .no-print, [role="navigation"], button, .btn, .btn-primary, form {
     display: none !important;
   }
   .cv-print {
-    padding: 0 !important;
     margin: 0 !important;
     box-shadow: none !important;
     border: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .cv-print * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .cv-print-padded {
+    padding: 15mm 20mm !important;
+  }
+  .cv-print-sidebar {
+    display: flex !important;
+    flex-direction: row !important;
+    height: 297mm !important;
+  }
+  .cv-print-sidebar aside {
+    width: 65mm !important;
+    min-width: 65mm !important;
+    height: 297mm !important;
+    padding: 15mm 6mm !important;
+    box-sizing: border-box !important;
+  }
+  .cv-print-sidebar .flex-1 {
+    padding: 15mm 15mm 15mm 10mm !important;
+    box-sizing: border-box !important;
+  }
+  .cv-print-gold header {
+    padding: 10mm 15mm !important;
+    box-sizing: border-box !important;
+  }
+  .cv-print-gold .p-8 {
+    padding: 10mm 15mm !important;
+    box-sizing: border-box !important;
   }
 }
 

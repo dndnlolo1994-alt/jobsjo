@@ -93,7 +93,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
   // Render Template: Minimalist
   if (activeTemplate === "minimalist") {
     return (
-      <div className="cv-print bg-white text-slate-900 mx-auto max-w-[794px] min-h-[1123px] p-8 md:p-12 shadow-card border border-slate-200" dir={isEn ? "ltr" : "rtl"}>
+      <div className="cv-print cv-print-padded bg-white text-slate-900 mx-auto max-w-[794px] min-h-[1123px] p-8 md:p-12 shadow-card border border-slate-200" dir={isEn ? "ltr" : "rtl"}>
         <header className="flex justify-between items-start border-b border-slate-300 pb-6 mb-6">
           <div className="flex gap-4 items-start">
             {cv.photo && (
@@ -196,7 +196,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
   // Render Template: Classic Navy
   if (activeTemplate === "classic-navy") {
     return (
-      <div className="cv-print bg-white text-navy-900 mx-auto max-w-[794px] min-h-[1123px] shadow-card border border-navy-100 flex flex-row overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
+      <div className="cv-print cv-print-sidebar bg-white text-navy-900 mx-auto max-w-[794px] min-h-[1123px] shadow-card border border-navy-100 flex flex-row overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
         {/* Sidebar (Personal info) */}
         <aside className="w-[240px] bg-slate-100 p-6 flex flex-col items-center gap-6 border-x border-navy-100">
           {cv.photo ? (
@@ -309,7 +309,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
   // Render Template: Executive Gold
   if (activeTemplate === "executive-gold") {
     return (
-      <div className="cv-print bg-white text-slate-800 mx-auto max-w-[794px] min-h-[1123px] shadow-card border border-amber-100 overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
+      <div className="cv-print cv-print-gold bg-white text-slate-800 mx-auto max-w-[794px] min-h-[1123px] shadow-card border border-amber-100 overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
         {/* Top Banner */}
         <header className="bg-slate-900 text-white p-8 flex flex-col sm:flex-row justify-between items-center gap-6 border-b-8 border-amber-600">
           <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -423,7 +423,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
 
   // Default Template: Modern Emerald
   return (
-    <div className="cv-print bg-white text-navy-950 mx-auto max-w-[794px] min-h-[1123px] p-8 md:p-12 shadow-card border border-navy-100" dir={isEn ? "ltr" : "rtl"}>
+    <div className="cv-print cv-print-padded bg-white text-navy-950 mx-auto max-w-[794px] min-h-[1123px] p-8 md:p-12 shadow-card border border-navy-100" dir={isEn ? "ltr" : "rtl"}>
       <header className="border-b-4 border-emerald-600 pb-6 mb-6 flex justify-between items-start">
         <div className="flex gap-5 items-center">
           {cv.photo ? (

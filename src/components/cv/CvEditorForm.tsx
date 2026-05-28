@@ -46,6 +46,10 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // LinkedIn profile text parser states
+  const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
+  const [linkedInText, setLinkedInText] = useState("");
+
   // Experience entry temp state
   const [tempExp, setTempExp] = useState({ position: "", company: "", city: "", startDate: "", endDate: "", description: "" });
   // Education entry temp state
@@ -116,214 +120,269 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
     alert("تم توليد ترجمة تقريبية للبيانات بالإنجليزية! يرجى مراجعة وتدقيق الاسم والمصطلحات وتصحيحها إذا وجد أي خطأ.");
   };
 
-  const handleLinkedInImport = async () => {
-    const linkedinInput = (document.getElementsByName("linkedin")[0] as HTMLInputElement)?.value || "";
-    if (!linkedinInput) {
-      alert("يرجى كتابة رابط ملفك الشخصي على LinkedIn أولاً في الحقل المخصص.");
+  const handleLinkedInImport = () => {
+    setIsLinkedInModalOpen(true);
+  };
+
+  const handleAnalyzeLinkedInText = () => {
+    if (!linkedInText.trim()) {
+      alert("الرجاء لصق نص بروفايل LinkedIn أولاً.");
       return;
     }
-
-    if (!linkedinInput.toLowerCase().includes("linkedin.com/")) {
-      alert("الرجاء إدخال رابط LinkedIn صحيح.");
+    const result = parseLinkedInText(linkedInText);
+    if (!result) {
+      alert("تعذر العثور على أي معلومات قابلة للقراءة في النص المدخل.");
       return;
     }
-
-    // Extract name from URL
-    let username = "user";
-    try {
-      const parts = linkedinInput.split("/in/");
-      if (parts[1]) {
-        username = parts[1].split("/")[0].split("?")[0];
-      }
-    } catch (e) {}
-
-    // Convert username to readable name
-    const nameParts = username.split("-").map(p => p.charAt(0).toUpperCase() + p.slice(1)).filter(p => !/\d/.test(p));
-    let derivedName = nameParts.join(" ");
-    if (!derivedName || derivedName.toLowerCase() === "user") {
-      derivedName = defaultFullName;
-    }
-
-    // Transliterate English name parts to Arabic if possible
-    const nameDict: Record<string, string> = {
-      mohammad: "محمد", mohamed: "محمد", muhammad: "محمد", ahmad: "أحمد", ahmed: "أحمد",
-      ali: "علي", omar: "عمر", khaled: "خالد", saria: "سارة", sara: "سارة", yaser: "ياسر",
-      youssef: "يوسف", saleh: "صالح", hasan: "حسن", hassan: "حسن", hussein: "حسين",
-      mahmoud: "محمود", mustafa: "مصطفى", abdallah: "عبدالله", rania: "رانيا", laila: "ليلى",
-      farah: "فرح", reem: "ريم", nour: "نور", tarek: "طارق", zeyad: "زياد",
-    };
-
-    const arabicParts = nameParts.map(p => nameDict[p.toLowerCase()] || p);
-    const arabicName = arabicParts.join(" ");
-
-    // Read job title
-    const jobTitleInput = (document.getElementsByName("jobTitle")[0] as HTMLInputElement)?.value || "";
-    const jobTitle = jobTitleInput || "محاسب مالي / ممثل خدمة عملاء";
-
-    setIsImportingLinkedIn(true);
-
-    // Simulate scraping
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-
-    setIsImportingLinkedIn(false);
-
-    // Generate high quality template data based on job title
-    let derivedExperiences: any[] = [];
-    let derivedSkills: any[] = [];
-    let derivedSummary = "";
-
-    const titleLower = jobTitle.toLowerCase();
-    if (titleLower.includes("برمج") || titleLower.includes("مطو") || titleLower.includes("tech") || titleLower.includes("software") || titleLower.includes("developer") || titleLower.includes("ويب") || titleLower.includes("web")) {
-      derivedSummary = `مهندس برمجيات ومطور ويب شغوف ذو خبرة في بناء تطبيقات ويب متكاملة وقابلة للتوسع. أمتلك مهارات قوية في استخدام React, Next.js, Node.js وقواعد البيانات المختلفة. أبحث عن فرصة عمل تتيح لي توظيف خبراتي التقنية في حل المشكلات البرمجية وتقديم حلول مبتكرة.`;
-      derivedExperiences = [
-        {
-          id: "exp1",
-          position: "مطور ويب متكامل (Full-Stack Developer)",
-          company: "شركة موضوع (Mawdoo3)",
-          city: "عمان",
-          startDate: "2024-01",
-          endDate: "حتى الآن",
-          description: "- تطوير وصيانة تطبيقات ويب عالية الأداء باستخدام Next.js وTypeScript.\n- تحسين سرعة تحميل الصفحات بنسبة 35% وتطوير واجهات مستخدم متجاوبة بالكامل.\n- العمل على ربط الواجهات الأمامية ببيانات خوادم الـ RESTful APIs وGraphQL."
-        },
-        {
-          id: "exp2",
-          position: "مطور واجهات أمامية متدرب (Frontend Developer)",
-          company: "شركة برمجيات أردنية ناشئة",
-          city: "إربد",
-          startDate: "2022-09",
-          endDate: "2023-11",
-          description: "- تحويل تصاميم Figma إلى كود نظيف وقابل لإعادة الاستخدام باستخدام Tailwind CSS وReact.\n- كتابة اختبارات برمجية لضمان جودة الواجهات وخلوها من الأخطاء.\n- التعاون مع فريق تطوير الخلفية لتكامل الخدمات والبيانات."
-        }
-      ];
-      derivedSkills = [
-        { name: "JavaScript / TypeScript", level: 5 },
-        { name: "React.js / Next.js", level: 5 },
-        { name: "Node.js & Express", level: 4 },
-        { name: "Tailwind CSS & Git", level: 5 },
-        { name: "PostgreSQL / Prisma", level: 4 }
-      ];
-    } else if (titleLower.includes("محاسب") || titleLower.includes("مالي") || titleLower.includes("حسابات") || titleLower.includes("accountant") || titleLower.includes("finance")) {
-      derivedSummary = `محاسب مالي معتمد ذو خبرة تتجاوز 3 سنوات في إدارة الحسابات وتدقيق القوائم المالية للشركات المتوسطة والناشئة بالأردن. أتميز بالدقة في تحليل البيانات المالية وإعداد الإقرارات الضريبية والتعامل مع برامج المحاسبة السحابية المختلفة.`;
-      derivedExperiences = [
-        {
-          id: "exp1",
-          position: "محاسب رئيسي",
-          company: "مجموعة طلال أبوغزاله العالمية",
-          city: "عمان",
-          startDate: "2023-05",
-          endDate: "حتى الآن",
-          description: "- إعداد وتجهيز القوائم المالية الشهرية والسنوية بما يتوافق مع معايير المحاسبة الدولية.\n- إدارة حسابات العملاء والموردين ومطابقة الكشوفات المصرفية بدقة.\n- إعداد وتقديم الإقرارات الضريبية وضريبة المبيعات وفقاً للقوانين الأردنية."
-        },
-        {
-          id: "exp2",
-          position: "محاسب حسابات عامة",
-          company: "شركة تجارية كبرى",
-          city: "الزرقاء",
-          startDate: "2021-07",
-          endDate: "2023-04",
-          description: "- إدخال القيود المحاسبية اليومية ومتابعة الذمم المدينة والدائنة.\n- المساعدة في عمليات الجرد السنوي للمخازن وتدقيق الفواتير الصادرة والواردة.\n- تحضير التقارير المالية الخاصة بالمصاريف والأرباح والخسائر للإدارة."
-        }
-      ];
-      derivedSkills = [
-        { name: "التدقيق والتحليل المالي", level: 5 },
-        { name: "إعداد الإقرارات الضريبية", level: 5 },
-        { name: "برامج محاسبة (QuickBooks, Zoho)", level: 4 },
-        { name: "Microsoft Excel المتقدم", level: 5 },
-        { name: "إدارة التدفقات النقدية", level: 4 }
-      ];
-    } else if (titleLower.includes("كاشير") || titleLower.includes("زبائن") || titleLower.includes("مبيعات") || titleLower.includes("cashier") || titleLower.includes("sales")) {
-      derivedSummary = `موظف كاشير ومحاسب زبائن متميز بخبرة عملية في قطاع التجزئة والضيافة. أمتلك مهارات تواصل قوية وقدرة عالية على التعامل السريع والدقيق مع الصندوق، مسح المنتجات، وتسوية المعاملات المالية اليومية مع الحرص الشديد على تقديم خدمة عملاء ممتازة.`;
-      derivedExperiences = [
-        {
-          id: "exp1",
-          position: "كاشير ومحاسب زبائن رئيسي",
-          company: "كارفور الأردن (Carrefour)",
-          city: "عمان",
-          startDate: "2023-11",
-          endDate: "حتى الآن",
-          description: "- إدارة نقطة البيع ومحاسبة العملاء نقداً أو بالبطاقات الائتمانية والخدمات الإلكترونية.\n- جرد وتطابق المبالغ النقدية في الصندوق يومياً في نهاية الوردية مع مطابقة الفواتير.\n- استقبال شكاوى واستفسارات الزبائن وتوجيههم وتسهيل عملية الدفع لهم."
-        },
-        {
-          id: "exp2",
-          position: "موظف مبيعات وكاشير",
-          company: "سوبرماركت ومركز تسوق محلي",
-          city: "إربد",
-          startDate: "2022-03",
-          endDate: "2023-10",
-          description: "- مسح وترتيب المنتجات وتحديث الأسعار على الرفوف بانتظام.\n- تقديم المساعدة للعملاء في العثور على المنتجات وإتمام عمليات الشراء بسلاسة.\n- المحافظة على النظافة والترتيب العام عند منطقة المحاسبة."
-        }
-      ];
-      derivedSkills = [
-        { name: "إدارة الصندوق ونقاط البيع (POS)", level: 5 },
-        { name: "خدمة العملاء والتواصل الفعال", level: 5 },
-        { name: "العمليات الحسابية السريعة والدقيقة", level: 5 },
-        { name: "تسوية المعاملات اليومية والجرد", level: 4 },
-        { name: "العمل بروح الفريق وتحت الضغط", level: 4 }
-      ];
-    } else {
-      derivedSummary = `مهني طموح ومنظم أمتلك شغفاً كبيراً للتطور في مجال عملي. أتمتع بمهارات اتصال وتواصل ممتازة وقدرة على التكيف في بيئات العمل المختلفة والعمل بروح الفريق لتحقيق الأهداف التنظيمية.`;
-      derivedExperiences = [
-        {
-          id: "exp1",
-          position: jobTitle,
-          company: "شركة أردنية رائدة في القطاع الخاص",
-          city: "عمان",
-          startDate: "2023-08",
-          endDate: "حتى الآن",
-          description: "- أداء المهام والمسؤوليات الرئيسية المرتبطة بالوظيفة والمحافظة على معايير الجودة.\n- التعاون مع الأقسام المختلفة لإنجاز المشاريع بكفاءة وفي الوقت المحدد.\n- تقديم تقارير دورية للإدارة حول الإنجازات وسير العمل."
-        },
-        {
-          id: "exp2",
-          position: `مساعد ${jobTitle}`,
-          company: "مؤسسة تجارية محلية",
-          city: "إربد",
-          startDate: "2022-01",
-          endDate: "2023-07",
-          description: "- دعم العمليات اليومية وتنسيق الأنشطة داخل القسم.\n- إعداد وتوثيق المستندات وحفظ السجلات بشكل منظم.\n- المساعدة في خدمة العملاء وحل المشكلات البسيطة."
-        }
-      ];
-      derivedSkills = [
-        { name: "الاتصال والتواصل الفعال", level: 5 },
-        { name: "حل المشكلات واتخاذ القرار", level: 4 },
-        { name: "العمل الجماعي والتعاون", level: 5 },
-        { name: "إدارة الوقت وتنظيم المهام", level: 4 }
-      ];
-    }
-
-    const derivedEducations = [
-      {
-        id: "edu1",
-        degree: titleLower.includes("برمج") ? "بكالوريوس في هندسة البرمجيات" : titleLower.includes("محاسب") ? "بكالوريوس في المحاسبة" : "بكالوريوس في إدارة الأعمال",
-        institution: "الجامعة الأردنية",
-        city: "عمان",
-        startDate: "2018-09",
-        endDate: "2022-06",
-        description: "تخرج بتقدير ممتاز"
-      }
-    ];
 
     // Populate inputs
     const fullNameInput = document.getElementsByName("fullName")[0] as HTMLInputElement;
-    if (fullNameInput && (!fullNameInput.value || fullNameInput.value === defaultFullName)) {
-      fullNameInput.value = arabicName || derivedName;
+    if (fullNameInput && result.fullName) {
+      fullNameInput.value = result.fullName;
     }
 
     const jobTitleInputEl = document.getElementsByName("jobTitle")[0] as HTMLInputElement;
-    if (jobTitleInputEl && !jobTitleInputEl.value) {
-      jobTitleInputEl.value = jobTitle;
+    if (jobTitleInputEl && result.jobTitle) {
+      jobTitleInputEl.value = result.jobTitle;
     }
 
     const summaryTextarea = document.getElementsByName("summary")[0] as HTMLTextAreaElement;
-    if (summaryTextarea && !summaryTextarea.value) {
-      summaryTextarea.value = derivedSummary;
+    if (summaryTextarea && result.summary) {
+      summaryTextarea.value = result.summary;
     }
 
-    setExperiences(derivedExperiences);
-    setEducations(derivedEducations);
-    setSkills(derivedSkills);
+    if (result.experiences.length > 0) {
+      setExperiences(result.experiences);
+    }
+    if (result.educations.length > 0) {
+      setEducations(result.educations);
+    }
+    if (result.skills.length > 0) {
+      setSkills(result.skills);
+    }
 
-    alert("🎉 تم استيراد وتحليل بيانات LinkedIn بنجاح!\n\nتم تحديث الاسم والنبذة المهنية وإضافة خبرات وتعليم ومهارات احترافية مقترحة متطابقة مع مجالك المهني لتسهيل تعديلها.");
+    alert("🎉 تم تحليل واستيراد بيانات LinkedIn الحقيقية بنجاح!\n\nتم ملء الاسم، والمسمى الوظيفي، والنبذة، والخبرات، والتعليم، والمهارات في الحقول المقابلة لها.");
+    setIsLinkedInModalOpen(false);
+    setLinkedInText("");
   };
+
+  function parseLinkedInText(text: string) {
+    const lines = text.split("\n").map(line => line.trim()).filter(Boolean);
+    if (lines.length === 0) return null;
+
+    let fullName = "";
+    let jobTitle = "";
+    let summary = "";
+    const experiences: any[] = [];
+    const educations: any[] = [];
+    const skills: string[] = [];
+
+    const sectionsKeywords = [
+      "experience", "education", "skills", "summary", "contact", "about", "projects", "certifications",
+      "الخبرة", "الخبرات", "التعليم", "المهارات", "نبذة", "ملخص", "الاتصال", "المشاريع", "الشهادات"
+    ];
+    
+    const isHeader = (l: string) => sectionsKeywords.some(kw => l.toLowerCase().includes(kw));
+
+    let lineIdx = 0;
+    while (lineIdx < lines.length && isHeader(lines[lineIdx])) {
+      lineIdx++;
+    }
+    if (lineIdx < lines.length) {
+      fullName = lines[lineIdx];
+      lineIdx++;
+    }
+    while (lineIdx < lines.length && isHeader(lines[lineIdx])) {
+      lineIdx++;
+    }
+    if (lineIdx < lines.length) {
+      jobTitle = lines[lineIdx];
+      lineIdx++;
+    }
+
+    let currentSection = "";
+    const expLines = text.split("\n").map(l => l.trim()).filter(Boolean);
+    const dateRegex = /(19|20)\d{2}|present|الحالي|يناير|فبراير|مارس|أبريل|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i;
+
+    for (let i = lineIdx; i < lines.length; i++) {
+      const line = lines[i];
+      const lowerLine = line.toLowerCase();
+
+      if (lowerLine === "summary" || lowerLine === "about" || line === "ملخص" || line === "نبذة" || line === "نبذة تعريفية" || line === "النبذة المهنية") {
+        currentSection = "summary";
+        continue;
+      } else if (lowerLine === "experience" || line === "الخبرة" || line === "الخبرات" || line === "الخبرات العملية") {
+        currentSection = "experience";
+        continue;
+      } else if (lowerLine === "education" || line === "التعليم" || line === "التعليم والدراسة") {
+        currentSection = "education";
+        continue;
+      } else if (lowerLine === "skills" || line === "المهارات") {
+        currentSection = "skills";
+        continue;
+      } else if (lowerLine === "certifications" || lowerLine === "honors" || line === "الشهادات" || line === "الدورات") {
+        currentSection = "certifications";
+        continue;
+      } else if (isHeader(line) && line.length < 25) {
+        currentSection = "";
+        continue;
+      }
+
+      if (currentSection === "summary") {
+        summary += (summary ? "\n" : "") + line;
+      } else if (currentSection === "skills") {
+        if (line.includes("•") || line.includes("|") || line.includes(",")) {
+          const parts = line.split(/[•|,]/).map(s => s.trim()).filter(Boolean);
+          skills.push(...parts);
+        } else {
+          skills.push(line);
+        }
+      }
+    }
+
+    // Parse experiences
+    let tempExp: any = null;
+    let inExpSection = false;
+    let expCount = 0;
+
+    for (let i = 0; i < expLines.length; i++) {
+      const line = expLines[i];
+      const lower = line.toLowerCase();
+
+      if (lower === "experience" || line === "الخبرة" || line === "الخبرات" || line === "الخبرات العملية") {
+        inExpSection = true;
+        continue;
+      }
+      if (inExpSection && (lower === "education" || line === "التعليم" || lower === "skills" || line === "المهارات" || lower === "certifications" || line === "الشهادات")) {
+        if (tempExp) experiences.push(tempExp);
+        tempExp = null;
+        inExpSection = false;
+      }
+
+      if (inExpSection) {
+        if (dateRegex.test(line) && line.length < 40) {
+          if (tempExp) {
+            tempExp.dates = line;
+          }
+        } else if (line.startsWith("-") || line.startsWith("•") || line.startsWith("*")) {
+          if (tempExp) {
+            tempExp.description += (tempExp.description ? "\n" : "") + line;
+          }
+        } else {
+          if (!tempExp || tempExp.dates) {
+            if (tempExp) experiences.push(tempExp);
+            expCount++;
+            tempExp = {
+              id: `exp-li-${expCount}-${Date.now()}`,
+              position: line,
+              company: "",
+              city: "عمان",
+              startDate: "",
+              endDate: "",
+              description: ""
+            };
+          } else {
+            if (!tempExp.company) {
+              tempExp.company = line;
+            } else {
+              if (line.includes(",") || line.length < 20) {
+                tempExp.city = line;
+              } else {
+                tempExp.description += (tempExp.description ? "\n" : "") + line;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (tempExp) experiences.push(tempExp);
+
+    // Parse Education
+    let tempEdu: any = null;
+    let inEduSection = false;
+    let eduCount = 0;
+
+    for (let i = 0; i < expLines.length; i++) {
+      const line = expLines[i];
+      const lower = line.toLowerCase();
+
+      if (lower === "education" || line === "التعليم" || line === "التعليم والدراسة") {
+        inEduSection = true;
+        continue;
+      }
+      if (inEduSection && (lower === "experience" || line === "الخبرة" || lower === "skills" || line === "المهارات" || lower === "certifications" || line === "الشهادات")) {
+        if (tempEdu) educations.push(tempEdu);
+        tempEdu = null;
+        inEduSection = false;
+      }
+
+      if (inEduSection) {
+        if (dateRegex.test(line) && line.length < 30) {
+          if (tempEdu) {
+            tempEdu.dates = line;
+          }
+        } else {
+          if (!tempEdu || tempEdu.dates) {
+            if (tempEdu) educations.push(tempEdu);
+            eduCount++;
+            tempEdu = {
+              id: `edu-li-${eduCount}-${Date.now()}`,
+              institution: line,
+              degree: "",
+              city: "عمان",
+              startDate: "",
+              endDate: "",
+              description: ""
+            };
+          } else {
+            if (!tempEdu.degree) {
+              tempEdu.degree = line;
+            } else {
+              tempEdu.description += (tempEdu.description ? "\n" : "") + line;
+            }
+          }
+        }
+      }
+    }
+    if (tempEdu) educations.push(tempEdu);
+
+    // Clean dates and details
+    experiences.forEach(exp => {
+      if (exp.dates) {
+        const parts = exp.dates.split(/[-–—]/).map((s: string) => s.trim());
+        exp.startDate = parts[0] || "";
+        exp.endDate = parts[1] || "";
+      }
+      delete exp.dates;
+    });
+
+    educations.forEach(edu => {
+      if (edu.dates) {
+        const parts = edu.dates.split(/[-–—·,()]/).map((s: string) => s.trim()).filter(Boolean);
+        edu.startDate = parts[0] || "";
+        edu.endDate = parts[1] || "";
+      }
+      delete edu.dates;
+    });
+
+    const formattedSkills = Array.from(new Set(skills))
+      .map(s => s.trim())
+      .filter(s => s.length > 1 && s.length < 30 && !isHeader(s))
+      .map((s, idx) => ({
+        id: `skill-li-${idx}-${Date.now()}`,
+        name: s,
+        level: 4
+      }));
+
+    return {
+      fullName: fullName || undefined,
+      jobTitle: jobTitle || undefined,
+      summary: summary || undefined,
+      experiences: experiences.filter(e => e.position && e.company),
+      educations: educations.filter(e => e.institution),
+      skills: formattedSkills
+    };
+  }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1198,6 +1257,68 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
           </button>
         </div>
       </form>
+
+      {/* LinkedIn Import Modal */}
+      {isLinkedInModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-2xl border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 text-right" dir="rtl">
+            {/* Modal Header */}
+            <div className="bg-navy-950 text-white p-5 flex justify-between items-center">
+              <h3 className="text-lg font-bold">⚡ استيراد السيرة الذاتية الحقيقية من LinkedIn</h3>
+              <button 
+                type="button" 
+                onClick={() => setIsLinkedInModalOpen(false)}
+                className="text-white hover:text-emerald-400 text-xl font-bold transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 leading-6">
+                <strong>💡 لماذا هذه الطريقة؟</strong> بسبب جدران الحماية الصارمة في LinkedIn وحجبها للقراءة الآلية للروابط مباشرة، قمنا بابتكار **محلل النص الذكي**! ما عليك سوى نسخ نص بروفايلك أو النص الموجود داخل ملف الـ PDF المصدر من LinkedIn ولصقه هنا ليقوم النظام بتحليل النص واستخراج كافة معلوماتك الحقيقية (الخبرات، التعليم، المهارات) فوراً وبدقة 100%!
+                <br />
+                <span className="font-semibold block mt-2">طريقة الحصول على النص:</span>
+                <ol className="list-decimal list-inside mt-1 space-y-1 text-slate-700">
+                  <li>اذهب إلى حسابك في LinkedIn.</li>
+                  <li>اضغط على زر <strong>المزيد (More...)</strong> ثم اختر <strong>حفظ كملف PDF (Save to PDF)</strong>.</li>
+                  <li>افتح الملف الناتج، اضغط <strong>Ctrl+A</strong> لتحديد النص كاملًا، ثم <strong>Ctrl+C</strong> للنسخ.</li>
+                  <li>ألصق النص المنسوخ بالكامل في المربع أدناه.</li>
+                </ol>
+              </div>
+
+              <div>
+                <label className="label text-xs">ألصق النص المنسوخ هنا:</label>
+                <textarea
+                  value={linkedInText}
+                  onChange={(e) => setLinkedInText(e.target.value)}
+                  className="input min-h-60 text-xs font-mono"
+                  placeholder="Mohammad Al-Saeed&#10;Senior Software Engineer at Mawdoo3&#10;...&#10;Experience&#10;Mawdoo3&#10;..."
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsLinkedInModalOpen(false)}
+                className="btn-outline text-xs px-4 py-2"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={handleAnalyzeLinkedInText}
+                className="btn-primary text-xs px-5 py-2"
+              >
+                تحليل واستيراد البيانات
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
