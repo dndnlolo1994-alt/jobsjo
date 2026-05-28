@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>باني ومولد السيرة الذاتية الاحترافية الفاخرة</title>
+  <!-- Cairo & Tajawal Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a5c3a;
+      --secondary: #c9a84c;
+      --text-dark: #1a1a1a;
+      --text-light: #ffffff;
+      --bg-white: #ffffff;
+      --bg-light: #f4f6f5;
+      --border-color: #e2e8f0;
+      
+      /* Dashboard Dark Theme colors */
+      --dash-bg: #0d1e15;
+      --dash-card: #142d1f;
+      --dash-input: #1a3c2a;
+      --dash-border: #225138;
+      --dash-text: #e2e8f0;
+      --dash-text-soft: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: #08120d;
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* Print settings */
+    @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      body {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .dashboard {
+        display: none !important;
+      }
+      .preview-container {
+        width: 210mm !important;
+        height: 297mm !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+      }
+      .cv-page {
+        width: 210mm !important;
+        height: 297mm !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        transform: none !important;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+      }
+      /* Ensure background colors are printed correctly */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+
+    /* Screen layout split */
+    .dashboard {
+      width: 40%;
+      min-width: 400px;
+      max-width: 500px;
+      background-color: var(--dash-bg);
+      color: var(--dash-text);
+      border-left: 1px solid var(--dash-border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .preview-container {
+      flex: 1;
+      background-color: #08120d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      overflow-y: auto;
+      height: 100vh;
+    }
+
+    /* Dashboard Header */
+    .dash-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--dash-border);
+      background-color: rgba(20, 45, 31, 0.4);
+    }
+
+    .dash-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dash-subtitle {
+      font-size: 12px;
+      color: var(--dash-text-soft);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Controls Scroll Container */
+    .dash-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Form Elements */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dash-text);
+    }
+
+    .form-input, .form-textarea, .form-select {
+      background-color: var(--dash-input);
+      border: 1px solid var(--dash-border);
+      color: var(--dash-text);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Profile Switcher Row */
+    .profile-switcher {
+      display: grid;
+      grid-template-cols: 1fr 1fr;
+      gap: 12px;
+      background-color: var(--dash-card);
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--dash-border);
+    }
+
+    .profile-btn {
+      background: transparent;
+      border: none;
+      color: var(--dash-text-soft);
+      font-family: inherit;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .profile-btn.active {
+      background-color: var(--primary);
+      color: var(--text-light);
+      box-shadow: 0 4px 12px rgba(26, 92, 58, 0.2);
+    }
+
+    /* Collapsible section cards */
+    .dash-card {
+      background-color: var(--dash-card);
+      border: 1px solid var(--dash-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--secondary);
+      border-bottom: 1px solid var(--dash-border);
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-btn {
+      background-color: var(--dash-input);
+      border: 1px solid var(--dash-border);
+      color: var(--secondary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .card-btn:hover {
+      background-color: var(--secondary);
+      color: var(--dash-bg);
+    }
+
+    /* Actions Footer */
+    .dash-footer {
+      padding: 24px;
+      border-top: 1px solid var(--dash-border);
+      background-color: rgba(20, 45, 31, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .print-btn {
+      background-color: var(--secondary);
+      color: var(--dash-bg);
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(201, 168, 76, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .print-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(201, 168, 76, 0.25);
+    }
+
+    .print-btn:active {
+      transform: translateY(0);
+    }
+
+    .photo-upload-btn {
+      background-color: transparent;
+      border: 1px dashed var(--dash-border);
+      color: var(--dash-text-soft);
+      padding: 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .photo-upload-btn:hover {
+      border-color: var(--secondary);
+      color: var(--secondary);
+    }
+
+    /* --- CV Page Container (A4 - 794px x 1123px) --- */
+    .cv-page {
+      width: 794px;
+      height: 1123px;
+      min-height: 1123px;
+      max-height: 1123px;
+      background-color: var(--bg-white);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-sizing: border-box;
+      transform-origin: center center;
+    }
+
+    /* CV Header */
+    .cv-header {
+      background-color: var(--primary);
+      height: 160px;
+      min-height: 160px;
+      padding: 0 40px;
+      display: flex;
+      flex-direction: row-reverse; /* Force RTL positioning */
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-light);
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    /* double gold/white photo frame */
+    .header-photo-wrapper {
+      width: 104px;
+      height: 104px;
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      flex-shrink: 0;
+      box-sizing: border-box;
+    }
+
+    .header-photo-inner {
+      width: 96px;
+      height: 96px;
+      border: 3px solid var(--bg-white);
+      border-radius: 50%;
+      background-color: var(--bg-white);
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      box-sizing: border-box;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+      flex-grow: 1;
+      padding-right: 20px;
+    }
+
+    .header-text h1 {
+      font-size: 32px;
+      font-weight: 800;
+      font-family: 'Cairo', sans-serif;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+
+    .header-text p.title {
+      font-size: 16px;
+      color: var(--secondary);
+      font-weight: 700;
+      margin-top: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    /* CV Body */
+    .cv-body {
+      flex: 1;
+      display: flex;
+      flex-direction: row; /* Flex direction defaults to RTL layout natively in dir="rtl" */
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    /* Main Content (Right column, 70% width) */
+    .cv-main {
+      width: 70%;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow: hidden;
+      background-color: var(--bg-white);
+      box-sizing: border-box;
+    }
+
+    /* Sidebar Content (Left column, 30% width) */
+    .cv-sidebar {
+      width: 30%;
+      background-color: var(--primary);
+      color: var(--text-light);
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow: hidden;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      box-sizing: border-box;
+    }
+
+    /* Sections */
+    .cv-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-sizing: border-box;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background-color: var(--secondary);
+      opacity: 0.4;
+      margin-bottom: 4px;
+    }
+
+    .summary-text {
+      font-size: 11px;
+      line-height: 1.6;
+      text-align: justify;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    /* Timeline Experience/Education Styles */
+    .timeline-container {
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .timeline-line {
+      position: absolute;
+      right: 95px; /* Aligns exactly with the dot center */
+      top: 6px;
+      bottom: 6px;
+      width: 1px;
+      background-color: var(--secondary);
+      opacity: 0.4;
+      z-index: 1;
+    }
+
+    .timeline-item {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      position: relative;
+      margin-bottom: 14px;
+      z-index: 2;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-date {
+      width: 80px;
+      text-align: left;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--primary);
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot-wrapper {
+      width: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 3px;
+      flex-shrink: 0;
+    }
+
+    .timeline-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--secondary);
+      border: 1.5px solid var(--bg-white);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .timeline-content {
+      flex: 1;
+      text-align: right;
+    }
+
+    .timeline-heading {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .timeline-subheading {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #555555;
+      margin-top: 2px;
+    }
+
+    .timeline-desc {
+      font-size: 9px;
+      line-height: 1.5;
+      color: #666666;
+      margin-top: 6px;
+      text-align: justify;
+      list-style-type: none;
+    }
+
+    .timeline-desc li {
+      position: relative;
+      padding-right: 10px;
+      margin-bottom: 3px;
+    }
+
+    .timeline-desc li::before {
+      content: "•";
+      position: absolute;
+      right: 0;
+      color: var(--secondary);
+      font-weight: 800;
+    }
+
+    /* Skills Grid Table */
+    .skills-grid {
+      display: grid;
+      grid-template-cols: 1fr 1fr;
+      gap: 8px 16px;
+      box-sizing: border-box;
+    }
+
+    .skill-grid-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(26, 92, 58, 0.1);
+      padding-bottom: 4px;
+      font-size: 10.5px;
+    }
+
+    .skill-grid-name {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .skill-grid-val {
+      font-weight: 600;
+      color: #555555;
+    }
+
+    /* Sidebar sections */
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-sizing: border-box;
+    }
+
+    .sidebar-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-divider {
+      width: 100%;
+      height: 1px;
+      background-color: var(--bg-white);
+      opacity: 0.2;
+      margin-bottom: 2px;
+    }
+
+    /* Contact info list */
+    .contact-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .contact-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 10px;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .contact-list .icon {
+      width: 20px;
+      height: 20px;
+      background-color: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar Education / qualifications list */
+    .sidebar-edu-item {
+      margin-bottom: 8px;
+    }
+
+    .sidebar-edu-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .sidebar-edu-title {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--text-light);
+    }
+
+    .sidebar-edu-sub {
+      font-size: 9px;
+      color: var(--secondary);
+      margin-top: 1.5px;
+      font-weight: 700;
+    }
+
+    /* Skills progress bars */
+    .skills-bars-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .skill-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .skill-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .skill-bar-track {
+      width: 100%;
+      height: 4px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .skill-bar-active {
+      height: 100%;
+      background-color: var(--secondary);
+      border-radius: 2px;
+      width: 0; /* Animated dynamically */
+      transition: width 1s cubic-bezier(0.1, 0.8, 0.25, 1);
+    }
+
+    /* Certifications list */
+    .sidebar-certs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sidebar-cert-item {
+      font-size: 10px;
+      padding: 6px 8px;
+      background-color: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      font-weight: 600;
+      color: var(--dash-text);
+    }
+
+    /* Sidebar QR Footer */
+    .sidebar-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 16px;
+    }
+
+    .qr-wrapper {
+      background-color: var(--bg-white);
+      padding: 4px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .qr-img {
+      width: 76px;
+      height: 76px;
+    }
+
+    .qr-label {
+      font-size: 8.5px;
+      color: var(--secondary);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* Responsive scaling for viewport */
+    @media (max-width: 1200px) {
+      body {
+        flex-direction: column;
+      }
+      .dashboard {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        position: static;
+      }
+      .preview-container {
+        height: auto;
+        padding: 20px 10px;
+      }
+      .cv-page {
+        transform: scale(0.9);
+        margin: -50px 0;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .cv-page {
+        transform: scale(0.75);
+        margin: -120px 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .cv-page {
+        transform: scale(0.5);
+        margin: -240px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls Panel (Left Pane) -->
+  <div class="dashboard">
+    <div class="dash-header">
+      <div class="dash-title">
+        <span>⚡</span>
+        <span>باني السيرة الذاتية الفاخرة</span>
+      </div>
+      <div class="dash-subtitle">تعديل حي وتوليد فوري كـ PDF بأعلى معايير الجودة</div>
+    </div>
+
+    <div class="dash-body">
+      <!-- Profile Switcher -->
+      <div class="form-group">
+        <label class="form-label">اختر الملف التعريفي الجاهز:</label>
+        <div class="profile-switcher">
+          <button type="button" class="profile-btn active" id="btnShamaileh" onclick="loadProfile('shamaileh')">محمد الشمايلة</button>
+          <button type="button" class="profile-btn" id="btnHashimi" onclick="loadProfile('hashimi')">أحمد الهاشمي</button>
+        </div>
+      </div>
+
+      <!-- Basic Info -->
+      <div class="dash-card">
+        <div class="card-title">البيانات الأساسية</div>
+        <div class="form-group">
+          <label class="form-label">الاسم الكامل</label>
+          <input type="text" class="form-input" id="inputName" oninput="updateLiveView()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">المسمى الوظيفي</label>
+          <input type="text" class="form-input" id="inputJobTitle" oninput="updateLiveView()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">رابط الصورة الشخصية (اختياري)</label>
+          <button type="button" class="photo-upload-btn" onclick="triggerPhotoUpload()">📤 رفع صورة من جهازك</button>
+          <input type="file" id="filePhotoUpload" accept="image/*" style="display:none;" onchange="handleLocalPhoto(event)" />
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="dash-card">
+        <div class="card-title">معلومات الاتصال</div>
+        <div class="form-group">
+          <label class="form-label">البريد الإلكتروني</label>
+          <input type="email" class="form-input" id="inputEmail" oninput="updateLiveView()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">رقم الهاتف</label>
+          <input type="text" class="form-input" id="inputPhone" placeholder="اتركه فارغاً للإخفاء" oninput="updateLiveView()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">الموقع / المدينة</label>
+          <input type="text" class="form-input" id="inputLocation" oninput="updateLiveView()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">رابط LinkedIn</label>
+          <input type="text" class="form-input" id="inputLinkedin" placeholder="اتركه فارغاً للإخفاء" oninput="updateLiveView()" />
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="dash-card">
+        <div class="card-title">الملخص المهني</div>
+        <div class="form-group">
+          <textarea class="form-textarea" id="textareaSummary" oninput="updateLiveView()"></textarea>
+        </div>
+      </div>
+
+      <!-- Experience JSON List -->
+      <div class="dash-card">
+        <div class="card-title">
+          <span>الخبرات العملية</span>
+        </div>
+        <div id="experienceInputsList" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Dynamically populated edit fields -->
+        </div>
+      </div>
+
+      <!-- Education JSON List -->
+      <div class="dash-card">
+        <div class="card-title">
+          <span>التعليم والدراسة</span>
+        </div>
+        <div id="educationInputsList" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Dynamically populated edit fields -->
+        </div>
+      </div>
+
+      <!-- Skills List -->
+      <div class="dash-card">
+        <div class="card-title">
+          <span>المهارات (النسب المئوية)</span>
+        </div>
+        <div id="skillsInputsList" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Dynamically populated skills -->
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-footer">
+      <button type="button" class="print-btn" onclick="window.print()">
+        <span>📥</span>
+        <span>تحميل وطباعة السيرة الذاتية PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Preview Panel (Right Pane) -->
+  <div class="preview-container">
+    <div class="cv-page" id="cvPage">
+      <!-- Header -->
+      <div class="cv-header">
+        <div class="header-photo-wrapper">
+          <div class="header-photo-inner" id="cvPhoto"></div>
+        </div>
+        <div class="header-text">
+          <h1 id="cvName">محمد الشمايلة</h1>
+          <p class="title" id="cvJobTitle">لوجستيك</p>
+        </div>
+      </div>
+
+      <!-- Body: two columns -->
+      <div class="cv-body">
+        <!-- Main Column (Right, 70% width) -->
+        <div class="cv-main">
+          <section class="cv-section">
+            <h2 class="section-title">ملخص احترافي</h2>
+            <div class="section-divider"></div>
+            <p class="summary-text" id="cvSummary">
+              مهني طموح ومنظم أمتلك شغفاً كبيراً للتطور في مجال عملي. أتمتع بمهارات اتصال وتواصل ممتازة وقدرة على التكيف في بيئات العمل المختلفة والعمل بروح الفريق لتحقيق الأهداف التنظيمية.
+            </p>
+          </section>
+
+          <section class="cv-section">
+            <h2 class="section-title">الخبرة المهنية</h2>
+            <div class="section-divider"></div>
+            <div class="timeline-container">
+              <div class="timeline-line"></div>
+              <div id="cvExperiences">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+          </section>
+
+          <section class="cv-section">
+            <h2 class="section-title">التعليم</h2>
+            <div class="section-divider"></div>
+            <div class="timeline-container">
+              <div class="timeline-line" style="right:95px;"></div>
+              <div id="cvEducations">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+          </section>
+
+          <section class="cv-section">
+            <h2 class="section-title">المهارات الرئيسية</h2>
+            <div class="section-divider"></div>
+            <div class="skills-grid" id="cvSkillsGrid">
+              <!-- Injected dynamically -->
+            </div>
+          </section>
+        </div>
+
+        <!-- Sidebar Column (Left, 30% width) -->
+        <div class="cv-sidebar">
+          <section class="sidebar-section">
+            <h3 class="sidebar-title">الاتصال</h3>
+            <div class="sidebar-divider"></div>
+            <ul class="contact-list">
+              <li id="contactPhoneContainer">
+                <span class="icon">📞</span>
+                <span id="cvPhone">07XXXXXXXX</span>
+              </li>
+              <li id="contactEmailContainer">
+                <span class="icon">✉</span>
+                <span id="cvEmail">dndnlolo1994@gmail.com</span>
+              </li>
+              <li id="contactLocationContainer">
+                <span class="icon">📍</span>
+                <span id="cvLocation">اربد، الأردن</span>
+              </li>
+              <li id="contactLinkedinContainer">
+                <span class="icon">🔗</span>
+                <span id="cvLinkedin">-</span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="sidebar-section" id="sidebarCertsSection">
+            <h3 class="sidebar-title">الشهادات</h3>
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-certs-list" id="cvCerts">
+              <!-- Injected dynamically -->
+            </div>
+          </section>
+
+          <section class="sidebar-section" id="sidebarSkillsSection">
+            <h3 class="sidebar-title">تقييم المهارات</h3>
+            <div class="sidebar-divider"></div>
+            <div class="skills-bars-list" id="cvSkillsBars">
+              <!-- Injected dynamically -->
+            </div>
+          </section>
+
+          <div class="sidebar-footer">
+            <div class="qr-wrapper">
+              <img class="qr-img" id="cvQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=80&data=https://jojobs-os.vercel.app" alt="QR Code" />
+            </div>
+            <span class="qr-label">مسح للتحقق من السيرة</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Profile database
+    const profiles = {
+      shamaileh: {
+        name: "محمد الشمايلة",
+        jobTitle: "لوجستيك",
+        email: "dndnlolo1994@gmail.com",
+        phone: "",
+        location: "اربد، الأردن",
+        linkedin: "",
+        summary: "مهني طموح ومنظم أمتلك شغفاً كبيراً للتطور في مجال عملي. أتمتع بمهارات اتصال وتواصل ممتازة وقدرة على التكيف في بيئات العمل المختلفة والعمل بروح الفريق لتحقيق الأهداف التنظيمية.",
+        photo: "",
+        experiences: [
+          {
+            position: "لوجستيك",
+            company: "شركة أردنية رائدة في القطاع الخاص",
+            city: "عمان",
+            period: "08/2023 - حتى الآن",
+            tasks: [
+              "أداء المهام والمسؤوليات الرئيسية المرتبطة بالوظيفة والمحافظة على معايير الجودة",
+              "التعاون مع الأقسام المختلفة لإنجاز المشاريع بكفاءة وفي الوقت المحدد",
+              "تقديم تقارير دورية للإدارة حول الإنجازات وسير العمل"
+            ]
+          },
+          {
+            position: "مساعد لوجستيك",
+            company: "مؤسسة تجارية محلية",
+            city: "إربد",
+            period: "01/2022 - 07/2023",
+            tasks: [
+              "دعم العمليات اليومية وتنسيق الأنشطة داخل القسم",
+              "إعداد وتوثيق المستندات وحفظ السجلات بشكل منظم",
+              "المساعدة في خدمة العملاء وحل المشكلات البسيطة"
+            ]
+          }
+        ],
+        educations: [
+          {
+            degree: "بكالوريوس في إدارة الأعمال",
+            institution: "الجامعة الأردنية",
+            city: "عمان",
+            period: "2018 - 2022",
+            desc: "التقدير: ممتاز"
+          }
+        ],
+        skills: [
+          { name: "الاتصال والتواصل الفعال", level: 90 },
+          { name: "حل المشكلات واتخاذ القرار", level: 85 },
+          { name: "العمل الجماعي والتعاون", level: 90 },
+          { name: "إدارة الوقت وتنظيم المهام", level: 80 }
+        ],
+        certifications: []
+      },
+      hashimi: {
+        name: "أحمد خالد الهاشمي",
+        jobTitle: "مستشار مالي وتنفيذي",
+        email: "email@example.com",
+        phone: "050 123 4567",
+        location: "Dubai, UAE",
+        linkedin: "linkedin.com/in/ahmedalhashhimi",
+        summary: "تتميز بكالوريوس الأعمال الاحترافية بإدارة الأجندة الأجزاء المهارات التفاوت والتشبيك، محلية والتقليدية، سيرة الملازمات على مافلت زمنتنة المالية والخبرة، ودعم المعامل مستشار المالي باستثناء الممتلكة وامتقوية من المهارات الأساسية.",
+        photo: "",
+        experiences: [
+          {
+            position: "أحمد خالد الهاشمي",
+            company: "الشركة الحوانية – 2021",
+            city: "الرياض",
+            period: "2021 - Present",
+            tasks: [
+              "إدارة وتوجيه الاستشارات المالية للمجموعات والشركات وتأمين أرباح ثابتة",
+              "تطبيق استراتيجيات الاستثمار المالي وإعداد التقارير السنوية بدقة"
+            ]
+          },
+          {
+            position: "أحمد خالد الهاشمي",
+            company: "الدوحة الشركة – 2021",
+            city: "دبي / الرياض",
+            period: "2021",
+            tasks: [
+              "تخطيط وهندسة عمليات الدمج والصفقات الاستثمارية المعقدة في الخليج"
+            ]
+          }
+        ],
+        educations: [
+          {
+            degree: "بكالوريوس في إدارة الأعمال (التمويل)",
+            institution: "الجامعة الأمريكية في الشارقة",
+            city: "الشارقة",
+            period: "2017 - 2021",
+            desc: "GPA: 3.9/4.0"
+          }
+        ],
+        skills: [
+          { name: "العربية/العربية", level: 100 },
+          { name: "القيادة", level: 85 },
+          { name: "التحليل المالي", level: 90 },
+          { name: "Microsoft Excel", level: 95 }
+        ],
+        certifications: [
+          { name: "CMA (Certified Management Accountant)" },
+          { name: "PMP (Project Management Professional)" }
+        ]
+      }
+    };
+
+    let activeProfile = "shamaileh";
+    let currentData = JSON.parse(JSON.stringify(profiles.shamaileh));
+
+    // Default SVG avatar
+    const defaultAvatarSvg = "data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/><text y=%22.9em%22 font-size=%2280%22>👤</text></svg>";
+
+    // Initialize Page
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProfile('shamaileh');
+    });
+
+    // Switch profile data
+    function loadProfile(key) {
+      activeProfile = key;
+      currentData = JSON.parse(JSON.stringify(profiles[key]));
+      
+      // Update toggle buttons class
+      document.getElementById('btnShamaileh').classList.toggle('active', key === 'shamaileh');
+      document.getElementById('btnHashimi').classList.toggle('active', key === 'hashimi');
+
+      // Populate basic inputs
+      document.getElementById('inputName').value = currentData.name;
+      document.getElementById('inputJobTitle').value = currentData.jobTitle;
+      document.getElementById('inputEmail').value = currentData.email;
+      document.getElementById('inputPhone').value = currentData.phone;
+      document.getElementById('inputLocation').value = currentData.location;
+      document.getElementById('inputLinkedin').value = currentData.linkedin;
+      document.getElementById('textareaSummary').value = currentData.summary;
+
+      // Populate experiences editor
+      renderExperiencesEditor();
+      // Populate educations editor
+      renderEducationsEditor();
+      // Populate skills editor
+      renderSkillsEditor();
+
+      // Trigger live view update
+      updateLiveView();
+    }
+
+    // Render Experience edit list in dashboard
+    function renderExperiencesEditor() {
+      const listEl = document.getElementById('experienceInputsList');
+      listEl.innerHTML = '';
+      currentData.experiences.forEach((exp, idx) => {
+        const itemHtml = `
+          <div style="background-color: var(--dash-input); padding: 12px; border-radius: 8px; border: 1px solid var(--dash-border); display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:11px; font-weight:700; color:var(--secondary);">الخبرة #${idx + 1}</div>
+            <div class="form-group">
+              <label class="form-label">المسمى الوظيفي</label>
+              <input type="text" class="form-input" value="${exp.position}" oninput="updateExpValue(${idx}, 'position', this.value)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">الشركة</label>
+              <input type="text" class="form-input" value="${exp.company}" oninput="updateExpValue(${idx}, 'company', this.value)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">الفترة</label>
+              <input type="text" class="form-input" value="${exp.period}" oninput="updateExpValue(${idx}, 'period', this.value)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">الموقع</label>
+              <input type="text" class="form-input" value="${exp.city}" oninput="updateExpValue(${idx}, 'city', this.value)" />
+            </div>
+          </div>
+        `;
+        listEl.insertAdjacentHTML('beforeend', itemHtml);
+      });
+    }
+
+    // Render Education edit list in dashboard
+    function renderEducationsEditor() {
+      const listEl = document.getElementById('educationInputsList');
+      listEl.innerHTML = '';
+      currentData.educations.forEach((edu, idx) => {
+        const itemHtml = `
+          <div style="background-color: var(--dash-input); padding: 12px; border-radius: 8px; border: 1px solid var(--dash-border); display:flex; flex-direction:column; gap:8px;">
+            <div style="font-size:11px; font-weight:700; color:var(--secondary);">التعليم #${idx + 1}</div>
+            <div class="form-group">
+              <label class="form-label">الشهادة / الدرجة العلمية</label>
+              <input type="text" class="form-input" value="${edu.degree}" oninput="updateEduValue(${idx}, 'degree', this.value)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">الجامعة / المؤسسة</label>
+              <input type="text" class="form-input" value="${edu.institution}" oninput="updateEduValue(${idx}, 'institution', this.value)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">الفترة</label>
+              <input type="text" class="form-input" value="${edu.period}" oninput="updateEduValue(${idx}, 'period', this.value)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">المعدل / تفاصيل</label>
+              <input type="text" class="form-input" value="${edu.desc || ''}" oninput="updateEduValue(${idx}, 'desc', this.value)" />
+            </div>
+          </div>
+        `;
+        listEl.insertAdjacentHTML('beforeend', itemHtml);
+      });
+    }
+
+    // Render Skills progress edit list in dashboard
+    function renderSkillsEditor() {
+      const listEl = document.getElementById('skillsInputsList');
+      listEl.innerHTML = '';
+      currentData.skills.forEach((skill, idx) => {
+        const itemHtml = `
+          <div style="display:grid; grid-template-cols: 1fr 80px; gap:10px; align-items:center;">
+            <input type="text" class="form-input" value="${skill.name}" oninput="updateSkillValue(${idx}, 'name', this.value)" />
+            <input type="number" class="form-input" value="${skill.level}" min="0" max="100" oninput="updateSkillValue(${idx}, 'level', this.value)" />
+          </div>
+        `;
+        listEl.insertAdjacentHTML('beforeend', itemHtml);
+      });
+    }
+
+    // Helper updates in dashboard inputs
+    function updateExpValue(idx, field, value) {
+      currentData.experiences[idx][field] = value;
+      updateLiveView();
+    }
+
+    function updateEduValue(idx, field, value) {
+      currentData.educations[idx][field] = value;
+      updateLiveView();
+    }
+
+    function updateSkillValue(idx, field, value) {
+      if (field === 'level') {
+        currentData.skills[idx][field] = parseInt(value) || 0;
+      } else {
+        currentData.skills[idx][field] = value;
+      }
+      updateLiveView();
+    }
+
+    // Trigger Photo Upload Picker
+    function triggerPhotoUpload() {
+      document.getElementById('filePhotoUpload').click();
+    }
+
+    // Handle Local Image File
+    function handleLocalPhoto(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentData.photo = e.target.result;
+          updateLiveView();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Live update the CV A4 HTML Preview
+    function updateLiveView() {
+      // Basic values
+      const nameVal = document.getElementById('inputName').value;
+      const jobTitleVal = document.getElementById('inputJobTitle').value;
+      const emailVal = document.getElementById('inputEmail').value;
+      const phoneVal = document.getElementById('inputPhone').value;
+      const locationVal = document.getElementById('inputLocation').value;
+      const linkedinVal = document.getElementById('inputLinkedin').value;
+      const summaryVal = document.getElementById('textareaSummary').value;
+
+      document.getElementById('cvName').textContent = nameVal || 'الاسم الكامل';
+      document.getElementById('cvJobTitle').textContent = jobTitleVal || 'المسمى المهني';
+      document.getElementById('cvSummary').textContent = summaryVal || 'الملخص المهني...';
+
+      // Photo
+      const photoEl = document.getElementById('cvPhoto');
+      if (currentData.photo) {
+        photoEl.style.backgroundImage = `url('${currentData.photo}')`;
+      } else {
+        photoEl.style.backgroundImage = `url('${defaultAvatarSvg}')`;
+      }
+
+      // Contact visibility logic
+      document.getElementById('cvEmail').textContent = emailVal;
+      document.getElementById('cvLocation').textContent = locationVal;
+
+      const phoneCont = document.getElementById('contactPhoneContainer');
+      if (phoneVal) {
+        document.getElementById('cvPhone').textContent = phoneVal;
+        phoneCont.style.display = 'flex';
+      } else {
+        phoneCont.style.display = 'none';
+      }
+
+      const linkedinCont = document.getElementById('contactLinkedinContainer');
+      if (linkedinVal) {
+        document.getElementById('cvLinkedin').textContent = linkedinVal;
+        linkedinCont.style.display = 'flex';
+      } else {
+        linkedinCont.style.display = 'none';
+      }
+
+      // QR Code update dynamically
+      const qrEl = document.getElementById('cvQrCode');
+      qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=80&data=mailto:${encodeURIComponent(emailVal)}?subject=CV%20Contact`;
+
+      // Render Work Experiences Timeline
+      const expsCont = document.getElementById('cvExperiences');
+      expsCont.innerHTML = '';
+      currentData.experiences.forEach((exp) => {
+        let tasksHtml = '';
+        if (exp.tasks && exp.tasks.length > 0) {
+          tasksHtml = `<ul class="timeline-desc">` + exp.tasks.map(t => `<li>${t}</li>`).join('') + `</ul>`;
+        }
+        
+        const itemHtml = `
+          <div class="timeline-item">
+            <div class="timeline-date">${exp.period}</div>
+            <div class="timeline-dot-wrapper">
+              <div class="timeline-dot"></div>
+            </div>
+            <div class="timeline-content">
+              <h4 class="timeline-heading">${exp.position}</h4>
+              <div class="timeline-subheading">${exp.company} ${exp.city ? `• ${exp.city}` : ''}</div>
+              ${tasksHtml}
+            </div>
+          </div>
+        `;
+        expsCont.insertAdjacentHTML('beforeend', itemHtml);
+      });
+
+      // Render Educations Timeline
+      const edusCont = document.getElementById('cvEducations');
+      edusCont.innerHTML = '';
+      currentData.educations.forEach((edu) => {
+        const itemHtml = `
+          <div class="timeline-item">
+            <div class="timeline-date">${edu.period}</div>
+            <div class="timeline-dot-wrapper">
+              <div class="timeline-dot"></div>
+            </div>
+            <div class="timeline-content">
+              <h4 class="timeline-heading">${edu.degree}</h4>
+              <div class="timeline-subheading">${edu.institution} ${edu.city ? `• ${edu.city}` : ''}</div>
+              ${edu.desc ? `<p class="timeline-desc" style="margin-top:4px; font-weight:700;">${edu.desc}</p>` : ''}
+            </div>
+          </div>
+        `;
+        edusCont.insertAdjacentHTML('beforeend', itemHtml);
+      });
+
+      // Render Skills Table (Grid in main column)
+      const gridCont = document.getElementById('cvSkillsGrid');
+      gridCont.innerHTML = '';
+      currentData.skills.forEach((skill) => {
+        const gridHtml = `
+          <div class="skill-grid-item">
+            <span class="skill-grid-name">${skill.name}</span>
+            <span class="skill-grid-val">${skill.level}%</span>
+          </div>
+        `;
+        gridCont.insertAdjacentHTML('beforeend', gridHtml);
+      });
+
+      // Render Certifications Section (Sidebar)
+      const certsSection = document.getElementById('sidebarCertsSection');
+      const certsCont = document.getElementById('cvCerts');
+      certsCont.innerHTML = '';
+      if (currentData.certifications && currentData.certifications.length > 0) {
+        currentData.certifications.forEach((cert) => {
+          const certHtml = `<div class="sidebar-cert-item">${cert.name}</div>`;
+          certsCont.insertAdjacentHTML('beforeend', certHtml);
+        });
+        certsSection.style.display = 'flex';
+      } else {
+        certsSection.style.display = 'none';
+      }
+
+      // Render Skills Progress Bars (Sidebar)
+      const barsCont = document.getElementById('cvSkillsBars');
+      barsCont.innerHTML = '';
+      currentData.skills.forEach((skill) => {
+        const barHtml = `
+          <div class="skill-bar-item">
+            <div class="skill-bar-label">
+              <span>${skill.name}</span>
+              <span>${skill.level}%</span>
+            </div>
+            <div class="skill-bar-track">
+              <div class="skill-bar-active" style="width: ${skill.level}%;"></div>
+            </div>
+          </div>
+        `;
+        barsCont.insertAdjacentHTML('beforeend', barHtml);
+      });
+    }
+  </script>
+</body>
+</html>
