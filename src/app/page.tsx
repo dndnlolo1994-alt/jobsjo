@@ -63,6 +63,9 @@ export default async function HomePage() {
               <Stat label="شركات" value={stats.companies.toLocaleString("ar-JO")} />
               <Stat label="طلبات تقديم" value={stats.applications.toLocaleString("ar-JO")} />
             </div>
+            <p className="text-[10px] text-navy-300 mt-4 font-semibold text-center sm:text-right opacity-80">
+              ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة
+            </p>
           </div>
 
           {/* Left Column: Dedicated Jordanian Workspace Image */}
