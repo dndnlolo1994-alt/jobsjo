@@ -1,4 +1,10 @@
 // مركزية للوصول لمتغيرات البيئة بأمان
+
+/** Strip BOM and whitespace from env values */
+function clean(value: string): string {
+  return value.replace(/^\uFEFF/, "").trim();
+}
+
 function required(name: string, fallback?: string): string {
   const v = process.env[name] ?? fallback;
   if (!v) {
@@ -7,12 +13,12 @@ function required(name: string, fallback?: string): string {
     }
     return "";
   }
-  return v;
+  return clean(v);
 }
 
 export const env = {
   DATABASE_URL: required("DATABASE_URL", "postgresql://localhost:5432/jojobs"),
-  SITE_URL: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  SITE_URL: clean(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME ?? "جوبز الأردن",
   SESSION_PASSWORD: required(
     "SESSION_PASSWORD",
