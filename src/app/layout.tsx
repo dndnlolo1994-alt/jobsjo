@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { MobileNav } from "@/components/MobileNav";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.SITE_URL),
@@ -72,6 +73,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <NextTopLoader
+          color="#10b981"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #10b981,0 0 5px #10b981"
+        />
         <div className="min-h-screen flex flex-col pb-16 md:pb-0">
           <Header />
           <main className="flex-1">{children}</main>

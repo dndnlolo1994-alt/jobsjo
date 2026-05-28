@@ -24,6 +24,7 @@
     "dotenv": "^17.4.2",
     "iron-session": "^8.0.4",
     "next": "^15.5.18",
+    "nextjs-toploader": "^3.9.17",
     "nodemailer": "^8.0.9",
     "qrcode": "^1.5.4",
     "react": "^19.2.6",
