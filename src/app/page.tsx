@@ -40,7 +40,10 @@ export default async function HomePage() {
           <div className="lg:col-span-7 flex flex-col justify-center order-2 lg:order-1">
             <Badge className="bg-sand-400 text-navy-900 mb-4 w-fit">منصة الأردن للوظائف</Badge>
             <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight max-w-2xl">
-              وظائف الأردن القريبة منك — وقدّم بسيرة ذاتية جاهزة
+              وظائف الأردن القريبة منك
+              <span className="block text-emerald-400 mt-1 text-xl sm:text-3xl font-bold">
+                وقدّم بسيرة ذاتية جاهزة
+              </span>
             </h1>
             <p className="text-navy-100 mt-4 sm:text-lg max-w-2xl">
               منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF،
