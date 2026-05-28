@@ -41,10 +41,10 @@ export function JobCard({ job, matchScore }: Props) {
       : job.salaryText || "غير محدد";
 
   const cardClasses = [
-    "block rounded-2xl border bg-white/95 p-4 sm:p-5 transition-all duration-200 relative group overflow-hidden shadow-sm hover:-translate-y-0.5 hover:shadow-lg",
+    "block rounded-2xl border p-4 sm:p-5 transition-all duration-200 relative group overflow-hidden shadow-[0_12px_34px_rgba(15,23,42,0.06)] hover:-translate-y-0.5 hover:shadow-[0_18px_46px_rgba(15,23,42,0.11)]",
     job.featured
-      ? "border-amber-200/80 hover:border-amber-300"
-      : "border-slate-200 hover:border-emerald-200",
+      ? "border-amber-300/80 bg-gradient-to-l from-white via-white to-amber-50/80 hover:border-amber-400"
+      : "border-emerald-100 bg-gradient-to-l from-white via-white to-emerald-50/70 hover:border-emerald-300",
   ].join(" ");
 
   return (
@@ -56,7 +56,7 @@ export function JobCard({ job, matchScore }: Props) {
       }`} />
 
       <div className="flex items-start gap-3 sm:gap-4 pt-1">
-        <div className="shrink-0 w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/80 grid place-items-center text-navy-700 font-extrabold shadow-sm overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
+        <div className="shrink-0 w-12 h-12 rounded-2xl bg-navy-950 border border-emerald-400/20 grid place-items-center text-white font-extrabold shadow-md shadow-navy-950/10 overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
           {job.company?.logoUrl ? (
             <img
               src={job.company.logoUrl}
@@ -64,7 +64,7 @@ export function JobCard({ job, matchScore }: Props) {
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-navy-700 text-lg">{companyName.slice(0, 1)}</span>
+            <span className="text-white text-lg">{companyName.slice(0, 1)}</span>
           )}
         </div>
 
@@ -92,7 +92,7 @@ export function JobCard({ job, matchScore }: Props) {
             </div>
 
             {job.publishedAt && (
-              <div className="hidden shrink-0 rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-navy-500 sm:block">
+              <div className="hidden shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-navy-500 sm:block">
                 {formatRelativeArabic(job.publishedAt)}
               </div>
             )}

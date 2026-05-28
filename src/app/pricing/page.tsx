@@ -126,7 +126,7 @@ export default function PricingPage() {
                 className={`rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative h-full ${
                   plan.highlight
                     ? "bg-[#0f1a2a] text-white shadow-xl border border-emerald-500/25 scale-[1.01] hover:scale-[1.02]"
-                    : "bg-white/95 border border-white/15 shadow-sm hover:shadow-md"
+                    : "bg-white/10 text-white border border-white/15 shadow-sm hover:bg-white/[0.14] hover:shadow-md"
                 }`}
               >
                 {plan.highlight && (
@@ -135,23 +135,23 @@ export default function PricingPage() {
                   </span>
                 )}
                 <div>
-                  <h3 className={`text-base sm:text-lg font-bold ${plan.highlight ? "text-emerald-400" : "text-slate-900"}`}>{plan.name}</h3>
-                  <p className={`text-xs mt-1.5 leading-relaxed ${plan.highlight ? "text-slate-300" : "text-slate-500"}`}>{plan.description}</p>
+                  <h3 className={`text-base sm:text-lg font-bold ${plan.highlight ? "text-emerald-400" : "text-white"}`}>{plan.name}</h3>
+                  <p className={`text-xs mt-1.5 leading-relaxed ${plan.highlight ? "text-slate-300" : "text-slate-300"}`}>{plan.description}</p>
                   
                   <div className="my-4 flex items-baseline gap-1">
                     <span className="text-2xl sm:text-3xl font-extrabold">{plan.price}</span>
-                    <span className={`text-xs ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>/ {plan.period}</span>
+                    <span className={`text-xs ${plan.highlight ? "text-slate-400" : "text-slate-300"}`}>/ {plan.period}</span>
                   </div>
 
                   <ul className="space-y-2.5 border-t border-slate-100/10 pt-4">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex gap-2 items-start text-xs sm:text-sm">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
-                          plan.highlight ? "bg-emerald-600/20 text-emerald-400" : "bg-emerald-50 text-emerald-600"
+                          plan.highlight ? "bg-emerald-600/20 text-emerald-400" : "bg-emerald-400/15 text-emerald-300"
                         }`}>
                           ✓
                         </span>
-                        <span className={plan.highlight ? "text-slate-200" : "text-slate-700"}>{feature}</span>
+                        <span className={plan.highlight ? "text-slate-200" : "text-slate-100"}>{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -163,7 +163,7 @@ export default function PricingPage() {
                     className={`w-full text-center py-2.5 px-4 rounded-xl text-xs font-bold block transition-all active:scale-[0.98] ${
                       plan.highlight
                         ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/10"
-                        : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+                        : "bg-white hover:bg-slate-100 text-slate-950"
                     }`}
                   >
                     {plan.cta}

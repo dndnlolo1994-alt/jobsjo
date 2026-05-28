@@ -22,10 +22,10 @@ export function JobFilters() {
   return (
     <form
       action={apply}
-      className="sticky top-24 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm space-y-3"
+      className="sticky top-24 rounded-2xl border border-emerald-400/15 bg-slate-950 p-4 shadow-xl shadow-slate-950/10 space-y-3"
     >
       <div>
-        <label className="label">بحث</label>
+        <label className="label text-white">بحث</label>
         <input
           name="q"
           defaultValue={params.get("q") ?? ""}
@@ -35,7 +35,7 @@ export function JobFilters() {
       </div>
 
       <div>
-        <label className="label">المدينة</label>
+        <label className="label text-white">المدينة</label>
         <select name="city" defaultValue={params.get("city") ?? ""} className="input h-11 text-sm">
           <option value="">جميع المدن</option>
           {JORDAN_CITIES.map((c) => (
@@ -45,12 +45,12 @@ export function JobFilters() {
       </div>
 
       <div>
-        <label className="label">المنطقة</label>
+        <label className="label text-white">المنطقة</label>
         <input name="area" defaultValue={params.get("area") ?? ""} className="input h-11 text-sm" placeholder="مثال: الحي الشرقي" />
       </div>
 
       <div>
-        <label className="label">نوع الدوام</label>
+        <label className="label text-white">نوع الدوام</label>
         <select name="jobType" defaultValue={params.get("jobType") ?? ""} className="input h-11 text-sm">
           <option value="">الكل</option>
           {Object.entries(JOB_TYPE_LABEL).map(([k, v]) => (
@@ -60,7 +60,7 @@ export function JobFilters() {
       </div>
 
       <div>
-        <label className="label">التصنيف</label>
+        <label className="label text-white">التصنيف</label>
         <select name="category" defaultValue={params.get("category") ?? ""} className="input h-11 text-sm">
           <option value="">جميع التصنيفات</option>
           {JOB_CATEGORIES.map((c) => (
@@ -70,7 +70,7 @@ export function JobFilters() {
       </div>
 
       <div>
-        <label className="label">حد أدنى للراتب (دينار)</label>
+        <label className="label text-white">حد أدنى للراتب (دينار)</label>
         <input
           type="number"
           name="salaryMin"
@@ -83,12 +83,12 @@ export function JobFilters() {
       </div>
 
       <div>
-        <label className="label">حد أعلى للراتب المطلوب</label>
+        <label className="label text-white">حد أعلى للراتب المطلوب</label>
         <input type="number" name="salaryMax" min="0" step="50" defaultValue={params.get("salaryMax") ?? ""} className="input h-11 text-sm" placeholder="مثال: 500" />
       </div>
 
       <div>
-        <label className="label">الخبرة</label>
+        <label className="label text-white">الخبرة</label>
         <select name="experience" defaultValue={params.get("experience") ?? ""} className="input h-11 text-sm">
           <option value="">كل مستويات الخبرة</option>
           {Object.entries(EXPERIENCE_LEVEL_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -96,7 +96,7 @@ export function JobFilters() {
       </div>
 
       <div>
-        <label className="label">التعليم</label>
+        <label className="label text-white">التعليم</label>
         <select name="education" defaultValue={params.get("education") ?? ""} className="input h-11 text-sm">
           <option value="">كل المستويات التعليمية</option>
           {Object.entries(EDUCATION_LEVEL_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -104,7 +104,7 @@ export function JobFilters() {
       </div>
 
       <div className="grid gap-2">
-        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2 text-sm font-semibold text-navy-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40">
+        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 transition-colors hover:border-emerald-300/40 hover:bg-emerald-500/10">
           <input
             type="checkbox"
             name="noExperience"
@@ -114,7 +114,7 @@ export function JobFilters() {
           />
           <span>بدون خبرة</span>
         </label>
-        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2 text-sm font-semibold text-navy-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40">
+        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 transition-colors hover:border-emerald-300/40 hover:bg-emerald-500/10">
           <input
             type="checkbox"
             name="womenFriendly"
@@ -124,7 +124,7 @@ export function JobFilters() {
           />
           <span>مناسبة للسيدات</span>
         </label>
-        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2 text-sm font-semibold text-navy-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40">
+        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 transition-colors hover:border-emerald-300/40 hover:bg-emerald-500/10">
           <input
             type="checkbox"
             name="hasWhatsApp"
@@ -134,11 +134,11 @@ export function JobFilters() {
           />
           <span>تقديم بالواتساب</span>
         </label>
-        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2 text-sm font-semibold text-navy-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40">
+        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 transition-colors hover:border-emerald-300/40 hover:bg-emerald-500/10">
           <input type="checkbox" name="remote" value="1" defaultChecked={params.get("remote") === "1"} className="rounded border-navy-300" />
           <span>عن بُعد</span>
         </label>
-        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2 text-sm font-semibold text-navy-700 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40">
+        <label className="flex cursor-pointer items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 transition-colors hover:border-emerald-300/40 hover:bg-emerald-500/10">
           <input type="checkbox" name="hybrid" value="1" defaultChecked={params.get("hybrid") === "1"} className="rounded border-navy-300" />
           <span>هجين</span>
         </label>
@@ -150,7 +150,7 @@ export function JobFilters() {
       <button
         type="button"
         onClick={() => router.push("/jobs")}
-        className="btn-ghost h-11 w-full text-sm"
+        className="h-11 w-full rounded-xl px-4 text-sm font-bold text-slate-200 transition-colors hover:bg-white/10"
       >
         إعادة تعيين
       </button>

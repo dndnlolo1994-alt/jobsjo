@@ -30,14 +30,12 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 text-white py-12 sm:py-16 lg:py-20 relative overflow-hidden">
-        {/* Ambient Glows */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="container-jo grid lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+      <section className="bg-gradient-to-br from-navy-950 via-[#07110f] to-navy-950 text-white py-10 sm:py-14 lg:py-16 relative overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-l from-transparent via-emerald-400/30 to-transparent" />
+
+        <div className="container-jo grid lg:grid-cols-[0.82fr_1.18fr] gap-8 lg:gap-12 items-center relative z-10">
           {/* Right Column: Text Content */}
-          <div className="lg:col-span-7 flex flex-col justify-center order-2 lg:order-1">
+          <div className="flex flex-col justify-center order-2 lg:order-1">
             <Badge className="bg-sand-400 text-navy-900 mb-4 w-fit">منصة الأردن للوظائف</Badge>
             <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight max-w-2xl">
               وظائف الأردن القريبة منك
@@ -74,15 +72,15 @@ export default async function HomePage() {
           </div>
 
           {/* Left Column: Dedicated Jordanian Workspace Image */}
-          <div className="lg:col-span-5 w-full flex justify-center mb-6 lg:mb-0 order-1 lg:order-2">
-            <div className="relative w-full max-w-lg lg:max-w-none aspect-[4/3] sm:aspect-[16/11] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-navy-950/50 group">
+          <div className="w-full flex justify-center mb-6 lg:mb-0 order-1 lg:order-2">
+            <div className="relative w-full max-w-2xl min-h-[300px] sm:min-h-[380px] lg:min-h-[500px] rounded-2xl sm:rounded-3xl overflow-hidden border border-emerald-400/20 shadow-2xl shadow-navy-950/60 group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="/images/hero-jojobs.png" 
                 alt="مكتب العمل والتوظيف بالأردن" 
-                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" 
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.025] transition-transform duration-700" 
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/30 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/20 via-transparent to-transparent pointer-events-none" />
             </div>
           </div>
         </div>
