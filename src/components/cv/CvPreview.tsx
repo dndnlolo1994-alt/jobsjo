@@ -326,6 +326,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                 {cv.phone && <span>📞 {formatJordanPhoneDisplay(cv.phone)}</span>}
                 {cv.email && <span>✉ {cv.email}</span>}
                 {cv.city && <span>📍 {cv.city}</span>}
+                {cv.website && <span dir="ltr">🔗 {cv.website}</span>}
               </div>
             </div>
           </div>

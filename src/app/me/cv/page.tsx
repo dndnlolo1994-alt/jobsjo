@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireJobSeeker } from "@/lib/auth";
-import { ensureCvPdfBilling } from "@/lib/billing/cv";
+import { ensureCvPdfBilling, canDownloadCvPdf } from "@/lib/billing/cv";
 import { BILLING_STATUS_LABEL } from "@/lib/utils";
 import { CvEditorForm } from "@/components/cv/CvEditorForm";
 
@@ -22,6 +22,7 @@ export default async function MyCvPage() {
   });
   
   const billing = await ensureCvPdfBilling(user.id, cv?.id);
+  const isPaid = await canDownloadCvPdf(user.id);
   
   return (
     <section className="container-jo py-8">
@@ -43,7 +44,7 @@ export default async function MyCvPage() {
           </div>
         </div>
 
-        <CvEditorForm cv={cv} defaultEmail={user.email} defaultFullName={user.fullName} />
+        <CvEditorForm cv={cv} defaultEmail={user.email} defaultFullName={user.fullName} isPaid={isPaid} billingStatus={billing.status} />
         
         <aside className="space-y-4">
           <div className="card-pad sticky top-20">
