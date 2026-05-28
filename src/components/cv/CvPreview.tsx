@@ -94,7 +94,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
   if (activeTemplate === "minimalist") {
     return (
       <div className="cv-print cv-print-padded bg-white text-slate-900 mx-auto max-w-[794px] min-h-[1123px] p-8 md:p-12 shadow-card border border-slate-200" dir={isEn ? "ltr" : "rtl"}>
-        <header className="flex justify-between items-start border-b border-slate-300 pb-6 mb-6">
+        <div className="cv-header flex justify-between items-start border-b border-slate-300 pb-6 mb-6">
           <div className="flex gap-4 items-start">
             {cv.photo && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -118,7 +118,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
               <span className="text-[9px] text-slate-400 block mt-1">{t("رمز التحقق")}</span>
             </div>
           )}
-        </header>
+        </div>
 
         {summary && (
           <section className="mb-6">
@@ -240,10 +240,10 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
 
         {/* Left main area */}
         <div className="flex-1 p-8">
-          <header className="border-b-2 border-navy-800 pb-4 mb-6">
+          <div className="cv-header border-b-2 border-navy-800 pb-4 mb-6">
             <h1 className="text-3xl font-extrabold text-navy-950">{fullName}</h1>
             <p className="text-lg text-blue-800 font-bold mt-1">{jobTitle || t("باحث عن عمل")}</p>
-          </header>
+          </div>
 
           {summary && (
             <section className="mb-6">
@@ -311,7 +311,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
     return (
       <div className="cv-print cv-print-gold bg-white text-slate-800 mx-auto max-w-[794px] min-h-[1123px] shadow-card border border-amber-100 overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
         {/* Top Banner */}
-        <header className="bg-slate-900 text-white p-8 flex flex-col sm:flex-row justify-between items-center gap-6 border-b-8 border-amber-600">
+        <div className="cv-header bg-slate-900 text-white p-8 flex flex-col sm:flex-row justify-between items-center gap-6 border-b-8 border-amber-600">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {cv.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -335,7 +335,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
               <img src={qrCodeDataUrl} alt="QR Verification" className="w-14 h-14" />
             </div>
           )}
-        </header>
+        </div>
 
         <div className="p-8 space-y-6">
           {summary && (
@@ -470,7 +470,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
         key={pageNum}
       >
         {/* Header */}
-        <header className="bg-[#084c41] text-white h-[160px] min-h-[160px] px-10 flex items-center relative overflow-hidden">
+        <div className="cv-header bg-[#084c41] text-white h-[160px] min-h-[160px] px-10 flex items-center relative overflow-hidden">
           {/* Ambient background decoration */}
           <div className="absolute top-[-50px] left-[-50px] w-48 h-48 bg-white/5 rounded-full blur-2xl" />
           
@@ -483,19 +483,21 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
             
             {/* Profile Photo */}
             <div className="relative">
-              {cv.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img 
-                  src={cv.photo} 
-                  alt={fullName} 
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white ring-4 ring-[#c2a06c] shadow-lg" 
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-white border-4 border-white ring-4 ring-[#c2a06c] shadow-lg" />
-              )}
+              <div className="w-[102px] h-[102px] rounded-full border-2 border-[#c2a06c] flex items-center justify-center p-[2px] bg-transparent">
+                {cv.photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img 
+                    src={cv.photo} 
+                    alt={fullName} 
+                    className="w-24 h-24 rounded-full object-cover border-[3px] border-white shadow-sm" 
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-white border-[3px] border-white shadow-sm" />
+                )}
+              </div>
             </div>
           </div>
-        </header>
+        </div>
 
         {/* Columns Container - Forced LTR to keep Left column on Left and Right column on Right */}
         <div className="flex-1 flex flex-row overflow-hidden" dir="ltr">
