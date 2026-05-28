@@ -12,6 +12,28 @@ const optionalJordanPhoneSchema = z
   .optional()
   .transform((v) => (v ? normalizeJordanPhone(v) ?? null : null));
 
+const tolerantUrlSchema = z
+  .string()
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => {
+    if (!v) return "";
+    let val = v.trim();
+    if (!/^https?:\/\//i.test(val)) {
+      val = "https://" + val;
+    }
+    return val;
+  })
+  .refine((v) => {
+    if (v === "") return true;
+    try {
+      new URL(v);
+      return true;
+    } catch {
+      return false;
+    }
+  }, "رابط غير صحيح");
+
 export const registerSchema = z
   .object({
     fullName: z.string().min(2, "الاسم قصير جداً"),
@@ -86,7 +108,7 @@ export const jobCreateSchema = z.object({
   contactMethod: z.enum(["INTERNAL_APPLY", "WHATSAPP", "EMAIL", "EXTERNAL_LINK"]).default("INTERNAL_APPLY"),
   contactWhatsapp: optionalJordanPhoneSchema,
   contactEmail: z.string().email().optional().or(z.literal("")),
-  externalUrl: z.string().url().optional().or(z.literal("")),
+  externalUrl: tolerantUrlSchema,
   expiresInDays: z.coerce.number().int().min(1).max(120).default(30),
 });
 
@@ -102,7 +124,7 @@ export const companyClaimSchema = z.object({
   email: z.string().email(),
   companyRole: z.string().min(2),
   proofText: z.string().max(2000).optional(),
-  proofUrl: z.string().url().optional().or(z.literal("")),
+  proofUrl: tolerantUrlSchema,
 });
 
 export const cvSchema = z.object({
@@ -112,8 +134,8 @@ export const cvSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   phone: optionalJordanPhoneSchema,
   city: z.string().optional(),
-  website: z.string().url().optional().or(z.literal("")),
-  linkedin: z.string().url().optional().or(z.literal("")),
+  website: tolerantUrlSchema,
+  linkedin: tolerantUrlSchema,
   photo: z.string().optional(),
   template: z.string().optional().default("modern-emerald"),
   experiencesJson: z.string().optional(),

@@ -39,18 +39,7 @@ export default async function AdminJobsPage({
   const rejectedJobs = jobs.filter((j) => j.status === "REJECTED");
   const draftJobs = jobs.filter((j) => j.status === "DRAFT");
 
-  // Server Actions for Approve / Reject in page
-  async function approveAction(formData: FormData) {
-    "use server";
-    const id = formData.get("jobId") as string;
-    await adminApproveJobAction(id);
-  }
-
-  async function rejectAction(formData: FormData) {
-    "use server";
-    const id = formData.get("jobId") as string;
-    await adminRejectJobAction(id);
-  }
+  // Replaced local inline server actions with direct bound imported actions to fix Next.js 15 crashes
 
   const STATUS_BADGES: Record<string, string> = {
     PUBLISHED: "bg-emerald-50 text-emerald-700 border-emerald-100",
@@ -181,15 +170,13 @@ export default async function AdminJobsPage({
                 <div className="flex flex-row md:flex-col lg:flex-row items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-4 md:pt-0">
                   {j.status === "PENDING_REVIEW" && (
                     <>
-                      <form action={approveAction}>
-                        <input type="hidden" name="jobId" value={j.id} />
+                      <form action={adminApproveJobAction.bind(null, j.id)}>
                         <button className="btn-primary text-xs px-4 py-2 hover:scale-[1.01] transition-transform whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm">
                           ✔️ موافقة ونشر
                         </button>
                       </form>
                       
-                      <form action={rejectAction}>
-                        <input type="hidden" name="jobId" value={j.id} />
+                      <form action={adminRejectJobAction.bind(null, j.id)}>
                         <button className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-100 text-xs px-4 py-2 hover:scale-[1.01] transition-transform whitespace-nowrap rounded-xl font-bold">
                           ❌ رفض
                         </button>

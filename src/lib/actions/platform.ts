@@ -299,7 +299,7 @@ export async function saveCvAction(_: unknown, form: FormData) {
   return { ok: true, message: "تم حفظ السيرة الذاتية بنجاح" };
 }
 
-export async function applyToJobAction(_: unknown, form: FormData) {
+export async function applyToJobAction(_: unknown, form: FormData): Promise<any> {
   const user = await requireJobSeeker();
   const parsed = applicationSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { ok: false, message: "تعذر إرسال الطلب" };
@@ -408,7 +408,7 @@ export async function saveJobAction(jobId: string) {
   revalidatePath("/me/saved-jobs");
 }
 
-export async function createClaimAction(_: unknown, form: FormData) {
+export async function createClaimAction(_: unknown, form: FormData): Promise<any> {
   const parsed = companyClaimSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { ok: false, message: "تحقق من بيانات المطالبة" };
   const user = await requireUser().catch(() => null);
@@ -507,6 +507,7 @@ export async function adminApproveJobAction(jobId: string) {
   if (job?.slug) {
     revalidatePath(`/jobs/${job.slug}`);
   }
+  redirect("/admin/jobs");
 }
 
 export async function adminRejectJobAction(jobId: string) {
@@ -518,6 +519,7 @@ export async function adminRejectJobAction(jobId: string) {
     },
   });
   revalidatePath("/admin/jobs");
+  redirect("/admin/jobs");
 }
 
 
@@ -536,7 +538,7 @@ export async function adminUpdateApplicationStatus(id: string, status: string) {
   revalidatePath("/employer");
 }
 
-export async function adminCreateSourceAction(_: unknown, form: FormData) {
+export async function adminCreateSourceAction(_: unknown, form: FormData): Promise<any> {
   await requireAdmin();
   await prisma.jobSource.create({
     data: {
@@ -550,7 +552,7 @@ export async function adminCreateSourceAction(_: unknown, form: FormData) {
     },
   });
   revalidatePath("/admin/sources");
-  return { ok: true, message: "تم حفظ المصدر" };
+  redirect("/admin/sources");
 }
 
 export async function adminToggleSourceAction(id: string, active: boolean) {
@@ -563,4 +565,5 @@ export async function adminReviewClaimAction(id: string, status: "APPROVED" | "R
   await requireAdmin();
   await prisma.companyClaim.update({ where: { id }, data: { status, reviewedAt: new Date() } });
   revalidatePath("/admin/claims");
+  redirect("/admin/claims");
 }

@@ -34,11 +34,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function JobDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  async function applyAction(formData: FormData) {
-    "use server";
-    await applyToJobAction(null, formData);
-  }
-  
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
   const job = await prisma.job.findUnique({ where: { slug: decodedSlug }, include: { company: true } });
@@ -149,7 +144,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
                   </div>
                 ) : (
                   job.contactMethod === "INTERNAL_APPLY" && (
-                    <form action={applyAction} className="space-y-3">
+                    <form action={applyToJobAction.bind(null, null)} className="space-y-3">
                       <input type="hidden" name="jobId" value={job.id} />
                       <textarea className="input min-h-28 text-sm" name="coverNote" placeholder="اكتب رسالة قصيرة ومقنعة لصاحب العمل (اختياري)..." />
                       <button className="btn-primary w-full text-sm">إرسال طلب التقديم السريع</button>

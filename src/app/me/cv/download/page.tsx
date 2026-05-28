@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireJobSeeker } from "@/lib/auth";
 import { canDownloadCvPdf, ensureCvPdfBilling } from "@/lib/billing/cv";
 import { CvPreview } from "@/components/cv/CvPreview";
+import { PrintButton } from "@/components/cv/PrintButton";
 import { fromCsv, formatDateArabic } from "@/lib/utils";
 import { env } from "@/lib/env";
 import { tplCvPaymentInfo } from "@/lib/whatsapp";
@@ -43,7 +44,7 @@ export default async function CvDownloadPage({ searchParams }: { searchParams: P
           <h1 className="text-xl font-extrabold text-navy-900">جاهز للطباعة كـ PDF</h1>
           <p className="text-sm text-navy-600">من نافذة الطباعة اختر: حفظ كملف PDF. اسم الملف المقترح: {fileName}. تاريخ اليوم: {formatDateArabic(new Date())}</p>
         </div>
-        <div className="btn-primary">استخدم Ctrl+P ثم حفظ كملف PDF</div>
+        <PrintButton />
       </div>
       <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} />
     </section>

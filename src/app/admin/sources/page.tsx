@@ -8,15 +8,11 @@ export const metadata: Metadata = { title: "مصادر الوظائف", robots: 
 
 export default async function SourcesPage() {
   await requireAdmin();
-  async function createSource(formData: FormData) {
-    "use server";
-    await adminCreateSourceAction(null, formData);
-  }
   const sources = await prisma.jobSource.findMany({ include: { jobs: { select: { id: true } } }, orderBy: { createdAt: "desc" } });
   return (
     <section className="container-jo py-8">
       <h1 className="section-title">مصادر الوظائف الموثوقة</h1>
-      <form action={createSource} className="card-pad grid md:grid-cols-2 gap-4 mb-6">
+      <form action={adminCreateSourceAction.bind(null, null)} className="card-pad grid md:grid-cols-2 gap-4 mb-6">
             <div><label className="label">اسم المصدر</label><input name="sourceName" className="input" required /></div>
             <div><label className="label">المؤسسة</label><input name="organizationName" className="input" /></div>
             <div><label className="label">نوع المصدر</label><select name="sourceType" className="input">{Object.entries(SOURCE_TYPE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
