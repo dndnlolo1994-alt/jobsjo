@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="bg-navy-900 text-navy-100 mt-12">
       <div className="container-jo py-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <div>
-          <Logo size="md" />
+          <Logo size="md" variant="light" />
           <p className="mt-3 text-sm text-navy-200 leading-relaxed">
             منصة وظائف الأردن — تجمع الفرص المحلية وتساعدك تعمل سيرة ذاتية احترافية وتتابع طلباتك من مكان واحد.
           </p>

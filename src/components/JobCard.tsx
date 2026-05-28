@@ -42,8 +42,8 @@ export function JobCard({ job, matchScore }: Props) {
 
   // Build card wrapper classes based on whether it is featured
   const cardClasses = job.featured
-    ? "card-pad block border border-amber-200 bg-gradient-to-r from-amber-500/[0.03] to-white hover:border-amber-400 transition-all duration-300 relative group overflow-hidden hover:-translate-y-1 rounded-xl shadow-[0_4px_16px_rgba(202,162,72,0.06)] hover:shadow-[0_12px_28px_rgba(202,162,72,0.12)]"
-    : "card-pad block border border-slate-100 bg-white hover:border-emerald-300 transition-all duration-300 relative group overflow-hidden hover:-translate-y-1 rounded-xl shadow-card hover:shadow-cardHover";
+    ? "card-pad block border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.02] to-white hover:border-amber-500/45 transition-all duration-300 relative group overflow-hidden hover:-translate-y-1.5 rounded-2xl shadow-[0_10px_35px_-4px_rgba(202,162,72,0.05)] hover:shadow-[0_20px_48px_-4px_rgba(202,162,72,0.11)]"
+    : "card-pad block border border-slate-100 bg-white hover:border-emerald-500/30 transition-all duration-300 relative group overflow-hidden hover:-translate-y-1.5 rounded-2xl shadow-[0_10px_35px_-4px_rgba(15,23,42,0.03)] hover:shadow-[0_20px_48px_-4px_rgba(15,23,42,0.08)]";
 
   return (
     <Link href={`/jobs/${job.slug}`} className={cardClasses}>
