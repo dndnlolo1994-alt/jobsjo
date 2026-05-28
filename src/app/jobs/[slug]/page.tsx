@@ -11,8 +11,9 @@ import { getSession } from "@/lib/session";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
   const job = await prisma.job.findUnique({
-    where: { slug },
+    where: { slug: decodedSlug },
     select: { title: true, description: true, status: true, city: true, jobCategory: true },
   });
   if (!job) return {};
@@ -39,7 +40,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
   }
   
   const { slug } = await params;
-  const job = await prisma.job.findUnique({ where: { slug }, include: { company: true } });
+  const decodedSlug = decodeURIComponent(slug);
+  const job = await prisma.job.findUnique({ where: { slug: decodedSlug }, include: { company: true } });
   if (!job) notFound();
   
   const jsonLd = buildJobPostingJsonLd(job);

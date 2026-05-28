@@ -589,3 +589,12 @@ model PlatformSetting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+model OtpVerification {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+

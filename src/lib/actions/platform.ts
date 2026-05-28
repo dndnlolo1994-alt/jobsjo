@@ -24,23 +24,44 @@ export async function registerAction(_: unknown, form: FormData) {
   const exists = await prisma.user.findUnique({ where: { email: data.email.toLowerCase() } });
   if (exists) return { ok: false, message: "يوجد حساب بهذا البريد الإلكتروني" };
   const role = isAdminEmail(data.email) ? "ADMIN" : data.role;
+  const isActive = role === "ADMIN";
   const user = await prisma.user.create({
     data: {
       email: data.email.toLowerCase(),
       fullName: data.fullName,
       phone: data.phone,
       role,
+      isActive,
       passwordHash: await hashPassword(data.password),
       ...(role === "JOB_SEEKER" ? { jobSeekerProfile: { create: { fullName: data.fullName, phone: data.phone, email: data.email.toLowerCase() } } } : {}),
       ...(role === "EMPLOYER" ? { employerProfile: { create: { ownerName: data.fullName, phone: data.phone } } } : {}),
     },
   });
+
+  if (!isActive) {
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    
+    await prisma.otpVerification.upsert({
+      where: { email: user.email },
+      create: { email: user.email, code: otpCode, expiresAt },
+      update: { code: otpCode, expiresAt, createdAt: new Date() },
+    });
+
+    console.log(`\n======================================================`);
+    console.log(`🔑 رمز التحقق (OTP) للتسجيل الجديد [${user.email}]: [${otpCode}]`);
+    console.log(`======================================================\n`);
+
+    redirect(`/verify-otp?email=${encodeURIComponent(user.email)}`);
+  }
+
   const session = await getSession();
   session.user = { id: user.id, email: user.email, role: user.role, fullName: user.fullName };
   session.createdAt = Date.now();
   await (session as any).save();
-  redirect(role === "EMPLOYER" ? "/employer" : role === "ADMIN" ? "/admin" : "/me");
+  redirect("/admin");
 }
+
 
 export async function loginAction(_: unknown, form: FormData) {
   const parsed = loginSchema.safeParse(Object.fromEntries(form));
@@ -49,6 +70,24 @@ export async function loginAction(_: unknown, form: FormData) {
   if (!user || user.isSuspended || !(await verifyPassword(parsed.data.password, user.passwordHash))) {
     return { ok: false, message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
   }
+  
+  if (!user.isActive) {
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    
+    await prisma.otpVerification.upsert({
+      where: { email: user.email },
+      create: { email: user.email, code: otpCode, expiresAt },
+      update: { code: otpCode, expiresAt, createdAt: new Date() },
+    });
+
+    console.log(`\n======================================================`);
+    console.log(`🔑 رمز تحقق دخول معلق (OTP) للبريد [${user.email}]: [${otpCode}]`);
+    console.log(`======================================================\n`);
+
+    redirect(`/verify-otp?email=${encodeURIComponent(user.email)}`);
+  }
+
   await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
   const session = await getSession();
   session.user = { id: user.id, email: user.email, role: user.role, fullName: user.fullName };
@@ -56,6 +95,67 @@ export async function loginAction(_: unknown, form: FormData) {
   await (session as any).save();
   redirect(user.role === "EMPLOYER" ? "/employer" : user.role === "ADMIN" ? "/admin" : "/me");
 }
+
+export async function verifyOtpAction(email: string, code: string) {
+  if (!email || !code) return { ok: false, message: "البريد الإلكتروني والرمز مطلوبان" };
+  
+  const verification = await prisma.otpVerification.findUnique({
+    where: { email: email.toLowerCase() },
+  });
+
+  if (!verification || verification.code !== code.trim()) {
+    return { ok: false, message: "رمز التحقق المدخل غير صحيح" };
+  }
+
+  if (new Date() > verification.expiresAt) {
+    return { ok: false, message: "لقد انتهت صلاحية هذا الرمز. الرجاء طلب رمز جديد" };
+  }
+
+  // Activate user
+  const user = await prisma.user.update({
+    where: { email: email.toLowerCase() },
+    data: { isActive: true },
+  });
+
+  // Clean up OTP code
+  await prisma.otpVerification.delete({ where: { email: email.toLowerCase() } }).catch(() => {});
+
+  // Create session
+  const session = await getSession();
+  session.user = { id: user.id, email: user.email, role: user.role, fullName: user.fullName };
+  session.createdAt = Date.now();
+  await (session as any).save();
+
+  return { 
+    ok: true, 
+    message: "تم تفعيل حسابك بنجاح", 
+    redirect: user.role === "EMPLOYER" ? "/employer" : user.role === "ADMIN" ? "/admin" : "/me" 
+  };
+}
+
+export async function resendOtpAction(email: string) {
+  if (!email) return { ok: false, message: "البريد الإلكتروني مطلوب" };
+  
+  const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+  if (!user) return { ok: false, message: "هذا الحساب غير موجود في النظام" };
+  if (user.isActive) return { ok: false, message: "هذا الحساب مفعل بالفعل" };
+
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await prisma.otpVerification.upsert({
+    where: { email: email.toLowerCase() },
+    create: { email: email.toLowerCase(), code: otpCode, expiresAt },
+    update: { code: otpCode, expiresAt, createdAt: new Date() },
+  });
+
+  console.log(`\n======================================================`);
+  console.log(`🔑 إعادة إرسال رمز تحقق (OTP) للبريد [${user.email}]: [${otpCode}]`);
+  console.log(`======================================================\n`);
+
+  return { ok: true, message: "تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني" };
+}
+
 
 export async function saveCvAction(_: unknown, form: FormData) {
   const user = await requireJobSeeker();
@@ -352,6 +452,74 @@ export async function adminCreateJobAction(_: unknown, form: FormData) {
   revalidatePath("/admin/jobs");
   redirect("/admin/jobs");
 }
+
+export async function employerCreateJobAction(_: unknown, form: FormData) {
+  const employer = await requireEmployer();
+  const parsed = jobCreateSchema.safeParse(Object.fromEntries(form));
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "تحقق من بيانات الوظيفة" };
+  const data = parsed.data;
+  const expiresAt = new Date(Date.now() + data.expiresInDays * 86400000);
+  
+  // Get employer's full profile to check for linked company
+  const fullUser = await prisma.user.findUnique({
+    where: { id: employer.id },
+    include: { employerProfile: { include: { company: true } } },
+  });
+
+  const companyId = fullUser?.employerProfile?.companyId || null;
+  const companyName = fullUser?.employerProfile?.company?.name || str(form, "companyNameText") || employer.fullName;
+
+  await prisma.job.create({
+    data: {
+      ...data,
+      slug: uniqueSlug(data.title),
+      companyId,
+      companyNameText: companyName,
+      companyRelation: "DIRECT_EMPLOYER",
+      status: "PENDING_REVIEW",
+      sourceType: "EMPLOYER_DIRECT",
+      sourceTrustLevel: "MEDIUM",
+      postedById: employer.id,
+      expiresAt,
+      featured: false,
+      urgent: false,
+      contactEmail: data.contactEmail || undefined,
+      externalUrl: data.externalUrl || undefined,
+    },
+  });
+
+  revalidatePath("/employer");
+  redirect("/employer");
+}
+
+export async function adminApproveJobAction(jobId: string) {
+  await requireAdmin();
+  const job = await prisma.job.update({
+    where: { id: jobId },
+    data: {
+      status: "PUBLISHED",
+      publishedAt: new Date(),
+      sourceVerifiedAt: new Date(),
+    },
+  });
+  revalidatePath("/admin/jobs");
+  revalidatePath("/");
+  if (job?.slug) {
+    revalidatePath(`/jobs/${job.slug}`);
+  }
+}
+
+export async function adminRejectJobAction(jobId: string) {
+  await requireAdmin();
+  await prisma.job.update({
+    where: { id: jobId },
+    data: {
+      status: "REJECTED",
+    },
+  });
+  revalidatePath("/admin/jobs");
+}
+
 
 export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAIVED" | "UNPAID") {
   await requireAdmin();

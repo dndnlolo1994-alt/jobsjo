@@ -1,22 +1,19 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/session";
 import { Logo } from "./Logo";
+import { HeaderNav } from "./HeaderNav";
 
 export async function Header() {
   const user = await getSessionUser();
 
   return (
-    <header className="sticky top-0 z-40 bg-navy-950/90 backdrop-blur border-b border-navy-900/50 shadow-md">
+    <header className="sticky top-0 z-40 bg-navy-950/90 backdrop-blur border-b border-navy-900/50 shadow-md shadow-emerald-500/5">
+      {/* Bottom glow gradient line */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
       <div className="container-jo flex items-center justify-between h-16">
         <div className="flex items-center gap-8">
           <Logo variant="light" />
-          <nav className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-navy-200">
-            <Link href="/jobs" className="hover:text-white hover:bg-white/5 px-3 py-2 rounded-xl transition-all duration-200">الوظائف</Link>
-            <Link href="/companies" className="hover:text-white hover:bg-white/5 px-3 py-2 rounded-xl transition-all duration-200">الشركات</Link>
-            <Link href="/cv-builder" className="hover:text-white hover:bg-white/5 px-3 py-2 rounded-xl transition-all duration-200">باني السيرة</Link>
-            <Link href="/pricing" className="hover:text-white hover:bg-white/5 px-3 py-2 rounded-xl transition-all duration-200">الأسعار</Link>
-            <Link href="/about" className="hover:text-white hover:bg-white/5 px-3 py-2 rounded-xl transition-all duration-200">عن المنصة</Link>
-          </nav>
+          <HeaderNav />
         </div>
 
         <div className="flex items-center gap-2">
