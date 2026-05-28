@@ -40,25 +40,24 @@ export function JobCard({ job, matchScore }: Props) {
         }`
       : job.salaryText || "غير محدد";
 
-  // Build card wrapper classes based on whether it is featured
-  const cardClasses = job.featured
-    ? "card-pad block border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.02] to-white hover:border-amber-500/45 transition-all duration-300 relative group overflow-hidden hover:-translate-y-1.5 rounded-2xl shadow-[0_10px_35px_-4px_rgba(202,162,72,0.05)] hover:shadow-[0_20px_48px_-4px_rgba(202,162,72,0.11)]"
-    : "card-pad block border border-slate-100 bg-white hover:border-emerald-500/30 transition-all duration-300 relative group overflow-hidden hover:-translate-y-1.5 rounded-2xl shadow-[0_10px_35px_-4px_rgba(15,23,42,0.03)] hover:shadow-[0_20px_48px_-4px_rgba(15,23,42,0.08)]";
+  const cardClasses = [
+    "block rounded-2xl border bg-white/95 p-4 sm:p-5 transition-all duration-200 relative group overflow-hidden shadow-sm hover:-translate-y-0.5 hover:shadow-lg",
+    job.featured
+      ? "border-amber-200/80 hover:border-amber-300"
+      : "border-slate-200 hover:border-emerald-200",
+  ].join(" ");
 
   return (
     <Link href={`/jobs/${job.slug}`} className={cardClasses}>
-      {/* Visual Indicator Bar */}
-      <div className={`absolute inset-y-0 right-0 w-1 transition-all duration-300 ${
+      <div className={`absolute inset-x-0 top-0 h-1 transition-all duration-300 ${
         job.featured 
-          ? "bg-amber-400 group-hover:w-1.5" 
-          : "bg-emerald-600 group-hover:w-1.5"
+          ? "bg-gradient-to-l from-amber-400 via-amber-300 to-emerald-500" 
+          : "bg-emerald-500/80"
       }`} />
 
-      <div className="flex items-start gap-4">
-        {/* Company Logo container */}
-        <div className="shrink-0 w-12 h-12 rounded-xl bg-slate-50 border border-slate-100/80 grid place-items-center text-navy-700 font-extrabold shadow-sm overflow-hidden group-hover:scale-105 transition-transform duration-300">
+      <div className="flex items-start gap-3 sm:gap-4 pt-1">
+        <div className="shrink-0 w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/80 grid place-items-center text-navy-700 font-extrabold shadow-sm overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
           {job.company?.logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={job.company.logoUrl}
               alt={companyName}
@@ -69,31 +68,37 @@ export function JobCard({ job, matchScore }: Props) {
           )}
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 min-w-0">
-          {/* Header Badges */}
-          {(job.featured || job.urgent) && (
-            <div className="flex flex-wrap gap-1.5 mb-1.5">
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              {(job.featured || job.urgent) && (
+                <div className="mb-1.5 flex flex-wrap gap-1.5">
               {job.featured && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                  👑 مميزة
+                <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                  مميزة
                 </span>
               )}
               {job.urgent && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                  🔥 عاجل
+                <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                  عاجل
                 </span>
               )}
             </div>
           )}
 
-          {/* Job Title */}
-          <h3 className="font-bold text-navy-900 group-hover:text-emerald-700 transition-colors duration-200 text-sm sm:text-base leading-snug line-clamp-2">
-            {job.title}
-          </h3>
+              <h3 className="text-sm sm:text-base font-extrabold leading-snug text-navy-900 transition-colors duration-200 line-clamp-2 group-hover:text-emerald-700">
+                {job.title}
+              </h3>
+            </div>
 
-          {/* Company and City info with bullet separators */}
-          <div className="text-xs sm:text-sm text-navy-500 mt-1 flex flex-wrap items-center gap-1.5 font-medium">
+            {job.publishedAt && (
+              <div className="hidden shrink-0 rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-navy-500 sm:block">
+                {formatRelativeArabic(job.publishedAt)}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs sm:text-sm font-medium text-navy-500">
             <span>{companyName}</span>
             <span className="text-slate-300" aria-hidden="true">•</span>
             <span>{job.city}</span>
@@ -105,26 +110,25 @@ export function JobCard({ job, matchScore }: Props) {
             )}
           </div>
 
-          {/* Bottom Badges */}
-          <div className="flex flex-wrap items-center gap-1.5 mt-3">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-emerald-700">
               {JOB_TYPE_LABEL[job.jobType] ?? job.jobType}
             </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold bg-slate-100 text-navy-600 border border-slate-200/60">
+            <span className="inline-flex items-center rounded-lg border border-slate-200/70 bg-slate-50 px-2 py-1 text-[10px] sm:text-xs font-bold text-navy-700">
               الراتب: {salary}
             </span>
             {job.noExperienceRequired && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold bg-sky-50 text-sky-700 border border-sky-100">
+              <span className="inline-flex items-center rounded-lg border border-sky-100 bg-sky-50 px-2 py-1 text-[10px] sm:text-xs font-bold text-sky-700">
                 بدون خبرة
               </span>
             )}
             {job.womenFriendly && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
+              <span className="inline-flex items-center rounded-lg border border-fuchsia-100 bg-fuchsia-50 px-2 py-1 text-[10px] sm:text-xs font-bold text-fuchsia-700">
                 مناسبة للسيدات
               </span>
             )}
             {matchScore !== undefined && (
-              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-extrabold ${
+              <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] sm:text-xs font-extrabold ${
                 matchScore >= 75
                   ? "bg-emerald-500/20 text-emerald-800 border border-emerald-500/30"
                   : matchScore >= 50
@@ -137,14 +141,6 @@ export function JobCard({ job, matchScore }: Props) {
             )}
           </div>
         </div>
-
-        {/* Date Posted (Desktop only) */}
-        {job.publishedAt && (
-          <div className="text-[11px] text-navy-400 font-medium shrink-0 hidden sm:flex items-center gap-1 pt-1">
-            <span>🕒</span>
-            <span>{formatRelativeArabic(job.publishedAt)}</span>
-          </div>
-        )}
       </div>
     </Link>
   );

@@ -111,13 +111,13 @@ export default function PricingPage() {
       </div>
 
       {/* Seeker Plans Section */}
-      <div className="mb-14">
-        <div className="border-r-4 border-emerald-600 pr-3 mb-6">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">خطط الباحثين عن عمل</h2>
-          <p className="text-xs text-slate-500 mt-1">باقات مخصصة لمساعدتك في بناء سيرتك الذاتية والتقديم على الوظائف</p>
+      <div className="mb-14 rounded-[28px] border border-emerald-500/15 bg-slate-950 p-5 shadow-2xl shadow-slate-950/10 sm:p-7 lg:p-8">
+        <div className="border-r-4 border-emerald-400 pr-3 mb-7">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white">خطط الباحثين عن عمل</h2>
+          <p className="text-xs text-slate-300 mt-1">باقات مخصصة لمساعدتك في بناء سيرتك الذاتية والتقديم على الوظائف</p>
         </div>
         
-        <div className="grid xl:grid-cols-[1fr_460px] lg:grid-cols-[1fr_420px] gap-8 items-stretch max-w-6xl mx-auto">
+        <div className="grid xl:grid-cols-[1fr_500px] lg:grid-cols-[1fr_460px] gap-7 items-stretch max-w-6xl mx-auto">
           {/* Seeker Plans Cards */}
           <div className="grid md:grid-cols-2 gap-6 w-full">
             {seekerPlans.map((plan) => (
@@ -125,8 +125,8 @@ export default function PricingPage() {
                 key={plan.name}
                 className={`rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative h-full ${
                   plan.highlight
-                    ? "bg-slate-900 text-white shadow-xl border border-emerald-500/20 scale-[1.01] hover:scale-[1.02]"
-                    : "bg-white border border-slate-200 shadow-sm hover:shadow-md"
+                    ? "bg-[#0f1a2a] text-white shadow-xl border border-emerald-500/25 scale-[1.01] hover:scale-[1.02]"
+                    : "bg-white/95 border border-white/15 shadow-sm hover:shadow-md"
                 }`}
               >
                 {plan.highlight && (
@@ -174,15 +174,15 @@ export default function PricingPage() {
           </div>
 
           {/* CV Template Live Mockup Preview */}
-          <div className="rounded-2xl p-5 sm:p-6 border border-emerald-500/20 bg-slate-950 text-center w-full shadow-xl shadow-slate-950/10">
+          <div className="rounded-2xl p-4 sm:p-5 border border-emerald-500/20 bg-[#07110f] text-center w-full shadow-xl shadow-emerald-950/20">
             <h4 className="font-extrabold text-white text-sm mb-3 border-b border-white/10 pb-3">
               نموذج مطابق لقالب PDF بعد التفعيل
             </h4>
-            <div className="relative rounded-xl overflow-hidden border border-[#c2a06c]/40 bg-[#111827] group shadow-2xl">
+            <div className="relative rounded-xl overflow-hidden border border-[#c2a06c]/40 bg-slate-900 group shadow-2xl">
               <img
                 src="/cv-mockup.png"
                 alt="نموذج معاينة السيرة الذاتية PDF"
-                className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.015]"
               />
             </div>
             <p className="text-[11px] text-slate-300 mt-3 leading-relaxed">

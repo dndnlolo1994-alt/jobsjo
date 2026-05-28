@@ -156,6 +156,87 @@ export async function resendOtpAction(email: string) {
   return { ok: true, message: "تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني" };
 }
 
+export async function requestPasswordResetAction(_: unknown, form: FormData) {
+  const email = str(form, "email")?.toLowerCase();
+  if (!email) return { ok: false, message: "البريد الإلكتروني مطلوب" };
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return { ok: true, message: "إذا كان البريد مسجلاً لدينا، سيظهر رمز إعادة الضبط في البريد أو لوحة التشغيل." };
+  }
+
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await prisma.otpVerification.upsert({
+    where: { email },
+    create: { email, code: otpCode, expiresAt },
+    update: { code: otpCode, expiresAt, createdAt: new Date() },
+  });
+
+  console.log(`\n======================================================`);
+  console.log(`رمز إعادة ضبط كلمة المرور [${email}]: [${otpCode}]`);
+  console.log(`======================================================\n`);
+
+  return {
+    ok: true,
+    message: "تم إنشاء رمز إعادة ضبط كلمة المرور. الرمز صالح لمدة 10 دقائق.",
+    redirect: `/reset-password?email=${encodeURIComponent(email)}`,
+  };
+}
+
+export async function resendPasswordResetCodeAction(email: string) {
+  if (!email) return { ok: false, message: "البريد الإلكتروني مطلوب" };
+
+  const form = new FormData();
+  form.set("email", email);
+  return requestPasswordResetAction(null, form);
+}
+
+export async function resetPasswordAction(_: unknown, form: FormData) {
+  const email = str(form, "email")?.toLowerCase();
+  const code = str(form, "code");
+  const password = str(form, "password");
+  const confirmPassword = str(form, "confirmPassword");
+
+  if (!email || !code || !password || !confirmPassword) {
+    return { ok: false, message: "جميع الحقول مطلوبة" };
+  }
+  if (password.length < 8) return { ok: false, message: "كلمة المرور يجب أن تكون 8 أحرف على الأقل" };
+  if (password !== confirmPassword) return { ok: false, message: "كلمتا المرور غير متطابقتين" };
+
+  const verification = await prisma.otpVerification.findUnique({ where: { email } });
+  if (!verification || verification.code !== code.trim()) {
+    return { ok: false, message: "رمز إعادة الضبط غير صحيح" };
+  }
+  if (new Date() > verification.expiresAt) {
+    return { ok: false, message: "انتهت صلاحية الرمز. اطلب رمزاً جديداً." };
+  }
+
+  const user = await prisma.user.update({
+    where: { email },
+    data: {
+      passwordHash: await hashPassword(password),
+      isActive: true,
+      isSuspended: false,
+      lastLoginAt: new Date(),
+    },
+  });
+
+  await prisma.otpVerification.delete({ where: { email } }).catch(() => {});
+
+  const session = await getSession();
+  session.user = { id: user.id, email: user.email, role: user.role, fullName: user.fullName };
+  session.createdAt = Date.now();
+  await (session as any).save();
+
+  return {
+    ok: true,
+    message: "تم تغيير كلمة المرور وتسجيل الدخول بنجاح",
+    redirect: user.role === "EMPLOYER" ? "/employer" : user.role === "ADMIN" ? "/admin" : "/me",
+  };
+}
+
 
 export async function saveCvAction(_: unknown, form: FormData) {
   const user = await requireJobSeeker();

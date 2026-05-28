@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { loginAction } from "@/lib/actions/platform";
 import { PasswordField } from "./PasswordField";
 
@@ -65,7 +66,12 @@ export default function LoginForm() {
       </div>
       
       <div>
-        <label className="label text-navy-800 font-semibold mb-1">كلمة المرور</label>
+        <div className="flex items-center justify-between gap-3 mb-1">
+          <label className="label text-navy-800 font-semibold mb-0">كلمة المرور</label>
+          <Link href="/forgot-password" className="text-xs font-bold text-emerald-700 hover:text-emerald-600">
+            نسيت كلمة المرور؟
+          </Link>
+        </div>
         <PasswordField name="password" placeholder="••••••••" disabled={loading} autoComplete="current-password" />
       </div>
       
