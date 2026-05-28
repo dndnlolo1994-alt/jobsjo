@@ -42,13 +42,8 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
 
   // Form submit state
   const [isPending, setIsPending] = useState(false);
-  const [isImportingLinkedIn, setIsImportingLinkedIn] = useState(false);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
-
-  // LinkedIn profile text parser states
-  const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
-  const [linkedInText, setLinkedInText] = useState("");
 
   // Experience entry temp state
   const [tempExp, setTempExp] = useState({ position: "", company: "", city: "", startDate: "", endDate: "", description: "" });
@@ -120,275 +115,13 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
     alert("تم توليد ترجمة تقريبية للبيانات بالإنجليزية! يرجى مراجعة وتدقيق الاسم والمصطلحات وتصحيحها إذا وجد أي خطأ.");
   };
 
-  const handleLinkedInImport = () => {
-    setIsLinkedInModalOpen(true);
-  };
 
-  const handleAnalyzeLinkedInText = () => {
-    if (!linkedInText.trim()) {
-      alert("الرجاء لصق نص بروفايل LinkedIn أولاً.");
-      return;
-    }
-    const result = parseLinkedInText(linkedInText);
-    if (!result) {
-      alert("تعذر العثور على أي معلومات قابلة للقراءة في النص المدخل.");
-      return;
-    }
-
-    // Populate inputs
-    const fullNameInput = document.getElementsByName("fullName")[0] as HTMLInputElement;
-    if (fullNameInput && result.fullName) {
-      fullNameInput.value = result.fullName;
-    }
-
-    const jobTitleInputEl = document.getElementsByName("jobTitle")[0] as HTMLInputElement;
-    if (jobTitleInputEl && result.jobTitle) {
-      jobTitleInputEl.value = result.jobTitle;
-    }
-
-    const summaryTextarea = document.getElementsByName("summary")[0] as HTMLTextAreaElement;
-    if (summaryTextarea && result.summary) {
-      summaryTextarea.value = result.summary;
-    }
-
-    if (result.experiences.length > 0) {
-      setExperiences(result.experiences);
-    }
-    if (result.educations.length > 0) {
-      setEducations(result.educations);
-    }
-    if (result.skills.length > 0) {
-      setSkills(result.skills);
-    }
-
-    alert("🎉 تم تحليل واستيراد بيانات LinkedIn الحقيقية بنجاح!\n\nتم ملء الاسم، والمسمى الوظيفي، والنبذة، والخبرات، والتعليم، والمهارات في الحقول المقابلة لها.");
-    setIsLinkedInModalOpen(false);
-    setLinkedInText("");
-  };
-
-  function parseLinkedInText(text: string) {
-    const lines = text.split("\n").map(line => line.trim()).filter(Boolean);
-    if (lines.length === 0) return null;
-
-    let fullName = "";
-    let jobTitle = "";
-    let summary = "";
-    const experiences: any[] = [];
-    const educations: any[] = [];
-    const skills: string[] = [];
-
-    const sectionsKeywords = [
-      "experience", "education", "skills", "summary", "contact", "about", "projects", "certifications",
-      "الخبرة", "الخبرات", "التعليم", "المهارات", "نبذة", "ملخص", "الاتصال", "المشاريع", "الشهادات"
-    ];
-    
-    const isHeader = (l: string) => sectionsKeywords.some(kw => l.toLowerCase().includes(kw));
-
-    let lineIdx = 0;
-    while (lineIdx < lines.length && isHeader(lines[lineIdx])) {
-      lineIdx++;
-    }
-    if (lineIdx < lines.length) {
-      fullName = lines[lineIdx];
-      lineIdx++;
-    }
-    while (lineIdx < lines.length && isHeader(lines[lineIdx])) {
-      lineIdx++;
-    }
-    if (lineIdx < lines.length) {
-      jobTitle = lines[lineIdx];
-      lineIdx++;
-    }
-
-    let currentSection = "";
-    const expLines = text.split("\n").map(l => l.trim()).filter(Boolean);
-    const dateRegex = /(19|20)\d{2}|present|الحالي|يناير|فبراير|مارس|أبريل|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i;
-
-    for (let i = lineIdx; i < lines.length; i++) {
-      const line = lines[i];
-      const lowerLine = line.toLowerCase();
-
-      if (lowerLine === "summary" || lowerLine === "about" || line === "ملخص" || line === "نبذة" || line === "نبذة تعريفية" || line === "النبذة المهنية") {
-        currentSection = "summary";
-        continue;
-      } else if (lowerLine === "experience" || line === "الخبرة" || line === "الخبرات" || line === "الخبرات العملية") {
-        currentSection = "experience";
-        continue;
-      } else if (lowerLine === "education" || line === "التعليم" || line === "التعليم والدراسة") {
-        currentSection = "education";
-        continue;
-      } else if (lowerLine === "skills" || line === "المهارات") {
-        currentSection = "skills";
-        continue;
-      } else if (lowerLine === "certifications" || lowerLine === "honors" || line === "الشهادات" || line === "الدورات") {
-        currentSection = "certifications";
-        continue;
-      } else if (isHeader(line) && line.length < 25) {
-        currentSection = "";
-        continue;
-      }
-
-      if (currentSection === "summary") {
-        summary += (summary ? "\n" : "") + line;
-      } else if (currentSection === "skills") {
-        if (line.includes("•") || line.includes("|") || line.includes(",")) {
-          const parts = line.split(/[•|,]/).map(s => s.trim()).filter(Boolean);
-          skills.push(...parts);
-        } else {
-          skills.push(line);
-        }
-      }
-    }
-
-    // Parse experiences
-    let tempExp: any = null;
-    let inExpSection = false;
-    let expCount = 0;
-
-    for (let i = 0; i < expLines.length; i++) {
-      const line = expLines[i];
-      const lower = line.toLowerCase();
-
-      if (lower === "experience" || line === "الخبرة" || line === "الخبرات" || line === "الخبرات العملية") {
-        inExpSection = true;
-        continue;
-      }
-      if (inExpSection && (lower === "education" || line === "التعليم" || lower === "skills" || line === "المهارات" || lower === "certifications" || line === "الشهادات")) {
-        if (tempExp) experiences.push(tempExp);
-        tempExp = null;
-        inExpSection = false;
-      }
-
-      if (inExpSection) {
-        if (dateRegex.test(line) && line.length < 40) {
-          if (tempExp) {
-            tempExp.dates = line;
-          }
-        } else if (line.startsWith("-") || line.startsWith("•") || line.startsWith("*")) {
-          if (tempExp) {
-            tempExp.description += (tempExp.description ? "\n" : "") + line;
-          }
-        } else {
-          if (!tempExp || tempExp.dates) {
-            if (tempExp) experiences.push(tempExp);
-            expCount++;
-            tempExp = {
-              id: `exp-li-${expCount}-${Date.now()}`,
-              position: line,
-              company: "",
-              city: "عمان",
-              startDate: "",
-              endDate: "",
-              description: ""
-            };
-          } else {
-            if (!tempExp.company) {
-              tempExp.company = line;
-            } else {
-              if (line.includes(",") || line.length < 20) {
-                tempExp.city = line;
-              } else {
-                tempExp.description += (tempExp.description ? "\n" : "") + line;
-              }
-            }
-          }
-        }
-      }
-    }
-    if (tempExp) experiences.push(tempExp);
-
-    // Parse Education
-    let tempEdu: any = null;
-    let inEduSection = false;
-    let eduCount = 0;
-
-    for (let i = 0; i < expLines.length; i++) {
-      const line = expLines[i];
-      const lower = line.toLowerCase();
-
-      if (lower === "education" || line === "التعليم" || line === "التعليم والدراسة") {
-        inEduSection = true;
-        continue;
-      }
-      if (inEduSection && (lower === "experience" || line === "الخبرة" || lower === "skills" || line === "المهارات" || lower === "certifications" || line === "الشهادات")) {
-        if (tempEdu) educations.push(tempEdu);
-        tempEdu = null;
-        inEduSection = false;
-      }
-
-      if (inEduSection) {
-        if (dateRegex.test(line) && line.length < 30) {
-          if (tempEdu) {
-            tempEdu.dates = line;
-          }
-        } else {
-          if (!tempEdu || tempEdu.dates) {
-            if (tempEdu) educations.push(tempEdu);
-            eduCount++;
-            tempEdu = {
-              id: `edu-li-${eduCount}-${Date.now()}`,
-              institution: line,
-              degree: "",
-              city: "عمان",
-              startDate: "",
-              endDate: "",
-              description: ""
-            };
-          } else {
-            if (!tempEdu.degree) {
-              tempEdu.degree = line;
-            } else {
-              tempEdu.description += (tempEdu.description ? "\n" : "") + line;
-            }
-          }
-        }
-      }
-    }
-    if (tempEdu) educations.push(tempEdu);
-
-    // Clean dates and details
-    experiences.forEach(exp => {
-      if (exp.dates) {
-        const parts = exp.dates.split(/[-–—]/).map((s: string) => s.trim());
-        exp.startDate = parts[0] || "";
-        exp.endDate = parts[1] || "";
-      }
-      delete exp.dates;
-    });
-
-    educations.forEach(edu => {
-      if (edu.dates) {
-        const parts = edu.dates.split(/[-–—·,()]/).map((s: string) => s.trim()).filter(Boolean);
-        edu.startDate = parts[0] || "";
-        edu.endDate = parts[1] || "";
-      }
-      delete edu.dates;
-    });
-
-    const formattedSkills = Array.from(new Set(skills))
-      .map(s => s.trim())
-      .filter(s => s.length > 1 && s.length < 30 && !isHeader(s))
-      .map((s, idx) => ({
-        id: `skill-li-${idx}-${Date.now()}`,
-        name: s,
-        level: 4
-      }));
-
-    return {
-      fullName: fullName || undefined,
-      jobTitle: jobTitle || undefined,
-      summary: summary || undefined,
-      experiences: experiences.filter(e => e.position && e.company),
-      educations: educations.filter(e => e.institution),
-      skills: formattedSkills
-    };
-  }
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 800000) {
-        alert("حجم الصورة كبير جداً، يرجى اختيار صورة أصغر من 800 كيلوبايت لضمان سرعة التحميل.");
+      if (file.size > 3000000) {
+        alert("حجم الصورة كبير جداً، يرجى اختيار صورة أصغر من 3 ميغابايت لضمان سرعة التحميل.");
         return;
       }
       const reader = new FileReader();
@@ -538,7 +271,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
               <div>
                 <h3 className="font-bold text-navy-900">الصورة الشخصية</h3>
                 <p className="text-xs text-navy-500 mt-1 max-w-sm">
-                  اختر صورة مهنية واضحة بخلفية محايدة. الصيغ المدعومة: JPG, PNG. الحد الأقصى للحجم: 800 كيلوبايت.
+                  اختر صورة مهنية واضحة بخلفية محايدة. الصيغ المدعومة: JPG, PNG. الحد الأقصى للحجم: 3 ميغابايت.
                 </p>
                 {photo && (
                   <button
@@ -578,30 +311,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
                 <input className="input" name="website" defaultValue={cv?.website ?? ""} placeholder="https://example.com" />
               </div>
               <div className="sm:col-span-2">
-                <div className="flex justify-between items-center mb-2">
-                  <label className="label mb-0">LinkedIn أو رابط ملف مهني</label>
-                  <button
-                    type="button"
-                    onClick={handleLinkedInImport}
-                    disabled={isImportingLinkedIn}
-                    className="text-xs bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
-                  >
-                    {isImportingLinkedIn ? (
-                      <>
-                        <svg className="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        <span>جاري الاستيراد...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>⚡</span>
-                        <span>استيراد ذكي من LinkedIn</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                <label className="label">LinkedIn أو رابط ملف مهني</label>
                 <input className="input" name="linkedin" defaultValue={cv?.linkedin ?? ""} placeholder="https://linkedin.com/in/username" />
               </div>
               <div className="sm:col-span-2">
@@ -1258,67 +968,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName }: CvEditorForm
         </div>
       </form>
 
-      {/* LinkedIn Import Modal */}
-      {isLinkedInModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm fade-in">
-          <div className="bg-white rounded-2xl w-full max-w-2xl border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 text-right" dir="rtl">
-            {/* Modal Header */}
-            <div className="bg-navy-950 text-white p-5 flex justify-between items-center">
-              <h3 className="text-lg font-bold">⚡ استيراد السيرة الذاتية الحقيقية من LinkedIn</h3>
-              <button 
-                type="button" 
-                onClick={() => setIsLinkedInModalOpen(false)}
-                className="text-white hover:text-emerald-400 text-xl font-bold transition-colors cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
 
-            {/* Modal Body */}
-            <div className="p-6 space-y-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 leading-6">
-                <strong>💡 لماذا هذه الطريقة؟</strong> بسبب جدران الحماية الصارمة في LinkedIn وحجبها للقراءة الآلية للروابط مباشرة، قمنا بابتكار **محلل النص الذكي**! ما عليك سوى نسخ نص بروفايلك أو النص الموجود داخل ملف الـ PDF المصدر من LinkedIn ولصقه هنا ليقوم النظام بتحليل النص واستخراج كافة معلوماتك الحقيقية (الخبرات، التعليم، المهارات) فوراً وبدقة 100%!
-                <br />
-                <span className="font-semibold block mt-2">طريقة الحصول على النص:</span>
-                <ol className="list-decimal list-inside mt-1 space-y-1 text-slate-700">
-                  <li>اذهب إلى حسابك في LinkedIn.</li>
-                  <li>اضغط على زر <strong>المزيد (More...)</strong> ثم اختر <strong>حفظ كملف PDF (Save to PDF)</strong>.</li>
-                  <li>افتح الملف الناتج، اضغط <strong>Ctrl+A</strong> لتحديد النص كاملًا، ثم <strong>Ctrl+C</strong> للنسخ.</li>
-                  <li>ألصق النص المنسوخ بالكامل في المربع أدناه.</li>
-                </ol>
-              </div>
-
-              <div>
-                <label className="label text-xs">ألصق النص المنسوخ هنا:</label>
-                <textarea
-                  value={linkedInText}
-                  onChange={(e) => setLinkedInText(e.target.value)}
-                  className="input min-h-60 text-xs font-mono"
-                  placeholder="Mohammad Al-Saeed&#10;Senior Software Engineer at Mawdoo3&#10;...&#10;Experience&#10;Mawdoo3&#10;..."
-                />
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setIsLinkedInModalOpen(false)}
-                className="btn-outline text-xs px-4 py-2"
-              >
-                إلغاء
-              </button>
-              <button
-                type="button"
-                onClick={handleAnalyzeLinkedInText}
-                className="btn-primary text-xs px-5 py-2"
-              >
-                تحليل واستيراد البيانات
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
