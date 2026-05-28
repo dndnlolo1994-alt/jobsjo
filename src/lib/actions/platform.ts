@@ -395,7 +395,7 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
   }
 
   revalidatePath("/me/applications");
-  return { ok: true, message: "تم إرسال طلبك بنجاح" };
+  redirect("/me/applications?applied=true");
 }
 
 export async function saveJobAction(jobId: string) {
@@ -412,10 +412,18 @@ export async function createClaimAction(_: unknown, form: FormData): Promise<any
   const parsed = companyClaimSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { ok: false, message: "تحقق من بيانات المطالبة" };
   const user = await requireUser().catch(() => null);
-  await prisma.companyClaim.create({
-    data: { ...parsed.data, claimantId: user?.id, proofUrl: parsed.data.proofUrl || undefined, websiteOrSocialUrl: str(form, "websiteOrSocialUrl") },
+  const company = await prisma.company.findUnique({
+    where: { id: parsed.data.companyId },
+    select: { slug: true }
   });
-  return { ok: true, message: "تم استلام طلب المطالبة وسيتم مراجعته" };
+  if (company) {
+    await prisma.companyClaim.create({
+      data: { ...parsed.data, claimantId: user?.id, proofUrl: parsed.data.proofUrl || undefined, websiteOrSocialUrl: str(form, "websiteOrSocialUrl") },
+    });
+    revalidatePath(`/companies/${company.slug}`);
+    redirect(`/companies/${company.slug}?claimed=true`);
+  }
+  return { ok: false, message: "الشركة غير موجودة" };
 }
 
 export async function adminCreateJobAction(_: unknown, form: FormData) {
@@ -523,19 +531,87 @@ export async function adminRejectJobAction(jobId: string) {
 }
 
 
+// Map a billing type to the EmployerPlan it grants (if any)
+const EMPLOYER_PLAN_FOR_TYPE: Record<string, "BASIC" | "PRO" | "BUSINESS"> = {
+  EMPLOYER_BASIC: "BASIC",
+  EMPLOYER_PRO: "PRO",
+  EMPLOYER_BUSINESS: "BUSINESS",
+};
+
 export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAIVED" | "UNPAID") {
   await requireAdmin();
-  await prisma.billingRecord.update({
+  const isActivating = status === "PAID" || status === "WAIVED";
+
+  const record = await prisma.billingRecord.update({
     where: { id },
-    data: { status, paidAt: status === "PAID" ? new Date() : undefined },
+    data: { status, paidAt: status === "PAID" ? new Date() : null },
   });
+
+  // Apply the real-world effect of the payment so activation is instant and connected.
+  const monthAhead = new Date(Date.now() + 30 * 86400000);
+
+  if (isActivating) {
+    // 1) Job Seeker Plus upgrade
+    if (record.type === "JOB_SEEKER_PLUS" && record.userId) {
+      await prisma.jobSeekerProfile.updateMany({
+        where: { userId: record.userId },
+        data: { plan: "PLUS", planExpiresAt: monthAhead },
+      });
+    }
+
+    // 2) Employer subscription plans
+    const employerPlan = EMPLOYER_PLAN_FOR_TYPE[record.type];
+    if (employerPlan && record.userId) {
+      await prisma.employerProfile.updateMany({
+        where: { userId: record.userId },
+        data: { plan: employerPlan, planExpiresAt: monthAhead },
+      });
+    }
+
+    // 3) Job post upgrades / publishing
+    const jobId = record.jobId || record.relatedJobId;
+    if (jobId) {
+      const jobData: Record<string, unknown> = {};
+      if (record.type === "JOB_POST_FEATURED") jobData.featured = true;
+      if (record.type === "JOB_POST_URGENT") { jobData.urgent = true; jobData.pinnedUntil = monthAhead; }
+      // Any paid job post should be live
+      if (record.type.startsWith("JOB_POST_")) {
+        jobData.status = "PUBLISHED";
+        jobData.publishedAt = new Date();
+      }
+      if (Object.keys(jobData).length > 0) {
+        const job = await prisma.job.update({ where: { id: jobId }, data: jobData }).catch(() => null);
+        if (job?.slug) revalidatePath(`/jobs/${job.slug}`);
+      }
+    }
+  } else {
+    // Reverting to UNPAID downgrades the matching grant
+    if (record.type === "JOB_SEEKER_PLUS" && record.userId) {
+      await prisma.jobSeekerProfile.updateMany({ where: { userId: record.userId }, data: { plan: "FREE", planExpiresAt: null } });
+    }
+    if (EMPLOYER_PLAN_FOR_TYPE[record.type] && record.userId) {
+      await prisma.employerProfile.updateMany({ where: { userId: record.userId }, data: { plan: "FREE", planExpiresAt: null } });
+    }
+  }
+
+  revalidatePath("/admin");
   revalidatePath("/admin/payments");
+  revalidatePath("/me");
+  revalidatePath("/me/billing");
+  revalidatePath("/me/cv");
+  revalidatePath("/");
 }
 
 export async function adminUpdateApplicationStatus(id: string, status: string) {
   await requireEmployer();
-  await prisma.application.update({ where: { id }, data: { status: status as never } });
+  const app = await prisma.application.update({ 
+    where: { id }, 
+    data: { status: status as never },
+    select: { jobId: true }
+  });
+  revalidatePath(`/employer/jobs/${app.jobId}/applications`);
   revalidatePath("/employer");
+  redirect(`/employer/jobs/${app.jobId}/applications`);
 }
 
 export async function adminCreateSourceAction(_: unknown, form: FormData): Promise<any> {

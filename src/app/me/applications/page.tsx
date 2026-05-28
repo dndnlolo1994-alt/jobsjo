@@ -6,8 +6,13 @@ import { APP_STATUS_LABEL, formatDateArabic } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "طلباتي", robots: { index: false, follow: false } };
 
-export default async function ApplicationsPage() {
+export default async function ApplicationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ applied?: string }>;
+}) {
   const user = await requireJobSeeker();
+  const { applied } = await searchParams;
   
   const [apps, seeker] = await Promise.all([
     prisma.application.findMany({ 
@@ -25,6 +30,13 @@ export default async function ApplicationsPage() {
 
   return (
     <section className="container-jo py-8">
+      {applied === "true" && (
+        <div className="bg-emerald-50 border border-emerald-250 text-emerald-800 text-sm p-4 rounded-2xl mb-6 font-bold flex items-center gap-2">
+          <span>✓</span>
+          <span>تم إرسال طلب التقديم للوظيفة بنجاح! يمكنك تتبع حالة طلباتك في هذه الصفحة.</span>
+        </div>
+      )}
+
       <h1 className="section-title">طلبات التقديم</h1>
       
       {seeker?.plan === "FREE" && (
