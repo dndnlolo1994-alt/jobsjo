@@ -117,7 +117,7 @@ export default function PricingPage() {
           <p className="text-xs text-slate-500 mt-1">باقات مخصصة لمساعدتك في بناء سيرتك الذاتية والتقديم على الوظائف</p>
         </div>
         
-        <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start max-w-5xl mx-auto">
+        <div className="grid xl:grid-cols-[1fr_460px] lg:grid-cols-[1fr_420px] gap-8 items-stretch max-w-6xl mx-auto">
           {/* Seeker Plans Cards */}
           <div className="grid md:grid-cols-2 gap-6 w-full">
             {seekerPlans.map((plan) => (
@@ -174,19 +174,19 @@ export default function PricingPage() {
           </div>
 
           {/* CV Template Live Mockup Preview */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm text-center w-full">
-            <h4 className="font-extrabold text-slate-900 text-xs mb-3 border-b border-slate-100 pb-2">
-              هكذا سوف يظهر السي في الخاص بك بعد التوليد
+          <div className="rounded-2xl p-5 sm:p-6 border border-emerald-500/20 bg-slate-950 text-center w-full shadow-xl shadow-slate-950/10">
+            <h4 className="font-extrabold text-white text-sm mb-3 border-b border-white/10 pb-3">
+              نموذج مطابق لقالب PDF بعد التفعيل
             </h4>
-            <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50 group shadow-inner">
+            <div className="relative rounded-xl overflow-hidden border border-[#c2a06c]/40 bg-[#111827] group shadow-2xl">
               <img
                 src="/cv-mockup.png"
                 alt="نموذج معاينة السيرة الذاتية PDF"
-                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
               />
             </div>
-            <p className="text-[10px] text-slate-400 mt-3 leading-relaxed">
-              نموذج حقيقي معتمد من ميزة *الباحث بلس* الموثقة برمز QR.
+            <p className="text-[11px] text-slate-300 mt-3 leading-relaxed">
+              نفس الروح البصرية: رأس أخضر، لمسات ذهبية، صورة شخصية، معلومات اتصال، مهارات، شهادات، ورمز QR موثق.
             </p>
           </div>
         </div>

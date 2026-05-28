@@ -153,6 +153,23 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
       };
     });
 
+    const translatedSkills = skills.map((skill, idx) => {
+      const existing = englishVersion.skills?.[idx] || {};
+      return {
+        name: existing.name || translateText(skill.name),
+        level: existing.level || skill.level,
+      };
+    });
+
+    const translatedCerts = certifications.map((cert, idx) => {
+      const existing = englishVersion.certifications?.[idx] || {};
+      return {
+        name: existing.name || translateText(cert.name),
+        issuer: existing.issuer || translateText(cert.issuer || ""),
+        year: existing.year || cert.year,
+      };
+    });
+
     setEnglishVersion({
       ...englishVersion,
       fullName: englishVersion.fullName || translatedName,
@@ -160,6 +177,8 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
       summary: englishVersion.summary || translatedSummary,
       experiences: translatedExps,
       educations: translatedEdus,
+      skills: translatedSkills,
+      certifications: translatedCerts,
     });
 
     alert("تم توليد ترجمة تقريبية للبيانات بالإنجليزية! يرجى مراجعة وتدقيق الاسم والمصطلحات وتصحيحها إذا وجد أي خطأ.");
@@ -374,12 +393,12 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                 if (!isPaid) {
                   setShowPrintLockModal(true);
                 } else {
-                  window.print();
+                  window.location.href = `/me/cv/download?lang=${lang}`;
                 }
               }}
               className="px-4 py-2 bg-[#c9a84c] hover:bg-[#b5953f] text-navy-955 rounded-lg text-xs font-bold transition-all shadow active:scale-[0.98]"
             >
-              📥 طباعة / PDF
+              📥 فتح نسخة PDF
             </button>
 
             {/* Language Toggle */}
@@ -450,10 +469,10 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                 <div className="bg-white text-navy-955 w-[794px] min-h-[1123px] shadow-2xl relative flex flex-col p-0 border border-slate-200 rounded" dir={isEn ? "ltr" : "rtl"}>
                   {/* Visual Header */}
                   <div className="bg-[#084c41] text-white h-[160px] min-h-[160px] px-10 flex items-center relative overflow-hidden">
-                    <div className="absolute top-[-50px] left-[-50px] w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-                    <div className={`flex items-center justify-between w-full z-10 ${isEn ? "flex-row" : "flex-row-reverse"}`}>
+                    <div className="absolute inset-x-0 bottom-0 h-[5px] bg-[#c2a06c]" />
+                    <div className="flex items-center justify-between w-full z-10" dir="ltr">
                       {/* Name and job Title */}
-                      <div className={`flex flex-col flex-grow ${isEn ? "text-left" : "text-right"}`}>
+                      <div className={`flex flex-col flex-grow ${isEn ? "text-left" : "text-right"}`} dir={isEn ? "ltr" : "rtl"}>
                         <input
                           value={isEn ? (englishVersion.fullName || "") : fullName}
                           onChange={(e) => {
@@ -514,7 +533,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                                 setSummary(e.target.value);
                               }
                             }}
-                            className="bg-transparent border-none text-[11px] text-slate-700 leading-relaxed text-justify w-full p-1 outline-none focus:ring-2 focus:ring-[#c2a06c]/40 hover:bg-slate-50 min-h-[80px] resize-y rounded animate-pulse"
+                            className="bg-transparent border-none text-[10.5px] text-slate-800 leading-[1.55] text-justify w-full p-1 outline-none focus:ring-2 focus:ring-[#c2a06c]/40 hover:bg-slate-50 min-h-[70px] resize-y rounded"
                             placeholder="اكتب ملخصاً مهنياً يلخص مهاراتك وخبراتك..."
                           />
                         </section>
@@ -812,6 +831,15 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                                 placeholder="رابط أعمالي / معرض الأعمال..."
                               />
                             </div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-4 h-4 rounded-full bg-[#084c41] text-white flex items-center justify-center text-[8px] shrink-0">in</span>
+                              <input
+                                value={linkedin}
+                                onChange={(e) => setLinkedin(e.target.value)}
+                                className="bg-transparent border-none text-[9.5px] w-full outline-none focus:ring-1 focus:ring-[#c2a06c] p-0 text-right"
+                                placeholder="LinkedIn..."
+                              />
+                            </div>
                           </div>
                         </section>
 
@@ -831,15 +859,23 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                           </div>
                           
                           <div className="space-y-3">
-                            {skills.map((s, idx) => (
+                            {skills.map((s, idx) => {
+                              const engSkill = englishVersion.skills?.[idx] || {};
+                              return (
                               <div key={s.id || idx} className="group relative space-y-1 hover:bg-white/40 p-1.5 rounded transition-all">
                                 <div className="flex justify-between items-center text-[9.5px] font-bold text-slate-800">
                                   <input
-                                    value={s.name || ""}
+                                    value={isEn ? (engSkill.name || "") : (s.name || "")}
                                     onChange={(e) => {
-                                      const updated = [...skills];
-                                      updated[idx].name = e.target.value;
-                                      setSkills(updated);
+                                      if (isEn) {
+                                        const updated = [...(englishVersion.skills || [])];
+                                        updated[idx] = { ...engSkill, name: e.target.value, level: s.level };
+                                        setEnglishVersion({ ...englishVersion, skills: updated });
+                                      } else {
+                                        const updated = [...skills];
+                                        updated[idx].name = e.target.value;
+                                        setSkills(updated);
+                                      }
                                     }}
                                     className="bg-transparent border-none text-[9.5px] font-bold text-slate-800 w-2/3 outline-none focus:ring-1 focus:ring-[#c2a06c] p-0 text-right"
                                     placeholder="اسم المهارة..."
@@ -872,7 +908,8 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                                   ))}
                                 </div>
                               </div>
-                            ))}
+                            );
+                            })}
                           </div>
                         </section>
 
@@ -892,15 +929,23 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                           </div>
                           
                           <div className="space-y-2">
-                            {certifications.map((c, idx) => (
+                            {certifications.map((c, idx) => {
+                              const engCert = englishVersion.certifications?.[idx] || {};
+                              return (
                               <div key={c.id || idx} className="group relative text-[9px] p-2 bg-white rounded border border-[#084c41]/5 space-y-1 hover:border-[#c2a06c]/40 transition-all text-right">
                                 <div className="flex justify-between items-center">
                                   <input
-                                    value={c.name || ""}
+                                    value={isEn ? (engCert.name || "") : (c.name || "")}
                                     onChange={(e) => {
-                                      const updated = [...certifications];
-                                      updated[idx].name = e.target.value;
-                                      setCertifications(updated);
+                                      if (isEn) {
+                                        const updated = [...(englishVersion.certifications || [])];
+                                        updated[idx] = { ...engCert, name: e.target.value, issuer: engCert.issuer || c.issuer, year: c.year };
+                                        setEnglishVersion({ ...englishVersion, certifications: updated });
+                                      } else {
+                                        const updated = [...certifications];
+                                        updated[idx].name = e.target.value;
+                                        setCertifications(updated);
+                                      }
                                     }}
                                     className="bg-transparent border-none font-bold text-slate-900 leading-tight w-4/5 outline-none focus:ring-1 focus:ring-[#c2a06c] p-0 text-right"
                                     placeholder="اسم الشهادة..."
@@ -915,11 +960,17 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                                 </div>
                                 <div className="flex gap-2">
                                   <input
-                                    value={c.issuer || ""}
+                                    value={isEn ? (engCert.issuer || "") : (c.issuer || "")}
                                     onChange={(e) => {
-                                      const updated = [...certifications];
-                                      updated[idx].issuer = e.target.value;
-                                      setCertifications(updated);
+                                      if (isEn) {
+                                        const updated = [...(englishVersion.certifications || [])];
+                                        updated[idx] = { ...engCert, issuer: e.target.value, name: engCert.name || c.name, year: c.year };
+                                        setEnglishVersion({ ...englishVersion, certifications: updated });
+                                      } else {
+                                        const updated = [...certifications];
+                                        updated[idx].issuer = e.target.value;
+                                        setCertifications(updated);
+                                      }
                                     }}
                                     className="bg-transparent border-none text-slate-500 text-[8px] w-2/3 outline-none focus:ring-1 focus:ring-[#c2a06c] p-0 text-right"
                                     placeholder="الجهة..."
@@ -936,7 +987,8 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                                   />
                                 </div>
                               </div>
-                            ))}
+                            );
+                            })}
                           </div>
                         </section>
                       </div>
@@ -1772,6 +1824,72 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                               placeholder="Institution in English"
                             />
                           </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {skills.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-navy-50">
+                <h4 className="font-bold text-navy-900 text-sm">ترجمة المهارات (Skills Translation)</h4>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {skills.map((skill: any, idx: number) => {
+                    const engSkill = englishVersion.skills?.[idx] || { name: "", level: skill.level };
+                    return (
+                      <div key={idx} className="p-3 border border-navy-100 rounded-lg bg-navy-50/30">
+                        <label className="label text-[10px] text-slate-500">{skill.name}</label>
+                        <input
+                          className="input text-xs"
+                          value={engSkill.name || ""}
+                          onChange={(e) => {
+                            const newSkills = [...(englishVersion.skills || [])];
+                            newSkills[idx] = { ...engSkill, name: e.target.value, level: skill.level };
+                            setEnglishVersion({ ...englishVersion, skills: newSkills });
+                          }}
+                          placeholder="Skill in English"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {certifications.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-navy-50">
+                <h4 className="font-bold text-navy-900 text-sm">ترجمة الشهادات (Certifications Translation)</h4>
+                <div className="space-y-3">
+                  {certifications.map((cert: any, idx: number) => {
+                    const engCert = englishVersion.certifications?.[idx] || { name: "", issuer: "", year: cert.year };
+                    return (
+                      <div key={idx} className="p-4 border border-navy-100 rounded-lg bg-navy-50/30 space-y-3">
+                        <div className="text-xs text-navy-700 font-bold border-b border-navy-50 pb-2">
+                          الشهادة {idx + 1} (بالعربية): <span className="text-emerald-700">{cert.name}</span>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          <input
+                            className="input text-xs"
+                            value={engCert.name || ""}
+                            onChange={(e) => {
+                              const newCerts = [...(englishVersion.certifications || [])];
+                              newCerts[idx] = { ...engCert, name: e.target.value, issuer: engCert.issuer || cert.issuer, year: cert.year };
+                              setEnglishVersion({ ...englishVersion, certifications: newCerts });
+                            }}
+                            placeholder="Certificate name in English"
+                          />
+                          <input
+                            className="input text-xs"
+                            value={engCert.issuer || ""}
+                            onChange={(e) => {
+                              const newCerts = [...(englishVersion.certifications || [])];
+                              newCerts[idx] = { ...engCert, issuer: e.target.value, name: engCert.name || cert.name, year: cert.year };
+                              setEnglishVersion({ ...englishVersion, certifications: newCerts });
+                            }}
+                            placeholder="Issuer in English"
+                          />
                         </div>
                       </div>
                     );

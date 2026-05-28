@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { registerAction } from "@/lib/actions/platform";
+import { PasswordField } from "./PasswordField";
 
 export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
@@ -91,26 +92,12 @@ export default function RegisterForm() {
       
       <div>
         <label className="label text-navy-800 font-semibold mb-1">كلمة المرور</label>
-        <input 
-          className="input w-full border-navy-150 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10" 
-          name="password" 
-          type="password" 
-          placeholder="•••••••• (8 أحرف فأكثر)" 
-          required 
-          disabled={loading}
-        />
+        <PasswordField name="password" placeholder="•••••••• (8 أحرف فأكثر)" disabled={loading} autoComplete="new-password" />
       </div>
       
       <div>
         <label className="label text-navy-800 font-semibold mb-1">تأكيد كلمة المرور</label>
-        <input 
-          className="input w-full border-navy-150 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10" 
-          name="confirmPassword" 
-          type="password" 
-          placeholder="••••••••" 
-          required 
-          disabled={loading}
-        />
+        <PasswordField name="confirmPassword" placeholder="••••••••" disabled={loading} autoComplete="new-password" />
       </div>
       
       <div className="sm:col-span-2">

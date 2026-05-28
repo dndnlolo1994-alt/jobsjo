@@ -30,6 +30,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
       "سيرة موثقة إلكترونياً": "Verified CV",
       "سيرة موثقة": "Verified CV",
       "الاتصال": "Contact",
+      "المؤهلات": "Education",
       "الأردن": "Jordan",
       "حتى الآن": "Present",
       "باحث عن عمل": "Job Seeker",
@@ -85,10 +86,36 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
           endDate: ed.endDate || cv.educations?.[idx]?.endDate,
         }));
       }
+      if (eng.skills?.length > 0) {
+        skills = eng.skills.map((skill: any, idx: number) => ({
+          ...cv.skills?.[idx],
+          name: skill.name || cv.skills?.[idx]?.name,
+          level: skill.level || cv.skills?.[idx]?.level,
+        }));
+      }
+      if (eng.certifications?.length > 0) {
+        certifications = eng.certifications.map((cert: any, idx: number) => ({
+          ...cv.certifications?.[idx],
+          name: cert.name || cv.certifications?.[idx]?.name,
+          issuer: cert.issuer || cv.certifications?.[idx]?.issuer,
+          year: cert.year || cv.certifications?.[idx]?.year,
+        }));
+      }
     } catch (e) {}
   }
 
   const allSkills = [...(skills ?? []).map((s: any) => s.name), ...userSkills].filter(Boolean);
+  const compactUrl = (value?: string | null) => {
+    if (!value) return "";
+    try {
+      const parsed = new URL(value.startsWith("http") ? value : `https://${value}`);
+      const cleanedPath = parsed.pathname.replace(/\/$/, "");
+      const display = `${parsed.hostname.replace(/^www\./, "")}${cleanedPath}`;
+      return display.length > 42 ? `${display.slice(0, 39)}...` : display;
+    } catch {
+      return value.length > 42 ? `${value.slice(0, 39)}...` : value;
+    }
+  };
 
   // Render Template: Minimalist
   if (activeTemplate === "minimalist") {
@@ -107,7 +134,8 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                 {cv.email && <span>{cv.email}</span>}
                 {cv.phone && <span>{formatJordanPhoneDisplay(cv.phone)}</span>}
                 {cv.city && <span>{cv.city}, {t("الأردن")}</span>}
-                {cv.website && <span dir="ltr">{cv.website}</span>}
+                {cv.linkedin && <span dir="ltr">{compactUrl(cv.linkedin)}</span>}
+                {cv.website && <span dir="ltr">{compactUrl(cv.website)}</span>}
               </div>
             </div>
           </div>
@@ -213,7 +241,8 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                 {cv.phone && <li>📞 {formatJordanPhoneDisplay(cv.phone)}</li>}
                 {cv.email && <li>✉ {cv.email}</li>}
                 {cv.city && <li>📍 {cv.city}, {t("الأردن")}</li>}
-                {cv.website && <li className="font-semibold" dir="ltr">🔗 {cv.website}</li>}
+                {cv.linkedin && <li className="font-semibold" dir="ltr">in {compactUrl(cv.linkedin)}</li>}
+                {cv.website && <li className="font-semibold" dir="ltr">🔗 {compactUrl(cv.website)}</li>}
               </ul>
             </div>
 
@@ -326,7 +355,8 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                 {cv.phone && <span>📞 {formatJordanPhoneDisplay(cv.phone)}</span>}
                 {cv.email && <span>✉ {cv.email}</span>}
                 {cv.city && <span>📍 {cv.city}</span>}
-                {cv.website && <span dir="ltr">🔗 {cv.website}</span>}
+                {cv.linkedin && <span dir="ltr">in {compactUrl(cv.linkedin)}</span>}
+                {cv.website && <span dir="ltr">🔗 {compactUrl(cv.website)}</span>}
               </div>
             </div>
           </div>
@@ -428,9 +458,19 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
     ...userSkills.map((s: any) => ({ name: s, level: 4 }))
   ].filter(s => s.name);
 
-  // Content counting to check if we need 1 or 2 pages
-  const totalContentCount = experiences.length + educations.length + certifications.length;
-  const isTwoPages = totalContentCount > 3 || skillsWithLevels.length > 5;
+  const cvTextLength = [
+    summary,
+    ...experiences.map((item: any) => item.description),
+    ...educations.map((item: any) => item.description),
+    ...certifications.map((item: any) => `${item.name ?? ""} ${item.issuer ?? ""}`),
+    ...skillsWithLevels.map((item: any) => item.name),
+  ].filter(Boolean).join(" ").length;
+  const isTwoPages =
+    experiences.length > 3 ||
+    educations.length > 2 ||
+    certifications.length > 4 ||
+    skillsWithLevels.length > 8 ||
+    cvTextLength > 1400;
 
   let page1Exps = experiences;
   let page2Exps: any[] = [];
@@ -442,14 +482,14 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
   let page2Certs: any[] = [];
 
   if (isTwoPages) {
-    page1Exps = experiences.slice(0, 2);
-    page2Exps = experiences.slice(2);
+    page1Exps = experiences.slice(0, 3);
+    page2Exps = experiences.slice(3);
     
-    page1Edus = [];
-    page2Edus = educations;
+    page1Edus = educations.slice(0, 1);
+    page2Edus = educations.slice(1);
     
-    page1Skills = skillsWithLevels.slice(0, 5);
-    page2Skills = skillsWithLevels.slice(5);
+    page1Skills = skillsWithLevels.slice(0, 6);
+    page2Skills = skillsWithLevels.slice(6);
     
     page1Certs = certifications.slice(0, 2);
     page2Certs = certifications.slice(2);
@@ -472,12 +512,10 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
       >
         {/* Header */}
         <div className="cv-header bg-[#084c41] text-white h-[160px] min-h-[160px] px-10 flex items-center relative overflow-hidden">
-          {/* Ambient background decoration */}
-          <div className="absolute top-[-50px] left-[-50px] w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-          
-          <div className={`flex items-center justify-between w-full z-10 ${isEn ? "flex-row" : "flex-row-reverse"}`}>
+          <div className="absolute inset-x-0 bottom-0 h-[5px] bg-[#c2a06c]" />
+          <div className="flex items-center justify-between w-full z-10" dir="ltr">
             {/* Name and Job Title */}
-            <div className={`flex flex-col ${isEn ? "text-left" : "text-right"}`}>
+            <div className={`flex flex-col ${isEn ? "text-left" : "text-right"}`} dir={isEn ? "ltr" : "rtl"}>
               <h1 className="text-3xl font-extrabold tracking-wide text-white leading-tight">{fullName}</h1>
               <p className="text-sm text-[#c2a06c] font-bold mt-1.5">{jobTitle || t("باحث عن عمل")}</p>
             </div>
@@ -504,15 +542,15 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
         <div className="flex-1 flex flex-row overflow-hidden" dir="ltr">
           {/* Main Body */}
           <div className="w-[67%] bg-white p-8 border-l-[16px] border-[#084c41] flex flex-col justify-between overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
-            <div className="space-y-5">
+            <div className="space-y-4">
               {/* Summary */}
               {showSummary && summary && (
                 <section>
                   <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5 flex items-center gap-2">
                     {t("نبذة مهنية")}
                   </h2>
-                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-2" />
-                  <p className="text-[11px] text-slate-700 leading-relaxed text-justify">{summary}</p>
+                  <div className="h-px w-full bg-[#c2a06c]/70 mb-2" />
+                  <p className="text-[10.5px] text-slate-800 leading-[1.55] text-justify">{summary}</p>
                 </section>
               )}
 
@@ -522,13 +560,13 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                   <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5">
                     {t("الخبرات العملية")}
                   </h2>
-                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-4" />
+                  <div className="h-px w-full bg-[#c2a06c]/70 mb-3" />
                   
                   <div className="relative">
                     {/* Continuous vertical timeline line */}
                     <div className="absolute left-[100px] top-2 bottom-2 w-[1px] bg-[#c2a06c]/30" />
                     
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {pageExps.map((exp) => (
                         <div key={exp.id} className="flex flex-row gap-3 items-start relative text-[11px]" dir="ltr">
                           {/* Left: Date */}
@@ -549,7 +587,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                               {exp.company} {exp.city ? `• ${exp.city}` : ""}
                             </div>
                             {exp.description && (
-                              <p className="text-[9.5px] text-slate-500 mt-1 leading-relaxed whitespace-pre-line">
+                              <p className="text-[9.2px] text-slate-600 mt-1 leading-[1.45] whitespace-pre-line">
                                 {exp.description}
                               </p>
                             )}
@@ -567,13 +605,13 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                   <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5">
                     {t("التعليم والدراسة")}
                   </h2>
-                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-4" />
+                  <div className="h-px w-full bg-[#c2a06c]/70 mb-3" />
                   
                   <div className="relative">
                     {/* Continuous vertical timeline line */}
                     <div className="absolute left-[100px] top-2 bottom-2 w-[1px] bg-[#c2a06c]/30" />
                     
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {pageEdus.map((edu) => (
                         <div key={edu.id} className="flex flex-row gap-3 items-start relative text-[11px]" dir="ltr">
                           {/* Left: Date */}
@@ -624,6 +662,12 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
           {/* Sidebar */}
           <aside className="w-[33%] bg-[#f4f6f5] p-5 flex flex-col justify-between border-x border-[#084c41]/5 overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
             <div className="space-y-5">
+              {pageNum > 1 && (
+                <section className="rounded-lg bg-white/80 border border-[#084c41]/10 p-2 text-center">
+                  <div className="text-[10px] font-extrabold text-[#084c41]">{fullName}</div>
+                  <div className="text-[8px] text-slate-500">{isEn ? `Page ${pageNum}` : `الصفحة ${pageNum}`}</div>
+                </section>
+              )}
               {/* Contact Info */}
               {pageNum === 1 && (
                 <section>
@@ -652,7 +696,13 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                     {cv.website && (
                       <li className="flex items-center gap-2 break-all">
                         <span className="w-4 h-4 rounded-full bg-[#084c41] text-white flex items-center justify-center text-[9px]">🔗</span>
-                        <span dir="ltr">{cv.website}</span>
+                        <span dir="ltr">{compactUrl(cv.website)}</span>
+                      </li>
+                    )}
+                    {cv.linkedin && (
+                      <li className="flex items-center gap-2 break-all">
+                        <span className="w-4 h-4 rounded-full bg-[#084c41] text-white flex items-center justify-center text-[8.5px]">in</span>
+                        <span dir="ltr">{compactUrl(cv.linkedin)}</span>
                       </li>
                     )}
                   </ul>
