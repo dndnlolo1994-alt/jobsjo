@@ -30,10 +30,15 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="hero-shell text-white min-h-[700px] sm:min-h-[780px] lg:min-h-[840px] flex items-center">
-        <div className="container-jo py-16 sm:py-24">
-          <div className="max-w-3xl">
-            <Badge className="bg-sand-400 text-navy-900 mb-4">منصة الأردن للوظائف</Badge>
+      <section className="bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 text-white py-12 sm:py-16 lg:py-20 relative overflow-hidden">
+        {/* Ambient Glows */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="container-jo grid lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+          {/* Right Column: Text Content */}
+          <div className="lg:col-span-7 flex flex-col justify-center">
+            <Badge className="bg-sand-400 text-navy-900 mb-4 w-fit">منصة الأردن للوظائف</Badge>
             <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight max-w-2xl">
               وظائف الأردن القريبة منك — وقدّم بسيرة ذاتية جاهزة
             </h1>
@@ -57,6 +62,19 @@ export default async function HomePage() {
               <Stat label="وظائف منشورة" value={stats.jobs.toLocaleString("ar-JO")} />
               <Stat label="شركات" value={stats.companies.toLocaleString("ar-JO")} />
               <Stat label="طلبات تقديم" value={stats.applications.toLocaleString("ar-JO")} />
+            </div>
+          </div>
+
+          {/* Left Column: Dedicated Jordanian Workspace Image */}
+          <div className="lg:col-span-5 w-full flex justify-center mt-6 lg:mt-0">
+            <div className="relative w-full max-w-lg lg:max-w-none aspect-[4/3] sm:aspect-[16/11] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-navy-950/50 group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src="/images/hero-jojobs.png" 
+                alt="مكتب العمل والتوظيف بالأردن" 
+                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" 
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/30 via-transparent to-transparent pointer-events-none" />
             </div>
           </div>
         </div>
