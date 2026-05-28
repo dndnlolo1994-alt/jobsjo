@@ -61,10 +61,12 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-10 max-w-xl">
+            <div className={`grid ${stats.applications > 0 ? "grid-cols-3" : "grid-cols-2"} gap-2 sm:gap-3 mt-10 max-w-xl`}>
               <Stat label="وظائف منشورة" value={stats.jobs.toLocaleString("ar-JO")} />
               <Stat label="شركات" value={stats.companies.toLocaleString("ar-JO")} />
-              <Stat label="طلبات تقديم" value={stats.applications.toLocaleString("ar-JO")} />
+              {stats.applications > 0 && (
+                <Stat label="طلبات تقديم" value={stats.applications.toLocaleString("ar-JO")} />
+              )}
             </div>
             <p className="text-[10px] text-navy-300 mt-4 font-semibold text-center sm:text-right opacity-80">
               ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة

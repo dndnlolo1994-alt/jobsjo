@@ -54,7 +54,7 @@ export default async function EmployerPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="📦 شواغرك النشطة" value={jobs.length} />
-        <StatCard label="📥 طلبات التقديم" value={totalApps} />
+        <StatCard label="📥 طلبات التقديم" value={totalApps > 0 ? totalApps : "-"} />
         <StatCard label="👁️ مشاهدات الوظائف" value={totalViews} />
         <StatCard label="⚡ باقة الحساب" value={user.role === "ADMIN" ? "ADMIN" : "FREE"} />
       </div>
@@ -102,7 +102,7 @@ export default async function EmployerPage() {
                         </span>
                       </td>
                       <td className="p-4 text-navy-600 font-medium">{j.city}{j.area ? ` · ${j.area}` : ""}</td>
-                      <td className="p-4 text-center font-bold text-emerald-600">{j._count.applications}</td>
+                      <td className="p-4 text-center font-bold text-emerald-600">{j._count.applications > 0 ? j._count.applications : "-"}</td>
                       <td className="p-4 text-center text-navy-500 font-medium">{j.viewCount}</td>
                       <td className="p-4 text-center">
                         <Link 
