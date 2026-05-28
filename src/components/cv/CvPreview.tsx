@@ -422,115 +422,290 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
   }
 
   // Default Template: Modern Emerald
-  return (
-    <div className="cv-print cv-print-padded bg-white text-navy-950 mx-auto max-w-[794px] min-h-[1123px] p-8 md:p-12 shadow-card border border-navy-100" dir={isEn ? "ltr" : "rtl"}>
-      <header className="border-b-4 border-emerald-600 pb-6 mb-6 flex justify-between items-start">
-        <div className="flex gap-5 items-center">
-          {cv.photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={cv.photo} alt={fullName} className="w-24 h-24 rounded-full object-cover border-2 border-emerald-600 shadow" />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-emerald-50 text-emerald-700 border-2 border-emerald-600 flex items-center justify-center text-4xl shadow">🧑</div>
-          )}
-          <div>
-            <h1 className="text-3xl font-extrabold text-navy-900">{fullName}</h1>
-            <p className="text-xl text-emerald-700 font-bold mt-1">{jobTitle || t("باحث عن عمل")}</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-navy-500 mt-3">
-              {cv.email && <span>✉ {cv.email}</span>}
-              {cv.phone && <span>📞 {formatJordanPhoneDisplay(cv.phone)}</span>}
-              {cv.city && <span>📍 {cv.city}, {t("الأردن")}</span>}
-              {cv.website && <span dir="ltr">🔗 {cv.website}</span>}
+  const skillsWithLevels = [
+    ...(skills ?? []).map((s: any) => ({ name: s.name || s, level: s.level || 4 })),
+    ...userSkills.map((s: any) => ({ name: s, level: 4 }))
+  ].filter(s => s.name);
+
+  // Content counting to check if we need 1 or 2 pages
+  const totalContentCount = experiences.length + educations.length + certifications.length;
+  const isTwoPages = totalContentCount > 3 || skillsWithLevels.length > 5;
+
+  let page1Exps = experiences;
+  let page2Exps: any[] = [];
+  let page1Edus = educations;
+  let page2Edus: any[] = [];
+  let page1Skills = skillsWithLevels;
+  let page2Skills: any[] = [];
+  let page1Certs = certifications;
+  let page2Certs: any[] = [];
+
+  if (isTwoPages) {
+    page1Exps = experiences.slice(0, 2);
+    page2Exps = experiences.slice(2);
+    
+    page1Edus = [];
+    page2Edus = educations;
+    
+    page1Skills = skillsWithLevels.slice(0, 5);
+    page2Skills = skillsWithLevels.slice(5);
+    
+    page1Certs = certifications.slice(0, 2);
+    page2Certs = certifications.slice(2);
+  }
+
+  const renderPage = (
+    pageNum: number,
+    pageExps: any[],
+    pageEdus: any[],
+    pageSkills: any[],
+    pageCerts: any[],
+    showSummary: boolean,
+    showFooter: boolean
+  ) => {
+    return (
+      <div 
+        className="cv-print bg-white text-navy-950 mx-auto max-w-[794px] h-[1123px] min-h-[1123px] max-h-[1123px] relative overflow-hidden shadow-card border border-navy-100 mb-8 flex flex-col" 
+        dir={isEn ? "ltr" : "rtl"}
+        key={pageNum}
+      >
+        {/* Header */}
+        <header className="bg-[#084c41] text-white h-[160px] min-h-[160px] px-10 flex items-center relative overflow-hidden">
+          {/* Ambient background decoration */}
+          <div className="absolute top-[-50px] left-[-50px] w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+          
+          <div className={`flex items-center justify-between w-full z-10 ${isEn ? "flex-row" : "flex-row-reverse"}`}>
+            {/* Name and Job Title */}
+            <div className={`flex flex-col ${isEn ? "text-left" : "text-right"}`}>
+              <h1 className="text-3xl font-extrabold tracking-wide text-white leading-tight">{fullName}</h1>
+              <p className="text-sm text-[#c2a06c] font-bold mt-1.5">{jobTitle || t("باحث عن عمل")}</p>
+            </div>
+            
+            {/* Profile Photo */}
+            <div className="relative">
+              {cv.photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img 
+                  src={cv.photo} 
+                  alt={fullName} 
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white ring-4 ring-[#c2a06c] shadow-lg" 
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-emerald-50 text-emerald-700 border-4 border-white ring-4 ring-[#c2a06c] flex items-center justify-center text-4xl shadow-lg">
+                  🧑
+                </div>
+              )}
             </div>
           </div>
+        </header>
+
+        {/* Columns Container */}
+        <div className={`flex-1 flex overflow-hidden ${isEn ? "flex-row" : "flex-row-reverse"}`}>
+          {/* Main Body */}
+          <div className="w-[67%] bg-white p-8 border-l-8 border-[#084c41] flex flex-col justify-between overflow-hidden">
+            <div className="space-y-5">
+              {/* Summary */}
+              {showSummary && summary && (
+                <section>
+                  <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5 flex items-center gap-2">
+                    {t("نبذة مهنية")}
+                  </h2>
+                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-2" />
+                  <p className="text-[11px] text-slate-700 leading-relaxed text-justify">{summary}</p>
+                </section>
+              )}
+
+              {/* Experience */}
+              {pageExps.length > 0 && (
+                <section>
+                  <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5">
+                    {t("الخبرات العملية")}
+                  </h2>
+                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-3" />
+                  
+                  <div className="relative border-r border-[#c2a06c]/30 pr-4 mr-2 space-y-4">
+                    {pageExps.map((exp) => (
+                      <div key={exp.id} className="relative">
+                        {/* Timeline dot */}
+                        <div className="absolute right-[-22px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#c2a06c] border border-white" />
+                        
+                        <div className="flex justify-between items-baseline text-[11px]">
+                          <span className="font-extrabold text-[#084c41] text-[12px]">{exp.position}</span>
+                          <span className="text-slate-500 font-bold bg-slate-50 px-1.5 py-0.5 rounded text-[9px] shrink-0">
+                            {exp.startDate} - {exp.endDate || t("حتى الآن")}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-700 font-bold mt-0.5">
+                          {exp.company} {exp.city ? `• ${exp.city}` : ""}
+                        </div>
+                        {exp.description && (
+                          <p className="text-[9.5px] text-slate-500 mt-1 leading-relaxed whitespace-pre-line pr-1 border-r border-slate-50">
+                            {exp.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Education */}
+              {pageEdus.length > 0 && (
+                <section>
+                  <h2 className="text-sm font-extrabold text-[#084c41] mb-1.5">
+                    {t("التعليم والدراسة")}
+                  </h2>
+                  <div className="w-10 h-0.5 bg-[#c2a06c] mb-3" />
+                  
+                  <div className="relative border-r border-[#c2a06c]/30 pr-4 mr-2 space-y-3">
+                    {pageEdus.map((edu) => (
+                      <div key={edu.id} className="relative">
+                        {/* Timeline dot */}
+                        <div className="absolute right-[-22px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#c2a06c] border border-white" />
+                        
+                        <div className="flex justify-between items-baseline text-[11px]">
+                          <span className="font-extrabold text-[#084c41] text-[12px]">{edu.degree}</span>
+                          <span className="text-slate-500 font-bold bg-slate-50 px-1.5 py-0.5 rounded text-[9px] shrink-0">
+                            {edu.startDate} - {edu.endDate || t("حتى الآن")}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-700 font-bold mt-0.5">
+                          {edu.institution} {edu.city ? `• ${edu.city}` : ""}
+                        </div>
+                        {edu.description && (
+                          <p className="text-[9.5px] text-slate-500 mt-1 leading-relaxed">
+                            {edu.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* Footer inside main column */}
+            {showFooter && (
+              <div className="border-t border-slate-100 pt-3 mt-auto text-center">
+                <span className="text-[10px] font-extrabold text-[#084c41]">
+                  {fullName}
+                </span>
+                <span className="mx-1.5 text-slate-300">|</span>
+                <span className="text-[9px] text-slate-500">
+                  {jobTitle || t("باحث عن عمل")}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <aside className="w-[33%] bg-[#f4f6f5] p-5 flex flex-col justify-between border-x border-[#084c41]/5 overflow-hidden">
+            <div className="space-y-5">
+              {/* Contact Info */}
+              {pageNum === 1 && (
+                <section>
+                  <h3 className="text-[11px] font-bold text-[#084c41] uppercase tracking-wider mb-2 pb-1 border-b border-[#c2a06c]/30">
+                    {t("الاتصال")}
+                  </h3>
+                  <ul className="text-[10px] text-slate-700 space-y-2">
+                    {cv.phone && (
+                      <li className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-[#084c41] text-white flex items-center justify-center text-[9px]">📞</span>
+                        <span dir="ltr">{formatJordanPhoneDisplay(cv.phone)}</span>
+                      </li>
+                    )}
+                    {cv.email && (
+                      <li className="flex items-center gap-2 break-all">
+                        <span className="w-4 h-4 rounded-full bg-[#084c41] text-white flex items-center justify-center text-[8.5px]">✉</span>
+                        <span>{cv.email}</span>
+                      </li>
+                    )}
+                    {cv.city && (
+                      <li className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-[#084c41] text-white flex items-center justify-center text-[9px]">📍</span>
+                        <span>{cv.city}, {t("الأردن")}</span>
+                      </li>
+                    )}
+                    {cv.website && (
+                      <li className="flex items-center gap-2 break-all">
+                        <span className="w-4 h-4 rounded-full bg-[#084c41] text-white flex items-center justify-center text-[9px]">🔗</span>
+                        <span dir="ltr">{cv.website}</span>
+                      </li>
+                    )}
+                  </ul>
+                </section>
+              )}
+
+              {/* Skills */}
+              {pageSkills.length > 0 && (
+                <section>
+                  <h3 className="text-[11px] font-bold text-[#084c41] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#c2a06c]/30">
+                    {t("المهارات")}
+                  </h3>
+                  <div className="space-y-2">
+                    {pageSkills.map((s, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex justify-between text-[9.5px] font-bold text-slate-800">
+                          <span>{s.name}</span>
+                        </div>
+                        {/* Progress Bar */}
+                        <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full rounded-full bg-[#084c41]" 
+                            style={{ width: `${s.level * 20}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Certifications */}
+              {pageCerts.length > 0 && (
+                <section>
+                  <h3 className="text-[11px] font-bold text-[#084c41] uppercase tracking-wider mb-2 pb-1 border-b border-[#c2a06c]/30">
+                    {t("الشهادات")}
+                  </h3>
+                  <div className="space-y-1.5">
+                    {pageCerts.map((c) => (
+                      <div key={c.id} className="text-[9px] p-1.5 bg-white rounded border border-[#084c41]/5">
+                        <div className="font-bold text-slate-900 leading-tight">{c.name}</div>
+                        <div className="text-slate-500 text-[8px] mt-0.5 leading-none">{c.issuer} {c.year ? `• ${c.year}` : ""}</div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+
+            {/* QR Code Verification */}
+            {pageNum === 1 && qrCodeDataUrl && (
+              <div className="pt-3 mt-auto border-t border-slate-200 text-center flex flex-col items-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={qrCodeDataUrl} 
+                  alt="QR Verification" 
+                  className="w-14 h-14 border border-emerald-100 p-0.5 rounded bg-white shadow-sm" 
+                />
+                <span className="text-[8.5px] text-[#084c41] font-bold block mt-1">
+                  {t("سيرة موثقة")}
+                </span>
+                <span className="text-[8px] text-slate-400 block">
+                  jojobs.jo/cv/verify
+                </span>
+              </div>
+            )}
+          </aside>
         </div>
-        {qrCodeDataUrl && (
-          <div className="text-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={qrCodeDataUrl} alt="QR Verification" className="w-16 h-16 border border-emerald-100 p-0.5 rounded bg-white shadow-sm" />
-            <span className="text-[9px] text-emerald-800 font-semibold block mt-1">{t("سيرة موثقة")}</span>
-          </div>
-        )}
-      </header>
-
-      {summary && (
-        <section className="mb-6">
-          <h2 className="text-base font-extrabold text-navy-900 border-b border-navy-200 pb-1 mb-2 flex items-center gap-1.5">
-            <span className="w-2 h-4 bg-emerald-600 rounded"></span> {t("نبذة مهنية")}
-          </h2>
-          <p className="text-xs text-navy-700 leading-6 leading-relaxed">{summary}</p>
-        </section>
-      )}
-
-      {experiences?.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-base font-extrabold text-navy-900 border-b border-navy-200 pb-1 mb-3 flex items-center gap-1.5">
-            <span className="w-2 h-4 bg-emerald-600 rounded"></span> {t("الخبرات العملية")}
-          </h2>
-          <div className="space-y-4">
-            {experiences.map((e: any) => (
-              <div key={e.id} className="break-inside-avoid">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-navy-900">{e.position}</span>
-                  <span className="text-emerald-700 font-bold">{e.startDate} - {e.endDate || t("حتى الآن")}</span>
-                </div>
-                <div className="text-xs text-navy-500 font-semibold mt-0.5">{e.company} {e.city ? `• ${e.city}` : ""}</div>
-                {e.description && <p className="text-[11px] text-navy-600 mt-1 leading-5 whitespace-pre-line">{e.description}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {educations?.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-base font-extrabold text-navy-900 border-b border-navy-200 pb-1 mb-3 flex items-center gap-1.5">
-            <span className="w-2 h-4 bg-emerald-600 rounded"></span> {t("التعليم والدراسة")}
-          </h2>
-          <div className="space-y-3">
-            {educations.map((e: any) => (
-              <div key={e.id} className="break-inside-avoid">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-navy-950">{e.degree}</span>
-                  <span className="text-emerald-700 font-bold">{e.startDate} - {e.endDate || t("حتى الآن")}</span>
-                </div>
-                <div className="text-xs text-navy-500 mt-0.5">{e.institution} {e.city ? `• ${e.city}` : ""}</div>
-                {e.description && <p className="text-[11px] text-navy-600 mt-1 leading-5">{e.description}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <div className="grid grid-cols-2 gap-8">
-        {allSkills.length > 0 && (
-          <section className="break-inside-avoid">
-            <h2 className="text-base font-extrabold text-navy-900 border-b border-navy-200 pb-1 mb-2 flex items-center gap-1.5">
-              <span className="w-2 h-4 bg-emerald-600 rounded"></span> {t("المهارات")}
-            </h2>
-            <div className="flex flex-wrap gap-1.5">
-              {allSkills.map((s) => (
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-100" key={s}>{s}</span>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {certifications?.length > 0 && (
-          <section className="break-inside-avoid">
-            <h2 className="text-base font-extrabold text-navy-900 border-b border-navy-200 pb-1 mb-2 flex items-center gap-1.5">
-              <span className="w-2 h-4 bg-emerald-600 rounded"></span> {t("الشهادات والدورات")}
-            </h2>
-            <div className="space-y-2">
-              {certifications.map((c: any) => (
-                <div key={c.id} className="text-xs">
-                  <div className="font-bold text-navy-900">{c.name}</div>
-                  <div className="text-emerald-700 text-[10px] font-semibold mt-0.5">{c.issuer} {c.year ? `• ${c.year}` : ""}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
       </div>
+    );
+  };
+
+  return (
+    <div className="space-y-0 print:space-y-0">
+      {renderPage(1, page1Exps, page1Edus, page1Skills, page1Certs, true, !isTwoPages)}
+      {isTwoPages && renderPage(2, page2Exps, page2Edus, page2Skills, page2Certs, false, true)}
     </div>
   );
 }
