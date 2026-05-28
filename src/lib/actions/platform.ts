@@ -237,6 +237,74 @@ export async function resetPasswordAction(_: unknown, form: FormData) {
   };
 }
 
+export async function saveCurrentSearchAction(_: unknown, form: FormData) {
+  const user = await requireUser();
+  const name = str(form, "name") ?? "بحث محفوظ";
+  const queryJsonRaw = str(form, "queryJson");
+  if (!queryJsonRaw) return { ok: false, message: "لا توجد فلاتر لحفظها" };
+
+  let queryJson: Record<string, string> = {};
+  try {
+    queryJson = JSON.parse(queryJsonRaw);
+  } catch {
+    return { ok: false, message: "تعذر قراءة الفلاتر الحالية" };
+  }
+
+  await prisma.savedSearch.create({
+    data: {
+      userId: user.id,
+      name: name.slice(0, 80),
+      queryJson,
+    },
+  });
+  revalidatePath("/jobs");
+  revalidatePath("/me/saved-searches");
+  return { ok: true, message: "تم حفظ البحث. سنرسل لك تنبيهات عند توفر وظائف مطابقة." };
+}
+
+export async function toggleSavedSearchAction(id: string) {
+  const user = await requireUser();
+  const existing = await prisma.savedSearch.findFirst({ where: { id, userId: user.id } });
+  if (!existing) return;
+  await prisma.savedSearch.update({
+    where: { id },
+    data: { isActive: !existing.isActive },
+  });
+  revalidatePath("/me/saved-searches");
+}
+
+export async function deleteSavedSearchAction(id: string) {
+  const user = await requireUser();
+  await prisma.savedSearch.deleteMany({ where: { id, userId: user.id } });
+  revalidatePath("/me/saved-searches");
+}
+
+export async function createCompanyReviewAction(_: unknown, form: FormData) {
+  const user = await requireUser();
+  const companyId = str(form, "companyId");
+  const rating = Number(str(form, "rating"));
+  const title = str(form, "title");
+  const comment = str(form, "comment");
+  if (!companyId || !title || !comment) return { ok: false, message: "يرجى تعبئة جميع حقول التقييم" };
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) return { ok: false, message: "التقييم يجب أن يكون من 1 إلى 5" };
+
+  const company = await prisma.company.findUnique({ where: { id: companyId }, select: { slug: true } });
+  if (!company) return { ok: false, message: "الشركة غير موجودة" };
+
+  await prisma.companyReview.create({
+    data: {
+      companyId,
+      userId: user.id,
+      rating,
+      title: title.slice(0, 120),
+      comment: comment.slice(0, 1200),
+      status: "PENDING",
+    },
+  });
+  revalidatePath(`/companies/${company.slug}`);
+  return { ok: true, message: "تم إرسال تقييمك للمراجعة. سيظهر بعد اعتماده من الإدارة." };
+}
+
 
 export async function saveCvAction(_: unknown, form: FormData) {
   const user = await requireJobSeeker();

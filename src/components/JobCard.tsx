@@ -49,13 +49,15 @@ export function JobCard({ job, matchScore }: Props) {
 
   return (
     <Link href={`/jobs/${job.slug}`} className={cardClasses}>
-      <div className={`absolute inset-x-0 top-0 h-1 transition-all duration-300 ${
-        job.featured 
-          ? "bg-gradient-to-l from-amber-400 via-amber-300 to-emerald-500" 
-          : "bg-emerald-500/80"
-      }`} />
+      {job.featured ? (
+        <div className="absolute inset-x-0 top-0 bg-gradient-to-l from-amber-400 via-amber-300 to-emerald-500 px-4 py-1.5 text-xs font-extrabold text-navy-950">
+          وظيفة مميزة
+        </div>
+      ) : (
+        <div className="absolute inset-x-0 top-0 h-1 bg-emerald-500/80 transition-all duration-300" />
+      )}
 
-      <div className="flex items-start gap-3 sm:gap-4 pt-1">
+      <div className={`flex items-start gap-3 sm:gap-4 ${job.featured ? "pt-8" : "pt-1"}`}>
         <div className="shrink-0 w-12 h-12 rounded-2xl bg-navy-950 border border-emerald-400/20 grid place-items-center text-white font-extrabold shadow-md shadow-navy-950/10 overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
           {job.company?.logoUrl ? (
             <img
@@ -71,20 +73,13 @@ export function JobCard({ job, matchScore }: Props) {
         <div className="flex-1 min-w-0 space-y-2">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              {(job.featured || job.urgent) && (
-                <div className="mb-1.5 flex flex-wrap gap-1.5">
-              {job.featured && (
-                <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                  مميزة
-                </span>
-              )}
               {job.urgent && (
-                <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
-                  عاجل
-                </span>
+                <div className="mb-1.5 flex flex-wrap gap-1.5">
+                  <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                    عاجل
+                  </span>
+                </div>
               )}
-            </div>
-          )}
 
               <h3 className="text-sm sm:text-base font-extrabold leading-snug text-navy-900 transition-colors duration-200 line-clamp-2 group-hover:text-emerald-700">
                 {job.title}

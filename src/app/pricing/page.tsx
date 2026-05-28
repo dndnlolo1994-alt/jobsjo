@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "باقات الاشتراك والأسعار",
   description: "تعرف على أسعار وخطط الاشتراك للباحثين عن عمل وللشركات في منصة جوبز الأردن.",
 };
+export const revalidate = 3600;
 
 export default function PricingPage() {
   const seekerPlans = [

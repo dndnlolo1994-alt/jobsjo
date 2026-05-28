@@ -37,7 +37,10 @@ export default async function ApplicationsPage({
         </div>
       )}
 
-      <h1 className="section-title">طلبات التقديم</h1>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="section-title mb-0">طلبات التقديم</h1>
+        <Link href="/me/applications/board" className="btn-outline text-sm">عرض لوحة التتبع</Link>
+      </div>
       
       {seeker?.plan === "FREE" && (
         <div className="card-pad bg-amber-50/50 border border-amber-100 mb-6 text-xs text-amber-800 flex justify-between items-center gap-3">

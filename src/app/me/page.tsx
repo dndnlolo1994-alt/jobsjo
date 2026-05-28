@@ -68,10 +68,12 @@ export default async function MePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-6">
         <Link className="card-pad hover:border-emerald-300 hover:text-emerald-700 text-center font-bold transition-all" href="/jobs">🔍 ابحث عن وظائف</Link>
         <Link className="card-pad hover:border-emerald-300 hover:text-emerald-700 text-center font-bold transition-all" href="/me/cv">📄 سيرتي الذاتية</Link>
         <Link className="card-pad hover:border-emerald-300 hover:text-emerald-700 text-center font-bold transition-all" href="/me/applications">📂 طلبات التقديم</Link>
+        <Link className="card-pad hover:border-emerald-300 hover:text-emerald-700 text-center font-bold transition-all" href="/me/applications/board">📌 لوحة الطلبات</Link>
+        <Link className="card-pad hover:border-emerald-300 hover:text-emerald-700 text-center font-bold transition-all" href="/me/saved-searches">🔔 بحوث محفوظة</Link>
         <Link className="card-pad hover:border-emerald-300 hover:text-emerald-700 text-center font-bold transition-all" href="/me/billing">💳 الرسوم والفواتير</Link>
       </div>
     </section>

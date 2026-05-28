@@ -4,13 +4,14 @@ import { JobCard } from "@/components/JobCard";
 import { Badge } from "@/components/Badge";
 import { JOB_CATEGORIES, JORDAN_CITIES } from "@/lib/utils";
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function HomePage() {
   let featured: any[] = [];
   let stats = { jobs: 0, companies: 0, applications: 0 };
+  let cityCounts: Record<string, number> = {};
   try {
-    const [items, j, c, a] = await Promise.all([
+    const [items, j, c, a, cities] = await Promise.all([
       prisma.job.findMany({
         where: { status: "PUBLISHED" },
         include: { company: { select: { name: true, logoUrl: true, slug: true } } },
@@ -20,9 +21,15 @@ export default async function HomePage() {
       prisma.job.count({ where: { status: "PUBLISHED" } }),
       prisma.company.count(),
       prisma.application.count(),
+      prisma.job.groupBy({
+        by: ["city"],
+        where: { status: "PUBLISHED" },
+        _count: { _all: true },
+      }),
     ]);
     featured = items;
     stats = { jobs: j, companies: c, applications: a };
+    cityCounts = Object.fromEntries(cities.map((city) => [city.city, city._count._all]));
   } catch {
     // قاعدة البيانات غير جاهزة بعد. نعرض الصفحة بدون أرقام.
   }
@@ -98,7 +105,7 @@ export default async function HomePage() {
               href={`/jobs?city=${encodeURIComponent(c)}`}
               className="px-3 py-2 rounded-full bg-white border border-navy-100 text-sm font-semibold text-navy-700 hover:border-emerald-300 hover:text-emerald-700"
             >
-              {c}
+              {c} ({(cityCounts[c] ?? 0).toLocaleString("ar-JO")})
             </Link>
           ))}
         </div>

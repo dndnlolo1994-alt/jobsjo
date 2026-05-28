@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type JobSearchParams = {
@@ -64,6 +64,7 @@ export async function searchJobsAdvanced(params: JobSearchParams) {
       { responsibilities: { contains: params.q, mode: "insensitive" } },
       { companyNameText: { contains: params.q, mode: "insensitive" } },
       { skills: { contains: params.q, mode: "insensitive" } },
+      { company: { name: { contains: params.q, mode: "insensitive" } } },
     ];
   }
   if (params.city) where.city = params.city;
@@ -87,8 +88,93 @@ export async function searchJobsAdvanced(params: JobSearchParams) {
     params.sort === "salary-low" ? [{ salaryMin: "asc" }, { salaryMax: "asc" }] :
     [{ pinnedUntil: "desc" }, { featured: "desc" }, { urgent: "desc" }, { publishedAt: "desc" }];
 
-  let items: Awaited<ReturnType<typeof prisma.job.findMany>> = [];
+  let items: Array<Prisma.JobGetPayload<{ include: { company: { select: { name: true; logoUrl: true; slug: true } } } }>> = [];
   let total = 0;
+
+  if (params.q) {
+    try {
+      const q = `%${params.q}%`;
+      const conditions: Prisma.Sql[] = [
+        Prisma.sql`j."status"::text = 'PUBLISHED'`,
+        Prisma.sql`(
+          j."title" ILIKE ${q}
+          OR c."name" ILIKE ${q}
+          OR j."companyNameText" ILIKE ${q}
+          OR j."skills" ILIKE ${q}
+          OR j."description" ILIKE ${q}
+          OR j."requirements" ILIKE ${q}
+        )`,
+      ];
+
+      if (params.city) conditions.push(Prisma.sql`j."city" = ${params.city}`);
+      if (params.area) conditions.push(Prisma.sql`j."area" ILIKE ${`%${params.area}%`}`);
+      if (params.category) conditions.push(Prisma.sql`j."jobCategory" = ${params.category}`);
+      if (params.jobType) conditions.push(Prisma.sql`j."jobType"::text = ${params.jobType}`);
+      if (params.experience) conditions.push(Prisma.sql`j."experienceLevel"::text = ${params.experience}`);
+      if (params.education) conditions.push(Prisma.sql`j."educationLevel"::text = ${params.education}`);
+      if (params.noExperience) conditions.push(Prisma.sql`j."noExperienceRequired" = true`);
+      if (params.womenFriendly) conditions.push(Prisma.sql`j."womenFriendly" = true`);
+      if (params.remote) conditions.push(Prisma.sql`j."jobType"::text = 'REMOTE'`);
+      if (params.hybrid) conditions.push(Prisma.sql`j."jobType"::text = 'HYBRID'`);
+      if (params.sourceType && params.includeAdminFilters) conditions.push(Prisma.sql`j."sourceType"::text = ${params.sourceType}`);
+      if (params.salaryMin) {
+        conditions.push(Prisma.sql`(j."salaryMax" >= ${params.salaryMin} OR j."salaryMin" >= ${params.salaryMin})`);
+      }
+      if (params.salaryMax) conditions.push(Prisma.sql`j."salaryMin" <= ${params.salaryMax}`);
+
+      const whereSql = Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`;
+      const orderSql =
+        params.sort === "salary-high" ? Prisma.sql`j."salaryMax" DESC NULLS LAST, j."salaryMin" DESC NULLS LAST` :
+        params.sort === "salary-low" ? Prisma.sql`j."salaryMin" ASC NULLS LAST, j."salaryMax" ASC NULLS LAST` :
+        params.sort === "featured" ? Prisma.sql`j."featured" DESC, j."publishedAt" DESC NULLS LAST` :
+        params.sort === "urgent" ? Prisma.sql`j."urgent" DESC, j."publishedAt" DESC NULLS LAST` :
+        Prisma.sql`
+          CASE
+            WHEN j."title" ILIKE ${q} THEN 1
+            WHEN c."name" ILIKE ${q} OR j."companyNameText" ILIKE ${q} THEN 2
+            WHEN j."skills" ILIKE ${q} THEN 3
+            WHEN j."description" ILIKE ${q} THEN 4
+            ELSE 5
+          END ASC,
+          j."pinnedUntil" DESC NULLS LAST,
+          j."featured" DESC,
+          j."urgent" DESC,
+          j."publishedAt" DESC NULLS LAST
+        `;
+
+      const [rows, countRows] = await Promise.all([
+        prisma.$queryRaw<Array<{ id: string }>>`
+          SELECT j."id"
+          FROM "Job" j
+          LEFT JOIN "Company" c ON c."id" = j."companyId"
+          ${whereSql}
+          ORDER BY ${orderSql}
+          LIMIT ${perPage} OFFSET ${(page - 1) * perPage}
+        `,
+        prisma.$queryRaw<Array<{ count: bigint }>>`
+          SELECT COUNT(*)::bigint AS count
+          FROM "Job" j
+          LEFT JOIN "Company" c ON c."id" = j."companyId"
+          ${whereSql}
+        `,
+      ]);
+
+      const ids = rows.map((r) => r.id);
+      total = Number(countRows[0]?.count ?? 0);
+      if (ids.length) {
+        const found = await prisma.job.findMany({
+          where: { id: { in: ids } },
+          include: { company: { select: { name: true, logoUrl: true, slug: true } } },
+        });
+        const order = new Map(ids.map((id, i) => [id, i]));
+        items = found.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+      }
+      return { items, total, page, perPage, pages: Math.max(1, Math.ceil(total / perPage)) };
+    } catch {
+      // Fall back to Prisma filters below when raw search is unavailable.
+    }
+  }
+
   try {
     [items, total] = await Promise.all([
       prisma.job.findMany({

@@ -7,7 +7,6 @@ import { Footer } from "@/components/Footer";
 import { MobileNav } from "@/components/MobileNav";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import NextTopLoader from "nextjs-toploader";
-import { NavigationLoader } from "@/components/NavigationLoader";
 
 const readexPro = Readex_Pro({
   subsets: ["arabic", "latin"],
@@ -99,7 +98,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           speed={200}
           shadow="0 0 10px #10b981,0 0 5px #10b981"
         />
-        <NavigationLoader />
         <div className="min-h-screen flex flex-col pb-16 md:pb-0">
           <Header />
           <main className="flex-1">{children}</main>

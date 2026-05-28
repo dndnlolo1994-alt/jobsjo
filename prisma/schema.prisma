@@ -194,6 +194,7 @@ model User {
   cvProfile        CVProfile?
   applications     Application[]
   savedJobs        SavedJob[]
+  savedSearches    SavedSearch[]
   billingRecords   BillingRecord[]
   claimRequests    CompanyClaim[]
   reportedJobs     ReportedJob[]
@@ -365,6 +366,7 @@ model Company {
   employer  EmployerProfile? @relation("EmployerToCompany")
   jobs      Job[]
   claims    CompanyClaim[]
+  reviews   CompanyReview[]
 
   @@index([city])
   @@index([slug])
@@ -430,6 +432,7 @@ model Job {
   savedJobs     SavedJob[]
   reports       ReportedJob[]
   billingRecords BillingRecord[]
+  alertDeliveries JobAlertDelivery[]
 
   @@index([status, publishedAt])
   @@index([city])
@@ -473,6 +476,32 @@ model SavedJob {
 
   @@unique([jobId, userId])
   @@index([userId])
+}
+
+model SavedSearch {
+  id          String             @id @default(cuid())
+  userId      String
+  name        String
+  queryJson   Json
+  lastSentAt  DateTime?
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries  JobAlertDelivery[]
+
+  @@index([userId, isActive])
+}
+
+model JobAlertDelivery {
+  id            String      @id @default(cuid())
+  savedSearchId String
+  jobId         String
+  sentAt        DateTime    @default(now())
+  savedSearch   SavedSearch @relation(fields: [savedSearchId], references: [id], onDelete: Cascade)
+  job           Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([savedSearchId, jobId])
+  @@index([jobId])
 }
 
 // ============================================================
@@ -530,6 +559,20 @@ model CompanyClaim {
   updatedAt     DateTime @updatedAt
 
   @@index([status])
+}
+
+model CompanyReview {
+  id        String   @id @default(cuid())
+  companyId String
+  userId    String?
+  rating    Int
+  title     String
+  comment   String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status])
 }
 
 // ============================================================

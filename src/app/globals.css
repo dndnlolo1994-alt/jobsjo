@@ -15,6 +15,9 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-readex-pro), var(--font-cairo), var(--font-tajawal), system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.9;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

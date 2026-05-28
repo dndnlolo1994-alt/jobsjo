@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "دليل الشركات", description: "شركات لديها وظائف منشورة على جوبز الأردن." };
+export const revalidate = 3600;
 
 export default async function CompaniesPage() {
   const companies = await prisma.company.findMany({ include: { jobs: { where: { status: "PUBLISHED" }, select: { id: true } } }, orderBy: { createdAt: "desc" }, take: 80 });

@@ -42,7 +42,6 @@ export function buildJobPostingJsonLd(job: {
     title: job.title,
     description: stripHtml(description),
     datePosted: (job.originalPostedAt ?? job.publishedAt).toISOString(),
-    validThrough: job.expiresAt?.toISOString(),
     employmentType: JOB_TYPE_LABEL[job.jobType] ?? job.jobType,
     hiringOrganization: {
       "@type": "Organization",
@@ -59,10 +58,12 @@ export function buildJobPostingJsonLd(job: {
       },
     },
     url: `${env.SITE_URL}/jobs/${job.slug}`,
-    educationRequirements: job.educationLevel ? EDUCATION_LEVEL_LABEL[job.educationLevel] : undefined,
-    experienceRequirements: job.experienceLevel ? EXPERIENCE_LEVEL_LABEL[job.experienceLevel] : undefined,
     directApply: true,
   };
+
+  if (job.expiresAt) data.validThrough = job.expiresAt.toISOString();
+  if (job.educationLevel) data.educationRequirements = EDUCATION_LEVEL_LABEL[job.educationLevel] ?? job.educationLevel;
+  if (job.experienceLevel) data.experienceRequirements = EXPERIENCE_LEVEL_LABEL[job.experienceLevel] ?? job.experienceLevel;
 
   if (job.salaryMin || job.salaryMax) {
     data.baseSalary = {
@@ -77,5 +78,6 @@ export function buildJobPostingJsonLd(job: {
     };
   }
 
+  Object.keys(data).forEach((key) => data[key] === undefined && delete data[key]);
   return data;
 }

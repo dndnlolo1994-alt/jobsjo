@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { JobCard } from "@/components/JobCard";
 import { createClaimAction } from "@/lib/actions/platform";
+import { getSessionUser } from "@/lib/session";
+import { CompanyReviewForm } from "@/components/CompanyReviewForm";
+
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -35,7 +39,16 @@ export default async function CompanyPage({
   const { slug } = await params;
   const { claimed } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
-  const company = await prisma.company.findUnique({ where: { slug: decodedSlug }, include: { jobs: { where: { status: "PUBLISHED" }, include: { company: { select: { name: true, slug: true, logoUrl: true } } }, orderBy: { publishedAt: "desc" } } } });
+  const [company, user] = await Promise.all([
+    prisma.company.findUnique({
+      where: { slug: decodedSlug },
+      include: {
+        jobs: { where: { status: "PUBLISHED" }, include: { company: { select: { name: true, slug: true, logoUrl: true } } }, orderBy: { publishedAt: "desc" } },
+        reviews: { where: { status: "APPROVED" }, orderBy: { createdAt: "desc" }, take: 8 },
+      },
+    }),
+    getSessionUser(),
+  ]);
   if (!company) notFound();
   const orgLd = company.name && company.city ? { "@context": "https://schema.org", "@type": "Organization", name: company.name, address: { "@type": "PostalAddress", addressCountry: "JO", addressLocality: company.city }, url: company.website ?? undefined } : null;
   return (
@@ -49,17 +62,72 @@ export default async function CompanyPage({
         </div>
       )}
 
-      <div className="card-pad mb-6">
-        <h1 className="text-3xl font-extrabold">{company.name}</h1>
-        <p className="text-navy-600 mt-2">{company.city ?? "الأردن"}{company.area ? ` - ${company.area}` : ""}</p>
-        {company.description && <p className="mt-4 leading-7">{company.description}</p>}
+      <div className="mb-6 overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-xl shadow-slate-950/5">
+        <div className="relative min-h-44 bg-gradient-to-l from-emerald-950 via-emerald-800 to-slate-950">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(209,179,111,0.25),transparent_28rem)]" />
+        </div>
+        <div className="p-5 sm:p-7">
+          <div className="-mt-20 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+              <div className="grid h-24 w-24 place-items-center overflow-hidden rounded-3xl border-4 border-white bg-slate-50 text-3xl font-extrabold text-emerald-800 shadow-lg">
+                {company.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={company.logoUrl} alt={company.name} className="h-full w-full object-cover" />
+                ) : company.name.slice(0, 1)}
+              </div>
+              <div>
+                <h1 className="text-3xl font-extrabold text-navy-950">{company.name}</h1>
+                <p className="mt-2 text-sm font-semibold text-navy-600">
+                  {company.industry ?? "قطاع غير محدد"} · {company.companySize ?? "حجم غير محدد"} · {company.city ?? "الأردن"}{company.area ? ` - ${company.area}` : ""}
+                </p>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-center">
+              <div className="text-2xl font-extrabold text-emerald-700">{company.jobs.length.toLocaleString("ar-JO")}</div>
+              <div className="text-xs font-bold text-emerald-900">وظائف مفتوحة</div>
+            </div>
+          </div>
+          {company.description && <p className="mt-5 max-w-4xl leading-8 text-navy-700">{company.description}</p>}
+          <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold">
+            {company.website && <a href={company.website} target="_blank" className="btn-outline px-3 py-2">الموقع الإلكتروني</a>}
+            {company.whatsapp && <a href={`https://wa.me/${company.whatsapp}`} target="_blank" className="btn-outline px-3 py-2">واتساب</a>}
+            {company.email && <a href={`mailto:${company.email}`} className="btn-outline px-3 py-2">البريد الإلكتروني</a>}
+            {company.facebookUrl && <a href={company.facebookUrl} target="_blank" className="btn-outline px-3 py-2">فيسبوك</a>}
+          </div>
+        </div>
       </div>
       <div className="grid lg:grid-cols-[1fr_340px] gap-6">
         <main className="space-y-4">
           <h2 className="section-title">الوظائف المفتوحة</h2>
           {company.jobs.map((j) => <JobCard key={j.id} job={j} />)}
           {company.jobs.length===0&&<div className="card-pad text-navy-500">لا توجد وظائف منشورة حالياً.</div>}
+          <section className="card-pad">
+            <h2 className="mb-4 text-xl font-extrabold text-navy-950">تقييمات الشركة</h2>
+            <div className="space-y-3">
+              {company.reviews.map((review) => (
+                <div key={review.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="font-extrabold text-navy-900">{review.title}</h3>
+                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">{review.rating}/5</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-navy-600">{review.comment}</p>
+                </div>
+              ))}
+            </div>
+            {company.reviews.length === 0 && <p className="text-sm text-navy-500">لا توجد تقييمات معتمدة بعد.</p>}
+          </section>
         </main>
+        <aside className="space-y-4">
+          <div className="card-pad h-fit">
+            <h2 className="mb-3 font-bold">أضف تقييمك للشركة</h2>
+            {user ? (
+              <CompanyReviewForm companyId={company.id} />
+            ) : (
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-navy-600">
+                سجل الدخول لإضافة تقييم. <a className="link font-bold" href={`/login?redirect=/companies/${company.slug}`}>تسجيل الدخول</a>
+              </div>
+            )}
+          </div>
         {company.verificationStatus !== "VERIFIED" && (
           <aside className="card-pad h-fit">
             <h2 className="font-bold mb-3">هل أنت صاحب الشركة؟ طالب بإدارة الصفحة</h2>
@@ -75,6 +143,7 @@ export default async function CompanyPage({
             </form>
           </aside>
         )}
+        </aside>
       </div>
     </section>
   );

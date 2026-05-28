@@ -8,17 +8,33 @@ import { buildJobPostingJsonLd } from "@/lib/seo/jobposting";
 import { applyToJobAction } from "@/lib/actions/platform";
 import { tplApplyToJob } from "@/lib/whatsapp";
 import { getSession } from "@/lib/session";
+import { SubmitButton } from "@/components/forms/SubmitButton";
+
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
   const job = await prisma.job.findUnique({
     where: { slug: decodedSlug },
-    select: { title: true, description: true, status: true, city: true, jobCategory: true },
+    select: {
+      title: true,
+      description: true,
+      status: true,
+      city: true,
+      jobCategory: true,
+      salaryMin: true,
+      salaryMax: true,
+      salaryText: true,
+      companyNameText: true,
+      company: { select: { name: true } },
+    },
   });
   if (!job) return {};
   const isPublished = job.status === "PUBLISHED";
-  const desc = job.description.slice(0, 150);
+  const companyName = job.company?.name ?? job.companyNameText ?? "صاحب عمل خاص";
+  const salary = job.salaryText ?? (job.salaryMin || job.salaryMax ? `${formatJod(job.salaryMin ?? job.salaryMax)} - ${formatJod(job.salaryMax ?? job.salaryMin)}` : "راتب غير محدد");
+  const desc = `${job.title} في ${companyName} — ${job.city} | ${salary}. ${job.description}`.slice(0, 160);
 
   return {
     title: job.title,
@@ -147,7 +163,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
                     <form action={applyToJobAction.bind(null, null)} className="space-y-3">
                       <input type="hidden" name="jobId" value={job.id} />
                       <textarea className="input min-h-28 text-sm" name="coverNote" placeholder="اكتب رسالة قصيرة ومقنعة لصاحب العمل (اختياري)..." />
-                      <button className="btn-primary w-full text-sm">إرسال طلب التقديم السريع</button>
+                      <SubmitButton className="btn-primary w-full text-sm" pendingText="جاري إرسال الطلب...">
+                        إرسال طلب التقديم السريع
+                      </SubmitButton>
                       
                       {isFreePlan && (
                         <p className="text-[10px] text-navy-500 text-center mt-2 leading-relaxed">
