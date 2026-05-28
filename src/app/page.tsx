@@ -37,7 +37,7 @@ export default async function HomePage() {
         
         <div className="container-jo grid lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
           {/* Right Column: Text Content */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
+          <div className="lg:col-span-7 flex flex-col justify-center order-2 lg:order-1">
             <Badge className="bg-sand-400 text-navy-900 mb-4 w-fit">منصة الأردن للوظائف</Badge>
             <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight max-w-2xl">
               وظائف الأردن القريبة منك — وقدّم بسيرة ذاتية جاهزة
@@ -66,7 +66,7 @@ export default async function HomePage() {
           </div>
 
           {/* Left Column: Dedicated Jordanian Workspace Image */}
-          <div className="lg:col-span-5 w-full flex justify-center mt-6 lg:mt-0">
+          <div className="lg:col-span-5 w-full flex justify-center mb-6 lg:mb-0 order-1 lg:order-2">
             <div className="relative w-full max-w-lg lg:max-w-none aspect-[4/3] sm:aspect-[16/11] rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-navy-950/50 group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
