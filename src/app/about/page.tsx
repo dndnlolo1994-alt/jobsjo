@@ -1,0 +1,1 @@
+export default function Page(){return <section className="container-jo py-10"><h1 className="section-title">عن جوبز الأردن</h1><div className="card-pad leading-8">جوبز الأردن منصة تشغيل توظيف محلية تساعد الباحثين عن عمل على بناء سيرة ذاتية والتقديم، وتساعد أصحاب العمل على استقبال وفرز المرشحين بدون نظام توظيف معقد.</div></section>}

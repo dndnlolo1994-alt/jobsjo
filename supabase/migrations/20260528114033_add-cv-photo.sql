@@ -1,0 +1,1 @@
+ALTER TABLE "CVProfile" ADD COLUMN "photo" TEXT;

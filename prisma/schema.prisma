@@ -1,0 +1,591 @@
+// JoJobs OS - Prisma schema
+// قاعدة بيانات منصة جوبز الأردن
+// لتشغيل محلي بسرعة استخدم provider="sqlite" وغيّر DATABASE_URL إلى "file:./dev.db"
+// للإنتاج استخدم postgresql
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum UserRole {
+  ADMIN
+  JOB_SEEKER
+  EMPLOYER
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  SHIFT
+  TEMPORARY
+  INTERNSHIP
+  REMOTE
+  HYBRID
+}
+
+enum JobStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  EXPIRED
+  REJECTED
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  VIEWED
+  SHORTLISTED
+  INTERVIEW
+  REJECTED
+  HIRED
+  WITHDRAWN
+}
+
+enum AppliedVia {
+  INTERNAL
+  WHATSAPP
+  EMAIL
+  EXTERNAL
+}
+
+enum BillingStatus {
+  UNPAID
+  PAID
+  EXPIRED
+  CANCELLED
+  WAIVED
+}
+
+enum BillingType {
+  CV_PDF
+  JOB_SEEKER_PLUS
+  JOB_POST_STANDARD
+  JOB_POST_FEATURED
+  JOB_POST_URGENT
+  EMPLOYER_BASIC
+  EMPLOYER_PRO
+  EMPLOYER_BUSINESS
+  SHORTLISTING_SERVICE
+}
+
+enum PaymentMethod {
+  CASH
+  CLIQ
+  BANK_TRANSFER
+  WALLET
+  OTHER
+}
+
+enum JobSourceType {
+  EMPLOYER_DIRECT
+  ADMIN_MANUAL
+  COMPANY_CAREERS_PAGE
+  PUBLIC_GOVERNMENT_SOURCE
+  PUBLIC_NGO_SOURCE
+  PUBLIC_TRAINING_PROGRAM
+  PUBLIC_SOCIAL_POST_MANUAL
+  REFERRAL
+  OTHER
+}
+
+enum SourceTrustLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum CompanyRelation {
+  DIRECT_EMPLOYER
+  CURATED_EXTERNAL
+  UNKNOWN
+}
+
+enum EmployerPlan {
+  FREE
+  BASIC
+  PRO
+  BUSINESS
+}
+
+enum JobSeekerPlan {
+  FREE
+  PLUS
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CVPaymentStatus {
+  UNPAID
+  PAID
+  WAIVED
+}
+
+enum EducationLevel {
+  NONE
+  SCHOOL
+  HIGH_SCHOOL
+  DIPLOMA
+  BACHELOR
+  MASTER
+  PHD
+}
+
+enum ExperienceLevel {
+  NO_EXPERIENCE
+  ENTRY
+  JUNIOR
+  MID
+  SENIOR
+  MANAGER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNSPECIFIED
+}
+
+enum ContactMethod {
+  INTERNAL_APPLY
+  WHATSAPP
+  EMAIL
+  EXTERNAL_LINK
+}
+
+// ============================================================
+// USERS
+// ============================================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  role          UserRole @default(JOB_SEEKER)
+  fullName      String
+  phone         String?
+  isActive      Boolean  @default(true)
+  isSuspended   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+
+  jobSeekerProfile JobSeekerProfile?
+  employerProfile  EmployerProfile?
+  cvProfile        CVProfile?
+  applications     Application[]
+  savedJobs        SavedJob[]
+  billingRecords   BillingRecord[]
+  claimRequests    CompanyClaim[]
+  reportedJobs     ReportedJob[]
+
+  @@index([role])
+  @@index([email])
+}
+
+// ============================================================
+// JOB SEEKER
+// ============================================================
+
+model JobSeekerProfile {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName            String
+  phone               String?
+  whatsapp            String?
+  email               String?
+  city                String?
+  area                String?
+  dateOfBirth         DateTime?
+  gender              Gender   @default(UNSPECIFIED)
+  headline            String?
+  summary             String?
+  educationLevel      EducationLevel @default(NONE)
+  yearsOfExperience   Int      @default(0)
+  experienceLevel     ExperienceLevel @default(NO_EXPERIENCE)
+  preferredJobTypes   String?  // CSV of JobType values
+  preferredCities     String?  // CSV
+  expectedSalaryMin   Int?
+  expectedSalaryMax   Int?
+  availableImmediately Boolean @default(true)
+  hasDrivingLicense   Boolean  @default(false)
+  ownsCar             Boolean  @default(false)
+  languages           String?  // CSV
+  skills              String?  // CSV
+  portfolioLinks      String?  // CSV of URLs
+  plan                JobSeekerPlan @default(FREE)
+  planExpiresAt       DateTime?
+  publicProfile       Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([city])
+  @@index([experienceLevel])
+}
+
+// ============================================================
+// CV BUILDER
+// ============================================================
+
+model CVProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName        String
+  jobTitle        String?
+  summary         String?
+  email           String?
+  phone           String?
+  city            String?
+  country         String   @default("الأردن")
+  website         String?
+  linkedin        String?
+  photo           String?
+  language        String   @default("ar")
+  template        String   @default("modern-emerald")
+  englishVersion  String?
+  paymentStatus   CVPaymentStatus @default(UNPAID)
+  paidAt          DateTime?
+  lastExportedAt  DateTime?
+  qrEnabled       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  experiences CVExperience[]
+  educations  CVEducation[]
+  skills      CVSkill[]
+  certifications CVCertification[]
+}
+
+model CVExperience {
+  id          String   @id @default(cuid())
+  cvId        String
+  cv          CVProfile @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  position    String
+  company     String
+  city        String?
+  startDate   String   // YYYY-MM
+  endDate     String?  // YYYY-MM, null = الحالي
+  description String?
+  order       Int      @default(0)
+}
+
+model CVEducation {
+  id          String   @id @default(cuid())
+  cvId        String
+  cv          CVProfile @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  degree      String
+  institution String
+  city        String?
+  startDate   String
+  endDate     String?
+  description String?
+  order       Int      @default(0)
+}
+
+model CVSkill {
+  id     String @id @default(cuid())
+  cvId   String
+  cv     CVProfile @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  name   String
+  level  Int    @default(3) // 1..5
+  order  Int    @default(0)
+}
+
+model CVCertification {
+  id        String @id @default(cuid())
+  cvId      String
+  cv        CVProfile @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  name      String
+  issuer    String?
+  year      String?
+  order     Int    @default(0)
+}
+
+// ============================================================
+// EMPLOYER & COMPANY
+// ============================================================
+
+model EmployerProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId   String?  @unique
+  company     Company? @relation("EmployerToCompany", fields: [companyId], references: [id])
+  ownerName   String
+  phone       String?
+  whatsapp    String?
+  plan        EmployerPlan @default(FREE)
+  planExpiresAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Company {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  name                String
+  description         String?
+  city                String?
+  area                String?
+  industry            String?
+  companySize         String?
+  logoUrl             String?
+  website             String?
+  facebookUrl         String?
+  phone               String?
+  whatsapp            String?
+  email               String?
+  verificationStatus  VerificationStatus @default(UNVERIFIED)
+  isCurated           Boolean  @default(false)
+  publishedAt         DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  employer  EmployerProfile? @relation("EmployerToCompany")
+  jobs      Job[]
+  claims    CompanyClaim[]
+
+  @@index([city])
+  @@index([slug])
+}
+
+// ============================================================
+// JOBS
+// ============================================================
+
+model Job {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  title             String
+  companyId         String?
+  company           Company? @relation(fields: [companyId], references: [id])
+  companyNameText   String?  // للجدولة عند عدم وجود شركة في النظام
+  companyRelation   CompanyRelation @default(UNKNOWN)
+  city              String
+  area              String?
+  jobCategory       String
+  jobType           JobType
+  salaryMin         Int?
+  salaryMax         Int?
+  salaryText        String?
+  currency          String   @default("JOD")
+  description       String
+  responsibilities  String?
+  requirements      String?
+  benefits          String?
+  experienceLevel   ExperienceLevel @default(NO_EXPERIENCE)
+  educationLevel    EducationLevel  @default(NONE)
+  skills            String?  // CSV
+  womenFriendly     Boolean  @default(false)
+  noExperienceRequired Boolean @default(false)
+  requiresDrivingLicense Boolean @default(false)
+  contactMethod     ContactMethod @default(INTERNAL_APPLY)
+  contactWhatsapp   String?
+  contactEmail      String?
+  externalUrl       String?
+  sourceType        JobSourceType @default(EMPLOYER_DIRECT)
+  sourceName        String?
+  sourceUrl         String?
+  sourceVerifiedAt  DateTime?
+  curatedByAdminId  String?
+  originalPostedAt  DateTime?
+  sourceTrustLevel  SourceTrustLevel @default(MEDIUM)
+  removalRequested  Boolean @default(false)
+  jobSourceId       String?
+  jobSource         JobSource? @relation(fields: [jobSourceId], references: [id])
+  status            JobStatus @default(DRAFT)
+  featured          Boolean  @default(false)
+  urgent            Boolean  @default(false)
+  pinnedUntil       DateTime?
+  publishedAt       DateTime?
+  expiresAt         DateTime
+  applicationCount  Int      @default(0)
+  viewCount         Int      @default(0)
+  postedById        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  applications  Application[]
+  savedJobs     SavedJob[]
+  reports       ReportedJob[]
+  billingRecords BillingRecord[]
+
+  @@index([status, publishedAt])
+  @@index([city])
+  @@index([jobType])
+  @@index([jobCategory])
+  @@index([slug])
+  @@index([sourceType])
+}
+
+// ============================================================
+// APPLICATIONS
+// ============================================================
+
+model Application {
+  id            String   @id @default(cuid())
+  jobId         String
+  job           Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobSeekerId   String
+  jobSeeker     User     @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+  cvId          String?
+  coverNote     String?
+  status        ApplicationStatus @default(SUBMITTED)
+  appliedVia    AppliedVia @default(INTERNAL)
+  matchScore    Int      @default(0)
+  employerNotes String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([jobId, jobSeekerId])
+  @@index([status])
+  @@index([jobSeekerId])
+}
+
+model SavedJob {
+  id          String   @id @default(cuid())
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([jobId, userId])
+  @@index([userId])
+}
+
+// ============================================================
+// BILLING (manual records, no payment gateway)
+// ============================================================
+
+model BillingRecord {
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  employerId      String?  // links to EmployerProfile.id loosely (no FK constraint to allow flexibility)
+  type            BillingType
+  amountJod       Decimal  @db.Decimal(10, 2)
+  status          BillingStatus @default(UNPAID)
+  paymentMethod   PaymentMethod?
+  adminNote       String?
+  referenceCode   String?  // CLIQ/transfer reference
+  referenceText   String?
+  periodStart     DateTime?
+  periodEnd       DateTime?
+  relatedJobId    String?
+  jobId           String?
+  job             Job?      @relation(fields: [jobId], references: [id])
+  relatedCvId     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  paidAt          DateTime?
+
+  @@index([status])
+  @@index([type])
+  @@index([userId])
+}
+
+// ============================================================
+// COMPANY CLAIM
+// ============================================================
+
+model CompanyClaim {
+  id            String   @id @default(cuid())
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  claimantId    String?  // optional if not logged in
+  claimant      User?    @relation(fields: [claimantId], references: [id])
+  claimantName  String
+  phone         String
+  email         String
+  companyRole   String
+  proofText     String?
+  proofUrl      String?
+  websiteOrSocialUrl String?
+  status        ClaimStatus @default(PENDING)
+  adminNote     String?
+  reviewedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+}
+
+// ============================================================
+// SOURCES (admin curated)
+// ============================================================
+
+model JobSource {
+  id               String        @id @default(cuid())
+  sourceName       String
+  sourceType       JobSourceType @default(OTHER)
+  sourceUrl        String?
+  organizationName String?
+  trustLevel       SourceTrustLevel @default(MEDIUM)
+  notes            String?
+  active           Boolean       @default(true)
+  lastCheckedAt    DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  jobs Job[]
+
+  @@index([sourceType])
+  @@index([trustLevel])
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+
+model ReportedJob {
+  id        String   @id @default(cuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  reason    String
+  details   String?
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ============================================================
+// ANALYTICS LIGHT
+// ============================================================
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  ts        DateTime @default(now())
+  userId    String?
+
+  @@index([path])
+}
+
+model PlatformSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

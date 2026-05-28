@@ -1,0 +1,2 @@
+import { env } from "@/lib/env";
+export default function Page(){return <section className="container-jo py-10"><h1 className="section-title">اتصل بنا</h1><div className="card-pad leading-8"><p>للدعم أو طلب إزالة إعلان أو الإبلاغ عن وظيفة مشبوهة تواصل معنا عبر واتساب: {env.PLATFORM_WHATSAPP}</p><a className="btn-primary mt-4" href={`https://wa.me/${env.PLATFORM_WHATSAPP}`} target="_blank">فتح واتساب الدعم</a></div></section>}

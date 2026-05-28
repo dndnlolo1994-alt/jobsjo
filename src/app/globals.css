@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f1f5f9; /* Slate 100 - soft background, not stark white */
+  --bg-card: #ffffff;
+  --text: #0f172a; /* Slate 900 */
+  --text-soft: #475569; /* Slate 600 */
+  --border: #e2e8f0; /* Slate 200 */
+  --ring: #10b981; /* Emerald 500 */
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Readex Pro", "Cairo", "Tajawal", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[dir="rtl"] body {
+  text-align: right;
+}
+
+@layer components {
+  .container-jo {
+    @apply max-w-6xl mx-auto px-4 sm:px-6;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold transition-all select-none duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2;
+  }
+  .btn-primary {
+    @apply btn bg-emerald-600 text-white hover:bg-emerald-500 shadow-md shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-[0.98];
+  }
+  .btn-secondary {
+    @apply btn bg-slate-900 text-white hover:bg-slate-800 shadow-sm active:scale-[0.98];
+  }
+  .btn-outline {
+    @apply btn border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn text-slate-700 hover:bg-slate-100/80 hover:text-slate-950 active:scale-[0.98];
+  }
+  .btn-danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-500 shadow-sm active:scale-[0.98];
+  }
+  .btn-sand {
+    @apply btn bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-sm active:scale-[0.98];
+  }
+
+  .card {
+    @apply bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300;
+  }
+  .card-pad {
+    @apply card p-5 sm:p-7;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent;
+    @apply placeholder:text-slate-400;
+  }
+  .label {
+    @apply block text-sm font-bold text-slate-800 mb-1.5;
+  }
+  .hint {
+    @apply text-xs text-slate-400 mt-1;
+  }
+  .error {
+    @apply text-sm text-rose-600 mt-1;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-colors duration-150;
+  }
+  .badge-success { @apply badge bg-emerald-50 text-emerald-700 border border-emerald-100; }
+  .badge-warning { @apply badge bg-amber-50 text-amber-700 border border-amber-100; }
+  .badge-danger  { @apply badge bg-rose-50 text-rose-700 border border-rose-100; }
+  .badge-info    { @apply badge bg-sky-50 text-sky-700 border border-sky-100; }
+  .badge-muted   { @apply badge bg-slate-50 text-slate-500 border border-slate-100; }
+
+  .link {
+    @apply text-emerald-600 hover:text-emerald-500 underline-offset-4 hover:underline transition-colors duration-150;
+  }
+
+  .section-title {
+    @apply text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2 tracking-normal;
+  }
+  .section-sub {
+    @apply text-slate-500 mb-6 text-sm sm:text-base;
+  }
+}
+
+.hero-shell {
+  background-image:
+    linear-gradient(to left, rgba(15, 23, 42, 0.98) 0%, rgba(15, 23, 42, 0.85) 45%, rgba(15, 23, 42, 0.2) 100%),
+    url("/images/hero-jojobs.png");
+  background-size: cover;
+  background-position: left center;
+}
+
+.mobile-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.app-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.surface-band {
+  background:
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 32rem),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.job-card-accent {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+@media print {
+  body, html {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .cv-print {
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-shell {
+    min-height: 500px;
+    background-image:
+      linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(15, 23, 42, 0.9) 60%, rgba(15, 23, 42, 0.6) 100%),
+      url("/images/hero-jojobs.png");
+    background-position: left center;
+  }
+
+  .section-title {
+    @apply text-xl;
+  }
+
+  .btn {
+    @apply min-h-12;
+  }
+}
