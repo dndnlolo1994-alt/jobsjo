@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { destroySession } from "@/lib/session";
+import { env } from "@/lib/env";
 
 export async function POST() {
   await destroySession();
-  return NextResponse.redirect(new URL("/", "http://localhost:3000"));
+  return NextResponse.redirect(new URL("/", env.SITE_URL));
 }
