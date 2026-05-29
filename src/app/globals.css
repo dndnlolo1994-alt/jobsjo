@@ -91,7 +91,7 @@ html { scroll-behavior: smooth; }
 
   /* Primary CTA — warm orange gradient */
   .btn-primary {
-    @apply btn text-white focus:ring-accent-400;
+    @apply btn text-white focus:ring-[#FF6B35];
     background:  var(--gradient-accent);
     box-shadow:  var(--shadow-accent);
   }
@@ -100,7 +100,7 @@ html { scroll-behavior: smooth; }
 
   /* Blue — main navigational action */
   .btn-blue {
-    @apply btn text-white focus:ring-primary-400;
+    @apply btn text-white focus:ring-[#4F79FF];
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
     box-shadow: var(--shadow-color);
   }
@@ -113,13 +113,13 @@ html { scroll-behavior: smooth; }
   }
 
   .btn-outline {
-    @apply btn border-2 border-[color:var(--color-primary)] text-[color:var(--color-primary)] bg-transparent;
-    @apply hover:bg-primary-50 active:scale-[.98] focus:ring-primary-400;
+    @apply btn border-2 border-[#1B4FDB] text-[#1B4FDB] bg-transparent;
+    @apply hover:bg-[#EBF0FF] active:scale-[.98] focus:ring-[#4F79FF];
   }
   .btn-outline:hover { transform: translateY(-1px); }
 
   .btn-ghost {
-    @apply btn text-[color:var(--color-text)] hover:bg-gray-100 hover:text-[color:var(--color-primary)];
+    @apply btn text-[#1A1D2E] hover:bg-gray-100 hover:text-[#1B4FDB];
     @apply active:scale-[.98] focus:ring-gray-300;
   }
 
@@ -148,7 +148,7 @@ html { scroll-behavior: smooth; }
   /* ── Forms ───────────────────────────────────────────────────── */
   .input {
     @apply w-full px-4 py-3.5 rounded-xl border bg-white transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-400/30 focus:border-primary-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#4F79FF]/30 focus:border-[#1B4FDB];
     @apply placeholder:text-gray-400;
     border-color: var(--color-border);
     color:        var(--color-text);
@@ -166,8 +166,8 @@ html { scroll-behavior: smooth; }
   .badge {
     @apply inline-flex items-center gap-1 px-3.5 py-1 rounded-full text-xs font-bold transition-all duration-200;
   }
-  .badge-primary { @apply badge bg-primary-50 text-primary-600 border border-primary-100; }
-  .badge-accent  { @apply badge bg-accent-50 text-accent-500 border border-accent-100; }
+  .badge-primary { @apply badge bg-[#EBF0FF] text-[#1340B5] border border-[#C7D6FF]; }
+  .badge-accent  { @apply badge bg-[#FFF0EB] text-[#E85A22] border border-[#FFD9C7]; }
   .badge-success { @apply badge bg-emerald-500/10 text-emerald-700 border border-emerald-500/20; }
   .badge-warning { @apply badge bg-amber-500/10 text-amber-700 border border-amber-500/20; }
   .badge-danger  { @apply badge bg-rose-500/10 text-rose-700 border border-rose-500/20; }
