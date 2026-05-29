@@ -1,21 +1,91 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
-import { env } from "@/lib/env";
-import { JORDAN_CITIES } from "@/lib/utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = env.SITE_URL;
-  const staticPages = ["", "/jobs", "/companies", "/pricing", "/about", "/privacy", "/terms", "/contact"].map((p) => ({ url: `${base}${p}`, lastModified: new Date() }));
-  const cityPages = JORDAN_CITIES.map((city) => ({ url: `${base}/jobs?city=${encodeURIComponent(city)}`, lastModified: new Date() }));
-  let jobs: MetadataRoute.Sitemap = [];
-  let companies: MetadataRoute.Sitemap = [];
+  const base = "https://www.jordan-job.shop";
+
+  // 1. Static Pages definitions with priority and changeFrequency
+  const staticPages: MetadataRoute.Sitemap = [
+    {
+      url: `${base}`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1.0,
+    },
+    {
+      url: `${base}/jobs`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${base}/companies`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${base}/pricing`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.5,
+    },
+    {
+      url: `${base}/about`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.5,
+    },
+    {
+      url: `${base}/cv-builder`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.5,
+    },
+    {
+      url: `${base}/contact`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.5,
+    },
+  ];
+
+  let dynamicJobs: MetadataRoute.Sitemap = [];
+  let dynamicCompanies: MetadataRoute.Sitemap = [];
+
   try {
-    const [j, c] = await Promise.all([
-      prisma.job.findMany({ where: { status: "PUBLISHED" }, select: { slug: true, updatedAt: true } }),
-      prisma.company.findMany({ where: { publishedAt: { not: null } }, select: { slug: true, updatedAt: true } }),
-    ]);
-    jobs = j.map((x) => ({ url: `${base}/jobs/${x.slug}`, lastModified: x.updatedAt }));
-    companies = c.map((x) => ({ url: `${base}/companies/${x.slug}`, lastModified: x.updatedAt }));
-  } catch {}
-  return [...staticPages, ...cityPages, ...jobs, ...companies];
+    // 2. Fetch active jobs from DB via Prisma
+    const jobs = await prisma.job.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true, updatedAt: true },
+    });
+
+    dynamicJobs = jobs.map((job) => ({
+      url: `${base}/jobs/${job.slug}`,
+      lastModified: job.updatedAt,
+      changeFrequency: "daily",
+      priority: 0.9,
+    }));
+  } catch (error) {
+    console.error("Error generating sitemap jobs:", error);
+  }
+
+  try {
+    // 3. Fetch active companies from DB via Prisma
+    const companies = await prisma.company.findMany({
+      where: { publishedAt: { not: null } },
+      select: { slug: true, updatedAt: true },
+    });
+
+    dynamicCompanies = companies.map((company) => ({
+      url: `${base}/companies/${company.slug}`,
+      lastModified: company.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
+  } catch (error) {
+    console.error("Error generating sitemap companies:", error);
+  }
+
+  return [...staticPages, ...dynamicJobs, ...dynamicCompanies];
 }

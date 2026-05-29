@@ -1,7 +1,17 @@
-# قائمة إطلاق جوبز الأردن
+# قائمة إطلاق وظائف الأردن — JoJobs
+
+## الدومين والـ SEO
+
+- [ ] `NEXT_PUBLIC_SITE_URL=https://www.jordan-job.shop` على Vercel (Production).
+- [ ] `jordan-job.shop` يعيد التوجيه إلى `www.jordan-job.shop`.
+- [ ] عدم استخدام `jojobs-os.vercel.app` في canonical / sitemap / Open Graph (يعتمد التطبيق على env).
+- [ ] مراجعة DNS عند Hostinger (A + CNAME لـ Vercel) مع الإبقاء على MX/SPF/DKIM للبريد — انظر [`DEPLOYMENT.md`](DEPLOYMENT.md).
+- [ ] SMTP Hostinger مضبوط على Vercel (`SMTP_*`) واختبار `npm run test:email`.
+
+## التشغيل
 
 - إعداد قاعدة البيانات وتشغيل migrations.
-- تعبئة `.env` بالقيم الحقيقية.
+- تعبئة `.env` بالقيم الحقيقية (محلياً: localhost؛ إنتاج: Vercel فقط).
 - ضبط `ADMIN_EMAILS`.
 - تغيير أسرار الجلسات.
 - إزالة أو فصل بيانات seed التجريبية عن الإنتاج.

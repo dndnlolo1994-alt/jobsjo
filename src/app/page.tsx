@@ -10,12 +10,12 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   let featured: any[] = [];
-  let stats = { jobs: 0, companies: 0, cities: 0 };
+  let stats = { jobs: 0, companies: 0, cities: 0, users: 0 };
   let cityCounts: Record<string, number> = {};
   let categoryCounts: Record<string, number> = {};
 
   try {
-    const [items, j, c, cities, categories] = await Promise.all([
+    const [items, j, c, cities, categories, userCount] = await Promise.all([
       prisma.job.findMany({
         where: { status: "PUBLISHED" },
         include: { company: { select: { name: true, logoUrl: true, slug: true } } },
@@ -26,9 +26,10 @@ export default async function HomePage() {
       prisma.company.count(),
       prisma.job.groupBy({ by: ["city"], where: { status: "PUBLISHED" }, _count: { _all: true } }),
       prisma.job.groupBy({ by: ["jobCategory"], where: { status: "PUBLISHED" }, _count: { _all: true } }),
+      prisma.user.count({ where: { isActive: true } }),
     ]);
     featured = items;
-    stats = { jobs: j, companies: c, cities: cities.length };
+    stats = { jobs: j, companies: c, cities: cities.length, users: userCount };
     cityCounts     = Object.fromEntries(cities.map((x) => [x.city, x._count._all]));
     categoryCounts = Object.fromEntries(categories.map((x) => [x.jobCategory, x._count._all]));
   } catch (e) {
@@ -38,65 +39,66 @@ export default async function HomePage() {
   return (
     <>
       {/* ══════════════════════════════════════════════════════════
-          HERO — Full-bleed background image
+          HERO — Full-bleed responsive background
          ══════════════════════════════════════════════════════════ */}
       <section
         className="relative overflow-hidden text-white"
         style={{ background: "#06091F" }}
       >
-        {/* ── Background image — object-contain shows the full image, no cropping ── */}
-        <div className="relative w-full" style={{ aspectRatio: "16/9", maxHeight: "82vh" }}>
+        {/* ── Background image — cover for both mobile and desktop ── */}
+        <div className="relative w-full min-h-[55vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[75vh]" style={{ maxHeight: "85vh" }}>
           <Image
             src="/images/hero-jojobs.png"
             alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
             fill
             priority
             sizes="100vw"
-            className="object-contain"
+            className="object-cover"
+            style={{ objectPosition: "center 35%" }}
           />
 
-          {/* ── Overlay: semi-transparent gradient so text is readable ── */}
-          {/* Desktop: dark on right (text side RTL) → fade to left */}
+          {/* ── Overlays ── */}
+          {/* Desktop: RTL gradient — dark on right (text side) → fade to left (image side) */}
           <div
             className="absolute inset-0 hidden sm:block"
             style={{
               background:
-                "linear-gradient(to left, rgba(6,9,31,0.88) 0%, rgba(6,9,31,0.65) 35%, rgba(6,9,31,0.20) 65%, rgba(6,9,31,0.05) 100%)",
+                "linear-gradient(to left, rgba(6,9,31,0.92) 0%, rgba(6,9,31,0.75) 30%, rgba(6,9,31,0.35) 55%, rgba(6,9,31,0.15) 80%, rgba(6,9,31,0.05) 100%)",
             }}
           />
-          {/* Mobile: uniform overlay */}
+          {/* Mobile: stronger overlay for readability */}
           <div
             className="absolute inset-0 sm:hidden"
-            style={{ background: "rgba(6,9,31,0.72)" }}
+            style={{ background: "linear-gradient(to top, rgba(6,9,31,0.95) 0%, rgba(6,9,31,0.75) 40%, rgba(6,9,31,0.55) 100%)" }}
           />
 
           {/* Bottom fade to match section bg */}
           <div
-            className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+            className="absolute inset-x-0 bottom-0 h-24 sm:h-32 pointer-events-none"
             style={{
               background: "linear-gradient(to top, #06091F 0%, transparent 100%)",
             }}
           />
 
-          {/* ── Content pinned to bottom of the image ─────────── */}
-          <div className="absolute inset-0 flex items-end">
-            <div className="container-jo w-full pb-10 sm:pb-14">
-              {/* Text block — right half in RTL so image details show on left */}
-              <div className="max-w-xl w-full sm:w-1/2">
+          {/* ── Content — centered on mobile, right-aligned on desktop ─── */}
+          <div className="absolute inset-0 flex items-center sm:items-end">
+            <div className="container-jo w-full py-8 sm:pb-14 sm:pt-0">
+              {/* Text block — full-width centered on mobile, right half on desktop (RTL) */}
+              <div className="max-w-xl w-full sm:w-3/5 lg:w-1/2 text-center sm:text-right mx-auto sm:mx-0">
 
             {/* Social proof bar */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-7 text-sm">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 mb-5 sm:mb-7 text-sm">
               <StatPill value={stats.jobs.toLocaleString("ar-JO")} label="وظيفة منشورة" />
               <Divider />
               <StatPill value={stats.companies.toLocaleString("ar-JO")} label="شركة مسجلة" />
               <Divider />
-              <StatPill value="250+" label="مشترك نشط" />
+              <StatPill value={stats.users > 0 ? stats.users.toLocaleString("ar-JO") : "250+"} label="مشترك نشط" />
             </div>
 
             <h1
               className="font-extrabold leading-[1.15] text-white drop-shadow-md"
               style={{
-                fontSize: "clamp(2.4rem, 4.5vw, 4.5rem)",
+                fontSize: "clamp(1.75rem, 5vw, 4.5rem)",
                 fontFamily: "var(--font-tajawal), sans-serif",
               }}
             >
@@ -106,37 +108,37 @@ export default async function HomePage() {
               </span>
             </h1>
 
-            <p className="text-white/80 mt-5 text-base sm:text-lg max-w-md leading-relaxed drop-shadow-sm">
+            <p className="text-white/80 mt-3 sm:mt-5 text-sm sm:text-base md:text-lg max-w-md leading-relaxed drop-shadow-sm mx-auto sm:mx-0">
               منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF،
               وتتابع طلباتك من مكان واحد.
             </p>
 
-            {/* CTA row */}
-            <div className="flex flex-wrap gap-3 mt-8">
-              <Link href="/jobs" className="btn-primary pulse-glow">
+            {/* CTA row — stacked on mobile, inline on desktop */}
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-6 sm:mt-8">
+              <Link href="/jobs" className="btn-primary pulse-glow text-sm sm:text-base">
                 🔍 ابحث عن وظيفة
               </Link>
               <Link
                 href="/cv-builder"
-                className="btn border-2 border-white/50 text-white hover:bg-white/15 rounded-full"
+                className="btn border-2 border-white/50 text-white hover:bg-white/15 rounded-full text-sm sm:text-base"
               >
                 📄 اعمل CV الآن
               </Link>
               <Link
                 href="/employer"
-                className="btn text-white/65 hover:text-white hover:bg-white/10 rounded-full text-sm"
+                className="btn text-white/65 hover:text-white hover:bg-white/10 rounded-full text-xs sm:text-sm"
               >
-                انشر وظيفة
+                🏢 انشر وظيفة
               </Link>
             </div>
 
-            <p className="text-[11px] text-white/40 mt-5 font-semibold">
+            <p className="text-[11px] text-white/40 mt-4 sm:mt-5 font-semibold">
               ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة
             </p>
               </div>  {/* max-w-xl text block */}
             </div>    {/* container-jo */}
           </div>      {/* absolute inset-0 content */}
-        </div>        {/* aspect-ratio wrapper */}
+        </div>        {/* min-h wrapper */}
       </section>
 
       {/* ══════════════════════════════════════════════════════════
@@ -193,7 +195,7 @@ export default async function HomePage() {
 
           {featured.length === 0 ? (
             <div className="card-pad text-center" style={{ color: "var(--color-muted)" }}>
-              لا توجد وظائف بعد. عُد لاحقاً أو شغّل seed لإضافة بيانات تجريبية.
+              لا توجد وظائف بعد — ترقّب أحدث الفرص قريباً!
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-4 stagger-children">
@@ -276,7 +278,7 @@ export default async function HomePage() {
           <div className="container-jo py-14 grid md:grid-cols-3 gap-6">
             <Persona
               title="للأشخاص"
-              description="طلاب، خريجون جدد، عمّال، باحثون عن دوام جزئي، نساء يبحثن عن عمل مرن، وأصحاب مهارات يدوية أو مكتبية."
+              description="طلاب، خريجون جدد، عمّال، باحثون عن دوام جزئي، باحثون عن عمل مرن، وأصحاب مهارات يدوية أو مكتبية."
               cta={<Link className="link text-sm font-bold" href="/register">سجّل كباحث عمل ←</Link>}
               icon="🧑‍💼"
               accent="#EBF0FF"
@@ -411,7 +413,7 @@ export default async function HomePage() {
 
 function StatPill({ value, label }: { value: string; label: string }) {
   return (
-    <span className="text-sm text-white/70 font-medium">
+    <span className="text-xs sm:text-sm text-white/70 font-medium">
       <strong className="font-extrabold" style={{ color: "#FF8C6B" }}>{value}</strong>{" "}
       {label}
     </span>

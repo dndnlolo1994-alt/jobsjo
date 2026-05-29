@@ -19,10 +19,10 @@ function required(name: string, fallback?: string): string {
 export const env = {
   DATABASE_URL: required("DATABASE_URL", "postgresql://localhost:5432/jojobs"),
   SITE_URL: clean(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  SITE_NAME:
-    process.env.NEXT_PUBLIC_SITE_NAME ??
-    process.env.NEXT_PUBLIC_APP_NAME_AR ??
-    "جوبز الأردن",
+  SITE_NAME: (() => {
+    const raw = process.env.NEXT_PUBLIC_SITE_NAME ?? process.env.NEXT_PUBLIC_APP_NAME_AR ?? "جوبز الأردن";
+    return (raw.includes("?") || raw.includes("؟")) ? "جوبز الأردن" : clean(raw);
+  })(),
   APP_NAME: process.env.NEXT_PUBLIC_APP_NAME ?? "JoJobs",
   SESSION_PASSWORD: required(
     "SESSION_PASSWORD",
@@ -61,4 +61,6 @@ export const env = {
     process.env.SUPPORT_EMAIL ??
     process.env.NEXT_PUBLIC_CONTACT_EMAIL ??
     "info@example.com",
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: clean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? ""),
+  NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: clean(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? ""),
 };

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { JobCard } from "@/components/JobCard";
 import { createClaimAction } from "@/lib/actions/platform";
@@ -7,6 +8,7 @@ import { getSessionUser } from "@/lib/session";
 import { CompanyReviewForm } from "@/components/CompanyReviewForm";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { Building2, ExternalLink, Mail, MessageCircle } from "lucide-react";
+import { env } from "@/lib/env";
 
 export const revalidate = 3600;
 
@@ -28,6 +30,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description,
     keywords: ["وظائف شركات", company.name, company.city, company.industry].filter(Boolean) as string[],
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `${env.SITE_URL}/companies/${decodedSlug}`,
+    },
   };
 }
 
@@ -80,8 +88,7 @@ export default async function CompanyPage({
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
               <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-white bg-slate-50 text-2xl font-extrabold text-emerald-800 shadow-xl shadow-slate-950/10 sm:h-24 sm:w-24 sm:text-3xl">
                 {company.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={company.logoUrl} alt={company.name} className="h-full w-full object-cover" />
+                  <Image src={company.logoUrl} alt={company.name} width={96} height={96} className="h-full w-full object-cover" />
                 ) : (
                   <Building2 className="h-10 w-10 text-emerald-700 sm:h-12 sm:w-12" />
                 )}

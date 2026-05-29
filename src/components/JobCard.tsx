@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { JOB_TYPE_LABEL, formatJod, formatRelativeArabic } from "@/lib/utils";
 
 type Props = {
@@ -91,9 +92,11 @@ export function JobCard({ job, matchScore }: Props) {
           style={{ background: bg, color: fg, borderColor: `${fg}22` }}
         >
           {job.company?.logoUrl ? (
-            <img
+            <Image
               src={job.company.logoUrl}
               alt={companyName}
+              width={48}
+              height={48}
               className="w-full h-full object-cover"
             />
           ) : (

@@ -860,6 +860,50 @@ export async function adminReviewClaimAction(id: string, status: "APPROVED" | "R
   redirect("/admin/claims");
 }
 
+const PURGE_CONFIRM_DEMO = "حذف-التجريبي";
+const PURGE_CONFIRM_FULL = "إعادة-ضبط-المنصة";
+
+function revalidateAfterPurge() {
+  revalidatePath("/admin");
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin/jobs");
+  revalidatePath("/admin/companies");
+  revalidatePath("/admin/job-seekers");
+  revalidatePath("/admin/employers");
+  revalidatePath("/admin/applications");
+  revalidatePath("/");
+  revalidatePath("/jobs");
+}
+
+/** حذف بيانات seed (@jojobs.local) + كل الوظائف والشركات والتقديمات */
+export async function adminPurgeDemoDataAction(form: FormData) {
+  await requireAdmin();
+  if (str(form, "confirm") !== PURGE_CONFIRM_DEMO) {
+    redirect("/admin/settings?error=confirm");
+  }
+  const { purgeDemoSeedData } = await import("@/lib/admin/purge-data");
+  const stats = await purgeDemoSeedData();
+  revalidateAfterPurge();
+  redirect(
+    `/admin/settings?purged=demo&users=${stats.deletedUsers}&jobs=${stats.jobs}&companies=${stats.companies}`
+  );
+}
+
+/** إعادة ضبط كاملة: يبقي حسابات ADMIN_EMAILS فقط */
+export async function adminResetPlatformAction(form: FormData) {
+  await requireAdmin();
+  if (str(form, "confirm") !== PURGE_CONFIRM_FULL) {
+    redirect("/admin/settings?error=confirm");
+  }
+  const { resetPlatformKeepAdmins, getPreservedAdminEmails } = await import("@/lib/admin/purge-data");
+  const stats = await resetPlatformKeepAdmins();
+  revalidateAfterPurge();
+  const kept = getPreservedAdminEmails().join(",");
+  redirect(
+    `/admin/settings?purged=full&users=${stats.deletedUsers}&jobs=${stats.jobs}&kept=${encodeURIComponent(kept)}`
+  );
+}
+
 export async function requestPlusUpgradeAction() {
   const user = await requireJobSeeker();
 

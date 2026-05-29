@@ -4,7 +4,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/Badge";
 import { JOB_TYPE_LABEL, EXPERIENCE_LEVEL_LABEL, EDUCATION_LEVEL_LABEL, formatDateArabic, formatJod } from "@/lib/utils";
-import { buildJobPostingJsonLd } from "@/lib/seo/jobposting";
+import { JobPostingSchema } from "@/components/seo/JobPostingSchema";
 import { applyToJobAction } from "@/lib/actions/platform";
 import { tplApplyToJob } from "@/lib/whatsapp";
 import { getSession } from "@/lib/session";
@@ -55,7 +55,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
   const job = await prisma.job.findUnique({ where: { slug: decodedSlug }, include: { company: true } });
   if (!job) notFound();
   
-  const jsonLd = buildJobPostingJsonLd(job);
   const companyName = job.company?.name ?? job.companyNameText ?? "صاحب عمل خاص";
   const salary = job.salaryText ?? (job.salaryMin || job.salaryMax ? `${formatJod(job.salaryMin ?? 0)} - ${formatJod(job.salaryMax ?? job.salaryMin ?? 0)}` : "غير محدد");
   const whatsapp = job.contactWhatsapp ? tplApplyToJob({ phone: job.contactWhatsapp, seekerName: "اسمي", jobTitle: job.title, city: job.city }) : null;
@@ -93,7 +92,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
 
   return (
     <article className="container-jo py-8">
-      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
+      <JobPostingSchema job={job} />
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">
         <main className="space-y-5">
           <section className="card-pad">

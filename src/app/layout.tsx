@@ -7,6 +7,9 @@ import { Footer } from "@/components/Footer";
 import { MobileNav } from "@/components/MobileNav";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import NextTopLoader from "nextjs-toploader";
+import { WebSiteSchema } from "@/components/seo/WebSiteSchema";
+import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
+import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
 
 const readexPro = Readex_Pro({
   subsets: ["arabic", "latin"],
@@ -30,48 +33,65 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(env.SITE_URL),
+  metadataBase: new URL("https://www.jordan-job.shop"),
+  alternates: {
+    canonical: "https://www.jordan-job.shop",
+  },
   manifest: "/manifest.webmanifest",
-  applicationName: env.SITE_NAME,
+  applicationName: "جوبز الأردن",
   appleWebApp: {
     capable: true,
-    title: env.SITE_NAME,
+    title: "جوبز الأردن",
     statusBarStyle: "default",
   },
   title: {
-    default: `${env.SITE_NAME} — وظائف الأردن الشاغرة والقريبة منك`,
-    template: `%s | ${env.SITE_NAME}`,
+    default: "جوبز الأردن — وظائف الأردن الشاغرة",
+    template: "%s | جوبز الأردن — وظائف الأردن",
   },
-  description:
-    "منصة جوبز الأردن: ابحث عن أحدث الوظائف المحلية الشاغرة في عمان وإربد وسائر المحافظات الأردنية، أنشئ سيرة ذاتية احترافية باللغتين العربية والإنجليزية مجاناً، وقدم طلبك بنقرة زر.",
+  description: "منصة وظائف أردنية للباحثين عن عمل وأصحاب الشركات، لعرض الوظائف، استقبال الطلبات، وإنشاء السيرة الذاتية.",
   keywords: [
     "وظائف الأردن",
-    "وظائف شاغرة في الأردن",
-    "وظائف عمان",
-    "وظائف إربد",
-    "فرص عمل في الأردن",
-    "سيرة ذاتية مجانية",
     "عمل في الأردن",
+    "وظائف عمّان",
+    "وظائف إربد",
+    "فرص عمل أردن",
+    "شغل في الأردن",
     "توظيف الأردن",
     "باني السيرة الذاتية",
-    "سيرة ذاتية عربي انجليزي"
+    "سيرة ذاتية مجانية"
   ],
   openGraph: {
     type: "website",
     locale: "ar_JO",
-    siteName: env.SITE_NAME,
-    title: `${env.SITE_NAME} — منصة وظائف الأردن وباني السيرة الذاتية`,
-    description: "ابحث عن وظائف محلية شاغرة في الأردن، صمم سيرة ذاتية احترافية باللغتين مجاناً، وقدم للشركات مباشرة.",
+    url: "https://www.jordan-job.shop",
+    siteName: "جوبز الأردن",
+    title: "جوبز الأردن — وظائف الأردن الشاغرة",
+    description: "منصة وظائف أردنية للباحثين عن عمل وأصحاب الشركات، لعرض الوظائف، استقبال الطلبات، وإنشاء السيرة الذاتية.",
+    images: [
+      {
+        url: "https://www.jordan-job.shop/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "منصة جوبز الأردن للتوظيف",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${env.SITE_NAME} — وظائف الأردن وباني السيرة الذاتية`,
-    description: "ابحث عن وظائف محلية شاغرة في الأردن، صمم سيرة ذاتية احترافية باللغتين مجاناً، وقدم للشركات مباشرة.",
+    title: "جوبز الأردن — وظائف الأردن الشاغرة",
+    description: "منصة وظائف أردنية للباحثين عن عمل وأصحاب الشركات، لعرض الوظائف، استقبال الطلبات، وإنشاء السيرة الذاتية.",
+    images: ["https://www.jordan-job.shop/images/og-image.png"],
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
+  },
+  verification: {
+    google: env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
 };
 
@@ -86,7 +106,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" data-scroll-behavior="smooth">
+      <head>
+        <meta charSet="utf-8" />
+        <WebSiteSchema />
+        <OrganizationSchema />
+      </head>
       <body className={`${readexPro.variable} ${cairo.variable} ${tajawal.variable}`}>
+        <GoogleAnalytics />
         <NextTopLoader
           color="#FF6B35"
           initialPosition={0.08}

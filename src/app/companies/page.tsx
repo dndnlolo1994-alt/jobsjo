@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Building2, Mail, MapPin } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
@@ -36,8 +37,7 @@ export default async function CompaniesPage() {
             <div className="flex items-start gap-3">
               <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-700">
                 {company.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={company.logoUrl} alt={company.name} className="h-full w-full object-cover" />
+                  <Image src={company.logoUrl} alt={company.name} width={48} height={48} className="h-full w-full object-cover" />
                 ) : (
                   <Building2 className="h-6 w-6" />
                 )}

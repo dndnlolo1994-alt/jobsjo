@@ -1,11 +1,14 @@
 import type { MetadataRoute } from "next";
-import { env } from "@/lib/env";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: "*", allow: "/", disallow: ["/admin", "/login", "/register", "/me", "/employer", "/api"] },
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/admin", "/api", "/me", "/dashboard", "/employer/dashboard"],
+      },
     ],
-    sitemap: `${env.SITE_URL}/sitemap.xml`,
+    sitemap: "https://www.jordan-job.shop/sitemap.xml",
   };
 }

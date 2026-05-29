@@ -40,6 +40,9 @@ export default async function EmployerPage() {
           <p className="text-sm text-navy-500 mt-1">أهلاً بك، {user.fullName}. أدر وظائفك واستقبل طلبات الباحثين عن عمل بكل سهولة.</p>
         </div>
         <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
+          <Link className="btn-outline text-sm px-5 py-2.5 border-emerald-600 text-emerald-700 hover:bg-emerald-50 hover:scale-[1.01] active:scale-[0.99] transition-transform" href="/employer/candidates">
+            🔍 البحث عن مرشحين
+          </Link>
           <Link className="btn-primary text-sm px-5 py-2.5 shadow-md shadow-emerald-600/10 hover:scale-[1.01] active:scale-[0.99] transition-transform" href="/employer/jobs/new">
             ➕ نشر وظيفة جديدة
           </Link>

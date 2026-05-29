@@ -1,6 +1,6 @@
-# 🇯🇴 جوبز الأردن — JobsJO
+# 🇯🇴 وظائف الأردن — JoJobs (JobsJO)
 
-**منصة وظائف الأردن الأولى | Jordan's Premier Job Platform**
+**منصة وظائف الأردن | Jordan Job Platform**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?logo=prisma)](https://prisma.io)
@@ -11,108 +11,124 @@
 
 ---
 
-## 🚀 التشغيل والإعداد المحلي السريع (Local Setup)
+## 🌐 الدومين الرسمي (Production)
 
-اتبع هذه الخطوات لإعداد المشروع محلياً وتجنب أي صفحات خطأ 404 (التي تنتج عن خلو قاعدة البيانات):
+| البيئة | الرابط |
+|--------|--------|
+| **الدومين الرسمي للإنتاج** | [https://www.jordan-job.shop](https://www.jordan-job.shop) |
+| **الجذر (redirect)** | `https://jordan-job.shop` → يُحوَّل إلى `https://www.jordan-job.shop` |
+| **Vercel (احتياطي / داخلي)** | `https://jojobs-os.vercel.app` — للاختبار والنشر فقط، **ليس** الدومين العام للمستخدمين |
+
+> **SEO و canonical و sitemap و Open Graph:** تُبنى من `NEXT_PUBLIC_SITE_URL` في الإنتاج. يجب أن تكون القيمة `https://www.jordan-job.shop` — لا تستخدم `*.vercel.app` في الإنتاج.
+
+تفاصيل DNS والبريد وVercel: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+---
+
+## 🚀 التشغيل المحلي (Local Setup)
 
 ### 1. استنساخ المشروع وتثبيت الاعتماديات
+
 ```bash
 git clone https://github.com/dndnlolo1994-alt/jobsjo.git
 cd jobsjo
 npm install
 ```
 
-### 2. إعداد ملف البيئة (Environment Variables)
-قم بنسخ ملف المتغيرات النموذجي وتعديله:
+### 2. إعداد ملف البيئة
+
 ```bash
 cp .env.example .env
 ```
-أهم المتغيرات التي يجب ضبطها:
-- `DATABASE_URL`: رابط اتصال PostgreSQL (على Supabase أو محلي).
-- `SESSION_SECRET`: سلسلة عشوائية لتأمين الجلسات (بحد أدنى 32 حرفاً).
-- `NEXT_PUBLIC_SITE_URL`: الرابط المحلي `http://localhost:3000`.
 
-### 3. إعداد قاعدة البيانات وتوليد Prisma Client ⚠️ (هام جداً)
-يجب دفع هيكل الجداول وتوليد مكتبة Prisma:
+**محلياً** استخدم `NEXT_PUBLIC_SITE_URL=http://localhost:3000`.  
+**على Vercel (إنتاج)** استخدم `NEXT_PUBLIC_SITE_URL=https://www.jordan-job.shop` — انظر [`.env.example`](.env.example) و[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+أهم المتغيرات:
+
+- `DATABASE_URL` / `DIRECT_URL` — PostgreSQL (Supabase).
+- `SESSION_SECRET` / `SESSION_PASSWORD` — بحد أدنى 32 حرفاً.
+- `NEXT_PUBLIC_SITE_URL` — عنوان الموقع حسب البيئة (محلي vs إنتاج).
+- `SMTP_*` — إرسال OTP والبريد (Hostinger SMTP في الإنتاج).
+
+### 3. قاعدة البيانات و Prisma
+
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-### 4. تغذية البيانات وتجنب صفحات 404 🎯 (CRITICAL)
-إذا كانت قاعدة البيانات فارغة، ستظهر صفحات 404 عند محاولة فتح تفاصيل الوظائف أو الشركات. **يجب تشغيل بذور البيانات** لتوليد 28 شركة حقيقية، و77 وظيفة تفصيلية، و150 طلب تقديم تجريبي:
+### 4. بذور البيانات (تجنب 404)
+
 ```bash
 npx prisma db seed
 ```
 
-### 5. تشغيل خادم التطوير
+### 5. تشغيل التطوير
+
 ```bash
 npm run dev
 ```
-افتح الرابط المحلي: [http://localhost:3000](http://localhost:3000).
+
+محلياً: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🔑 بيانات الدخول التجريبية (Seeded Test Credentials)
+## 🔑 بيانات الدخول التجريبية (Seed)
 
-بعد تشغيل الـ `seed` بنجاح، يمكنك استخدام الحسابات التالية لفحص كافة مزايا المنصة:
-
-| نوع الحساب | البريد الإلكتروني (Email) | كلمة المرور (Password) | الصلاحيات والمزايا |
-|------------|------------------------|-------------------------|-------------------|
-| **أدمن المنصة (Admin)** | `admin@jojobs.local` | `Password123!` | لوحة تحكم الإدارة الكاملة، تفعيل اشتراكات الدفع، مطالبات الشركات، تصفح البلاغات. |
-| **صاحب العمل (Employer)** | `employer1@jojobs.local` | `Password123!` | بوابة الشركات، نشر الوظائف، مراجعة السير الذاتية وتعديل حالة الطلب (مقبول، مقابلة..). |
-| **باحث عمل (Seeker)** | `seeker1@jojobs.local` | `Password123!` | باني السيرة الذاتية، التقديم، تنزيل الـ PDF، تتبع حالة الطلبات. |
+| نوع الحساب | البريد | كلمة المرور |
+|------------|--------|-------------|
+| أدمن | `admin@jojobs.local` | `Password123!` |
+| صاحب عمل | `employer1@jojobs.local` | `Password123!` |
+| باحث | `seeker1@jojobs.local` | `Password123!` |
 
 ---
 
-## 💳 آلية تفعيل المدفوعات والاشتراكات (Payments & Activation Flow)
+## 💳 المدفوعات اليدوية
 
-بما أن المنصة تدعم المدفوعات المحلية يدويًا (كليك CliQ / محافظ إلكترونية)، إليك كيف يتم التنشيط الفوري:
-1. يطلب باحث عمل ترقية باقته لبلس (`PLUS`) لتنزيل CV أو تقديم غير محدود.
-2. يتم إنشاء سجل دفع `BillingRecord` بحالة **غير مدفوع (UNPAID)**.
-3. يقوم المستخدم بتحويل المبلغ ويرسل لقطة إثبات الدفع عبر واتساب.
-4. **خطوة التفعيل**: يقوم الأدمن بتسجيل الدخول ببياناته (`admin@jojobs.local`)، وسيجد فوراً في الصفحة الرئيسية للوحة الإدارة قسم **"طلبات المدفوعات بانتظار التفعيل"**، يضغط على **"تفعيل ✅"**، ليتم ترقية حساب الباحث أو تفعيل إعلان الشركة فوراً وبشكل حي!
+1. طلب ترقية Plus أو خدمة مدفوعة → `BillingRecord` بحالة UNPAID.
+2. تحويل + إثبات عبر واتساب.
+3. الأدمن يفعّل من لوحة **طلبات المدفوعات**.
 
 ---
 
-## ⚠️ تجنب مشكلة ترميز BOM عند النشر على Vercel
+## ⚠️ BOM على Vercel (Windows)
 
-> [!WARNING]
-> عند ضبط متغيرات البيئة (Environment Variables) على Vercel باستخدام سطر أوامر Windows PowerShell عبر `echo "value" | vercel env add`، يقوم PowerShell تلقائياً بإضافة حرف BOM غير مرئي (`\ufeff`). هذا يتسبب في كسر اتصال Prisma بقاعدة البيانات (Error: postgresql:// protocol not recognized) أو كسر روابط URL.
-
-### 🛡️ الحل الصحيح لإضافة متغيرات Vercel بدون أخطاء الترميز:
-1. قم بضبط المتغيرات يدوياً عبر لوحة تحكم موقع Vercel (Dashboard).
-2. أو استخدم REST API لإدخالها.
-3. أو قم بكتابة سكربت Node.js صغير يتواصل مع Vercel API مباشرة بترميز UTF-8 نظيف.
+عند إضافة متغيرات عبر PowerShell `echo ... | vercel env add` قد يُضاف BOM ويكسر `DATABASE_URL`.  
+**الأفضل:** لوحة Vercel، أو `vercel env pull`، أو سكربت UTF-8.
 
 ---
 
-## 📁 هيكل المجلدات الرئيسي
+## 📁 هيكل المجلدات
 
 ```
 src/
-├── app/                  # صفحات وتوجيهات التطبيق (App Router)
-│   ├── admin/            # لوحة تحكم الإدارة (الرئيسية، المدفوعات، الوظائف، البلاغات)
-│   ├── employer/         # بوابة نشر وإدارة الوظائف لأصحاب العمل
-│   ├── me/               # حساب باحث العمل وتتبع الطلبات وباني السيرة الذاتية
-│   ├── jobs/             # صفحات تصفح وتفاصيل الوظائف وفلاتر البحث
-│   ├── companies/        # دليل تفاصيل الشركات والمطالبة بالملكية
-│   └── api/              # مسارات ومنافذ الـ API وخلاصات المزامنة
-├── components/           # المكونات المشتركة (شريط التنقل، البطاقات المحدثة، النماذج)
-├── lib/                  # أدوات المزامنة، الأمان، باني السيرة الذاتية، ومحرك التقييم
-└── prisma/               # مخططات قاعدة البيانات وملفات البذور لتغذية النظام
+├── app/          # App Router (وظائف، شركات، me، employer، admin، api)
+├── components/
+├── lib/
+└── prisma/
+docs/             # توثيق التشغيل، النشر، DNS، السياسات
 ```
 
 ---
 
-## 🌐 التحديث والمزامنة التلقائية (RSS Sync)
+## 📚 وثائق إضافية
 
-المنصة تحتوي على كرون جوب تلقائي يقوم بمزامنة الوظائف الجديدة من خلاصات RSS/XML النشطة:
-- مسار المزامنة المحمي: `/api/cron/sync-jobs?secret=YOUR_CRON_SECRET`
-- يقوم المحرك بقراءة الخلاصات وتصفية التكرارات وتصنيف الوظائف وتوطينها تلقائياً بحسب الكلمات المفتاحية.
+| الملف | المحتوى |
+|-------|---------|
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | نشر Vercel، DNS، بريد Hostinger، متغيرات الإنتاج |
+| [`docs/LAUNCH_CHECKLIST.md`](docs/LAUNCH_CHECKLIST.md) | قائمة إطلاق |
+| [`docs/MONETIZATION.md`](docs/MONETIZATION.md) | الأسعار والباقات |
+| [`docs/CV_PDF_SYSTEM.md`](docs/CV_PDF_SYSTEM.md) | نظام السيرة PDF |
+
+---
+
+## 🌐 مزامنة RSS (Cron)
+
+`GET /api/cron/sync-jobs?secret=YOUR_CRON_SECRET`
 
 ---
 
 ## 📄 الرخصة
 
-جميع الحقوق محفوظة © 2026 جوبز الأردن — صُمم في الأردن 🇯🇴
+جميع الحقوق محفوظة © 2026 وظائف الأردن — JoJobs 🇯🇴
