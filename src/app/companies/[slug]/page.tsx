@@ -58,7 +58,7 @@ export default async function CompanyPage({
     getSessionUser(),
   ]);
   if (!company) notFound();
-  const hiringEmail = company.email ?? company.jobs.find((job) => job.contactEmail)?.contactEmail ?? null;
+  const hiringEmail = company.email ?? company.jobs.find((job) => job.contactEmail && job.contactMethod === "EMAIL")?.contactEmail ?? null;
   const mailSubject = `استفسار توظيف عبر جوبز الأردن - ${company.name}`;
   const orgLd = company.name && company.city ? { "@context": "https://schema.org", "@type": "Organization", name: company.name, address: { "@type": "PostalAddress", addressCountry: "JO", addressLocality: company.city }, url: company.website ?? undefined } : null;
   return (

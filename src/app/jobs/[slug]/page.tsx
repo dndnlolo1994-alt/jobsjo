@@ -222,7 +222,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
               <p>تاريخ النشر: {formatDateArabic(job.publishedAt)}</p>
               <p>ينتهي في: {formatDateArabic(job.expiresAt)}</p>
               <p>المصدر: {job.sourceName ?? "جوبز الأردن"}</p>
-              {job.contactEmail && (
+              {job.contactEmail && (job.contactMethod === "EMAIL" || user?.role === "ADMIN") && (
                 <p>
                   بريد الشركة:{" "}
                   <a className="link font-bold" href={`mailto:${job.contactEmail}?subject=${encodeURIComponent(`استفسار حول وظيفة: ${job.title}`)}`}>
