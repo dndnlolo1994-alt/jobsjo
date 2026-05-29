@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { env } from "@/lib/env";
 import { Logo } from "./Logo";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
+import { WHATSAPP_NUMBER, WHATSAPP_URL } from "@/lib/constants";
 
 const FOOTER_BRAND_NAME = "جوبز الأردن";
 
@@ -33,7 +33,7 @@ export function Footer() {
             <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-xs">
               منصة جوبز الأردن — تجمع الفرص المحلية وتساعدك تعمل سيرة ذاتية احترافية وتتابع طلباتك من مكان واحد وبشكل آمن وموثوق.
             </p>
-            <a href={`https://wa.me/${env.PLATFORM_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 mt-3 transition-colors">
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 mt-3 transition-colors">
               <span>📱</span> تواصل عبر واتساب
             </a>
             <a href={`mailto:${env.CONTACT_EMAIL}`} className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-primary-300 mt-1 transition-colors group">
@@ -46,9 +46,9 @@ export function Footer() {
           </div>
 
           {/* Contact Text */}
-          <div className="text-xs text-gray-400 leading-relaxed font-semibold">
-            تواصل معنا: info@jordan-job.shop | واتساب: {WHATSAPP_NUMBER}+
-          </div>
+          <p className="text-xs text-gray-400 leading-relaxed font-semibold">
+            تواصل معنا: info@jordan-job.shop | واتساب: 962790565018+
+          </p>
         </div>
 
         {/* Links columns */}
