@@ -2,7 +2,7 @@ import Link from "next/link";
 import { env } from "@/lib/env";
 import { Logo } from "./Logo";
 
-const FOOTER_BRAND_NAME = "وظائف الأردن";
+const FOOTER_BRAND_NAME = "جوبز الأردن";
 
 export function Footer() {
   return (

@@ -9,7 +9,7 @@ import { JOB_CATEGORIES, JORDAN_CITIES } from "@/lib/utils";
 import { publicMetadata } from "@/lib/seo/site";
 
 export const metadata: Metadata = publicMetadata({
-  title: "وظائف الأردن الشاغرة للباحثين وأصحاب العمل",
+  title: "جوبز الأردن — وظائف الأردن الشاغرة",
   description: "جوبز الأردن منصة توظيف محلية تساعد الباحثين عن عمل في الأردن على تصفح الوظائف وإنشاء CV احترافي، وتساعد الشركات على نشر فرص العمل واستقبال الطلبات.",
   path: "/",
   keywords: ["وظائف الأردن", "فرص عمل في الأردن", "وظائف عمان", "توظيف الأردن", "سيرة ذاتية"],
