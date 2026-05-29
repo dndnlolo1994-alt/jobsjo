@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Cairo, Readex_Pro, Tajawal } from "next/font/google";
+import { Cairo, Tajawal } from "next/font/google";
 import "./globals.css";
 import { env } from "@/lib/env";
-import { Header } from "@/components/Header";
+import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { MobileNav } from "@/components/MobileNav";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
@@ -11,13 +11,6 @@ import { WebSiteSchema } from "@/components/seo/WebSiteSchema";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
 import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
 import { absoluteUrl, OG_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo/site";
-
-const readexPro = Readex_Pro({
-  subsets: ["arabic", "latin"],
-  weight: ["200", "300", "400", "500", "600", "700"],
-  variable: "--font-readex-pro",
-  display: "swap",
-});
 
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
@@ -116,9 +109,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <WebSiteSchema />
         <OrganizationSchema />
       </head>
-      <body className={`${readexPro.variable} ${cairo.variable} ${tajawal.variable}`}>
+      <body className={`${cairo.variable} ${tajawal.variable}`}>
         <a href="#main-content" className="skip-link">
-          الانتقال إلى المحتوى الرئيسي
+          الذهاب إلى المحتوى الرئيسي
         </a>
         <GoogleAnalytics />
         <NextTopLoader
@@ -133,7 +126,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           shadow="0 0 10px #FF6B35,0 0 5px #FF6B35"
         />
         <div className="min-h-screen flex flex-col pb-16 md:pb-0">
-          <Header />
+          <Navbar />
           <main id="main-content" className="flex-1" tabIndex={-1}>
             {children}
           </main>
