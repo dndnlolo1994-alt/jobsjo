@@ -378,6 +378,69 @@ export default async function HomePage() {
       </FadeInSection>
 
       {/* ══════════════════════════════════════════════════════════
+          TESTIMONIALS
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="container-jo py-16">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="section-accent-line mx-auto" />
+            <h2 className="section-title">آراء وقصص نجاح</h2>
+            <p className="section-sub mt-3 text-center">
+              ماذا يقول الباحثون عن عمل وأصحاب الشركات عن تجربتهم مع جوبز الأردن
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                name: "أنس عبيدات",
+                location: "إربد",
+                role: "مهندس شبكات وسيرفرات",
+                avatar: "👨‍💻",
+                quote: "حصلت على وظيفة بعد أسبوعين فقط من استخدام المنصة. باني السير الذاتية هنا ممتاز جداً ومطابق للمواصفات، والتقديم مباشر دون تعقيد."
+              },
+              {
+                name: "رانية القضاة",
+                location: "عمان",
+                role: "محللة بيانات مالية",
+                avatar: "👩‍💼",
+                quote: "أكثر ما يميز المنصة هو الشفافية التامة. تتبع حالة الطلب يمنحك شعوراً بالراحة والجدية من طرف الشركات، وتعرف تماماً أين وصلت معاملتك."
+              },
+              {
+                name: "م. أحمد بني هاني",
+                location: "عمان",
+                role: "مدير شركة موارد للمقاولات",
+                avatar: "👷‍♂️",
+                quote: "نشرنا شاغرين للمهندسين وتلقينا طلبات مؤهلة خلال 48 ساعة فقط. الدعم الفني متعاون لأبعد الحدود والتعامل قمة في الاحترافية والسرعة."
+              }
+            ].map((item, idx) => (
+              <div 
+                key={idx}
+                className="card card-pad p-8 flex flex-col justify-between hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary-50 rounded-bl-full opacity-30 -z-10" />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl p-2 bg-white rounded-2xl shadow-sm border border-gray-100">{item.avatar}</span>
+                    <div>
+                      <h4 className="font-bold text-base text-[var(--color-text)]">{item.name}</h4>
+                      <p className="text-xs text-gray-500 font-medium">{item.role} • {item.location}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-0.5 text-amber-400 text-sm">
+                    {"★".repeat(5)}
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed font-normal italic">
+                    &ldquo;{item.quote}&rdquo;
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </FadeInSection>
+
+      {/* ══════════════════════════════════════════════════════════
           FAQ
          ══════════════════════════════════════════════════════════ */}
       <FadeInSection>
