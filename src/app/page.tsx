@@ -151,7 +151,7 @@ export default async function HomePage() {
                 <Link
                   key={city}
                   href={`/jobs?city=${encodeURIComponent(city)}`}
-                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-[#E5E8F0] text-sm font-semibold text-[#1A1D2E] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50"
+                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full bg-[var(--surface)] border border-[var(--border)] text-sm font-semibold text-[var(--text)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/20"
                 >
                   <span>📍</span>
                   <span>{city}</span>
