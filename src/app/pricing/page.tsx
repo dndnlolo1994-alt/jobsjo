@@ -174,20 +174,22 @@ export default function PricingPage() {
             ))}
           </div>
 
-          {/* CV Template Live Mockup Preview */}
+          {/* CV Template — لقطة حقيقية من قالب modern-emerald (Plus + صورة) */}
           <div className="rounded-2xl p-3 sm:p-4 border border-emerald-500/20 bg-[#07110f] text-center w-full shadow-lg shadow-emerald-950/20 xl:sticky xl:top-24">
             <h4 className="font-extrabold text-white text-xs sm:text-sm mb-2 border-b border-white/10 pb-2">
-              نموذج مطابق لقالب PDF بعد التفعيل
+              هكذا ستبدو سيرتك بعد التفعيل (مثال حقيقي)
             </h4>
-            <div className="relative rounded-lg overflow-hidden border border-[#c2a06c]/40 bg-slate-900 group max-h-[280px] sm:max-h-[320px]">
+            <div className="relative rounded-lg overflow-hidden border border-[#c2a06c]/50 bg-white shadow-inner group">
               <img
                 src="/cv-mockup.png"
-                alt="نموذج معاينة السيرة الذاتية PDF"
-                className="w-full h-full max-h-[280px] sm:max-h-[320px] object-contain object-top transition-transform duration-300 group-hover:scale-[1.02]"
+                alt="مثال سيرة ذاتية PDF — قالب زمردي مع صورة شخصية ورمز QR"
+                width={397}
+                height={562}
+                className="w-full h-auto object-cover object-top transition-transform duration-300 group-hover:scale-[1.01]"
               />
             </div>
             <p className="text-[10px] text-slate-400 mt-2 leading-snug">
-              رأس أخضر، لمسات ذهبية، صورة شخصية، QR موثق — كما في PDF بعد التفعيل.
+              من باني السيرة في المنصة: رأس أخضر، لمسات ذهبية، صورة شخصية، QR موثق — نفس شكل ملف PDF.
             </p>
           </div>
         </div>
