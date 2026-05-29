@@ -51,6 +51,22 @@ export default async function PricingPage() {
       href: "/register",
       highlight: true,
     },
+    {
+      name: "نشر وظيفة",
+      price: "من 5 د.أ",
+      originalPrice: "8 د.أ",
+      period: "لكل وظيفة",
+      description: "عرض خاص بمناسبة عيد الاستقلال لأصحاب العمل لنشر الوظائف واستقطاب الكفاءات.",
+      features: [
+        "إعلان عادي 5 د.أ",
+        "إعلان مميز (Featured) 10 د.أ",
+        "ظهور في نتائج البحث",
+        "تلقي طلبات مباشرة",
+      ],
+      cta: "انشر وظيفة الآن",
+      href: "/employer/jobs/new",
+      highlight: false,
+    },
   ];
 
   const employerPlans = [
@@ -136,7 +152,7 @@ export default async function PricingPage() {
         
         <div className="flex flex-col gap-6 max-w-6xl mx-auto">
           {/* Seeker Plans Cards */}
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-5 w-full items-start">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-5 w-full items-start">
             {seekerPlans.map((plan) => (
               <div
                 key={plan.name}

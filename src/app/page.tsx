@@ -372,7 +372,12 @@ export default async function HomePage() {
                 title="نشر وظيفة"
                 price="من 5 د"
                 originalPrice="8 د"
-                features={["إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
+                features={[
+                  "إعلان عادي 5 د",
+                  "إعلان مميز (Featured) 10 د",
+                  "ظهور في نتائج البحث",
+                  "تلقي طلبات مباشرة",
+                ]}
               />
             </div>
 
