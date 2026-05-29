@@ -45,21 +45,22 @@ export function Footer() {
               { icon: /* X (Twitter) */
                 <svg key="x" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/>
-                </svg>, href: "#" },
+                </svg>, href: "#", label: "تويتر إكس" },
               { icon: /* LinkedIn */
                 <svg key="li" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
-                </svg>, href: "#" },
+                </svg>, href: "#", label: "لينكد إن" },
               { icon: /* Facebook */
                 <svg key="fb" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-                </svg>, href: "#" },
+                </svg>, href: "#", label: "فيسبوك" },
             ].map((item, i) => (
               <a
                 key={i}
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={item.label}
                 className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:text-primary-400"
                 style={{ background: "rgba(255,255,255,0.05)" }}
               >

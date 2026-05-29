@@ -112,6 +112,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <OrganizationSchema />
       </head>
       <body className={`${readexPro.variable} ${cairo.variable} ${tajawal.variable}`}>
+        <a href="#main-content" className="skip-link">
+          الانتقال إلى المحتوى الرئيسي
+        </a>
         <GoogleAnalytics />
         <NextTopLoader
           color="#FF6B35"
@@ -126,7 +129,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <div className="min-h-screen flex flex-col pb-16 md:pb-0">
           <Header />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1" tabIndex={-1}>
+            {children}
+          </main>
           <Footer />
           <MobileNav />
           <PwaInstallPrompt />

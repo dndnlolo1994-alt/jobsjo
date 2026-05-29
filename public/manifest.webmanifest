@@ -38,5 +38,14 @@
       "url": "/me/cv",
       "icons": [{ "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
     }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "الصفحة الرئيسية لمنصة جوبز الأردن"
+    }
   ]
 }
