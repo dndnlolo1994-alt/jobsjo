@@ -9,9 +9,17 @@ interface CvEditorFormProps {
   defaultFullName: string;
   isPaid?: boolean;
   billingStatus?: string;
+  /** Photo is a Plus-only feature. */
+  isPlus?: boolean;
+  siteUrl?: string;
 }
 
-export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false, billingStatus = "UNPAID" }: CvEditorFormProps) {
+export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false, billingStatus = "UNPAID", isPlus = false, siteUrl = "" }: CvEditorFormProps) {
+  // QR points to the real public verification page on the live domain.
+  const qrBase = (siteUrl || "").replace(/\/$/, "");
+  const qrVerifyId = cv?.userId || cv?.id || "verify";
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`${qrBase}/cv/${qrVerifyId}`)}`;
+  const qrLabel = `${qrBase.replace(/^https?:\/\//, "")}/cv`;
   const [activeTab, setActiveTab] = useState<"basic" | "experiences" | "educations" | "skills" | "certifications" | "translation" | "design">("basic");
   
   // Premium Pre-populated Defaults
@@ -437,30 +445,45 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
         <div className="bg-[#0b120d] p-4 md:p-8 overflow-x-auto flex flex-col items-center">
           {/* Visual Workspace (Direct Editor) - Open for everyone */}
           <div className="w-full flex flex-col items-center gap-6">
-              {/* Profile Photo selector in visual workspace */}
+              {/* Profile Photo selector in visual workspace (Plus-only) */}
               <div className="flex gap-4 items-center bg-navy-950 p-4 rounded-xl border border-navy-800 w-full max-w-[794px] justify-between text-white text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full border border-[#c2a06c] overflow-hidden bg-navy-900 flex items-center justify-center relative group">
-                    {photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={photo} alt="Photo" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xl">🧑</span>
+                {isPlus ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full border border-[#c2a06c] overflow-hidden bg-navy-900 flex items-center justify-center relative group">
+                        {photo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={photo} alt="Photo" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-xl">🧑</span>
+                        )}
+                        <label className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] font-bold cursor-pointer transition-opacity">
+                          تغيير
+                          <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+                        </label>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-slate-200">صورة السيرة الذاتية</p>
+                        <p className="text-[10px] text-slate-400">انقر على الصورة لتغييرها أو رفع صورة جديدة</p>
+                      </div>
+                    </div>
+                    {photo && (
+                      <button type="button" onClick={() => setPhoto("")} className="px-3 py-1.5 bg-red-950/50 text-red-400 hover:bg-red-900 hover:text-white rounded-lg border border-red-900/50 font-bold transition-all">
+                        إزالة الصورة
+                      </button>
                     )}
-                    <label className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] font-bold cursor-pointer transition-opacity">
-                      تغيير
-                      <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
-                    </label>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full border border-[#c2a06c]/40 bg-navy-900 flex items-center justify-center text-xl shrink-0">🔒</div>
+                    <div className="text-right">
+                      <p className="font-bold text-slate-200">الصورة الشخصية ميزة في باقة Plus</p>
+                      <p className="text-[10px] text-slate-400">
+                        السيرة المجانية تُنشأ بدون صورة شخصية.{" "}
+                        <a href="/pricing" className="text-emerald-400 font-bold underline">الترقية إلى Plus ⚡</a>
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-slate-200">صورة السيرة الذاتية</p>
-                    <p className="text-[10px] text-slate-400">انقر على الصورة لتغييرها أو رفع صورة جديدة</p>
-                  </div>
-                </div>
-                {photo && (
-                  <button type="button" onClick={() => setPhoto("")} className="px-3 py-1.5 bg-red-950/50 text-red-400 hover:bg-red-900 hover:text-white rounded-lg border border-red-900/50 font-bold transition-all">
-                    إزالة الصورة
-                  </button>
                 )}
               </div>
 
@@ -499,17 +522,19 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                         />
                       </div>
                       
-                      {/* Photo Frame */}
-                      <div className="relative shrink-0">
-                        <div className="w-[102px] h-[102px] rounded-full border-2 border-[#c2a06c] flex items-center justify-center p-[2px] bg-transparent">
-                          {photo ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={photo} alt={fullName} className="w-24 h-24 rounded-full object-cover border-[3px] border-white shadow-sm" />
-                          ) : (
-                            <div className="w-24 h-24 rounded-full bg-white border-[3px] border-white shadow-sm" />
-                          )}
+                      {/* Photo Frame (Plus-only) */}
+                      {isPlus && (
+                        <div className="relative shrink-0">
+                          <div className="w-[102px] h-[102px] rounded-full border-2 border-[#c2a06c] flex items-center justify-center p-[2px] bg-transparent">
+                            {photo ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={photo} alt={fullName} className="w-24 h-24 rounded-full object-cover border-[3px] border-white shadow-sm" />
+                            ) : (
+                              <div className="w-24 h-24 rounded-full bg-white border-[3px] border-white shadow-sm" />
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
 
@@ -995,16 +1020,16 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
 
                       {/* QR Code */}
                       <div className="pt-3 border-t border-slate-200 text-center flex flex-col items-center">
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://jojobs.jo/cv/${cv?.userId || 'verify'}`} 
-                          alt="QR Verification" 
-                          className="w-14 h-14 border border-emerald-100 p-0.5 rounded bg-white shadow-sm shrink-0" 
+                        <img
+                          src={qrSrc}
+                          alt="QR Verification"
+                          className="w-14 h-14 border border-emerald-100 p-0.5 rounded bg-white shadow-sm shrink-0"
                         />
                         <span className="text-[8.5px] text-[#084c41] font-bold block mt-1">
                           {t("سيرة موثقة")}
                         </span>
-                        <span className="text-[8px] text-slate-400 block leading-none">
-                          jojobs.jo/cv/verify
+                        <span className="text-[8px] text-slate-400 block leading-none" dir="ltr">
+                          {qrLabel}
                         </span>
                       </div>
                     </aside>
@@ -1038,7 +1063,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                         </div>
                       </div>
                     </div>
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://jojobs.jo/cv/${cv?.userId || 'verify'}`} alt="QR" className="w-14 h-14 border border-slate-200 p-0.5 rounded shrink-0 animate-pulse" />
+                    <img src={qrSrc} alt="QR" className="w-14 h-14 border border-slate-200 p-0.5 rounded shrink-0 animate-pulse" />
                   </div>
 
                   {/* Summary */}
@@ -1253,34 +1278,53 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
         {activeTab === "basic" && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-6 items-center border-b border-navy-50 pb-6">
-              {/* Photo Upload Frame */}
-              <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-emerald-500 bg-navy-50 flex items-center justify-center shadow-inner group">
-                {photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={photo} alt="Profile preview" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-navy-300 text-4xl">🧑</span>
-                )}
-                <label className="absolute inset-0 bg-navy-950/70 text-white text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                  تغيير الصورة
-                  <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
-                </label>
-              </div>
-              <div>
-                <h3 className="font-bold text-navy-900">الصورة الشخصية</h3>
-                <p className="text-xs text-navy-500 mt-1 max-w-sm">
-                  اختر صورة مهنية واضحة بخلفية محايدة. الصيغ المدعومة: JPG, PNG. الحد الأقصى للحجم: 3 ميغابايت.
-                </p>
-                {photo && (
-                  <button
-                    type="button"
-                    onClick={() => setPhoto("")}
-                    className="text-xs text-red-500 font-semibold mt-2 hover:underline"
-                  >
-                    إزالة الصورة
-                  </button>
-                )}
-              </div>
+              {isPlus ? (
+                <>
+                  {/* Photo Upload Frame */}
+                  <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-emerald-500 bg-navy-50 flex items-center justify-center shadow-inner group">
+                    {photo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={photo} alt="Profile preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-navy-300 text-4xl">🧑</span>
+                    )}
+                    <label className="absolute inset-0 bg-navy-950/70 text-white text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      تغيير الصورة
+                      <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+                    </label>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-navy-900">الصورة الشخصية</h3>
+                    <p className="text-xs text-navy-500 mt-1 max-w-sm">
+                      اختر صورة مهنية واضحة بخلفية محايدة. الصيغ المدعومة: JPG, PNG. الحد الأقصى للحجم: 3 ميغابايت.
+                    </p>
+                    {photo && (
+                      <button
+                        type="button"
+                        onClick={() => setPhoto("")}
+                        className="text-xs text-red-500 font-semibold mt-2 hover:underline"
+                      >
+                        إزالة الصورة
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-dashed border-navy-200 bg-navy-50 flex items-center justify-center shadow-inner">
+                    <span className="text-navy-300 text-4xl">🔒</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-navy-900">الصورة الشخصية — ميزة باقة Plus</h3>
+                    <p className="text-xs text-navy-500 mt-1 max-w-sm leading-6">
+                      السيرة الذاتية المجانية تُنشأ باحترافية وبدون صورة شخصية (تماماً كالقوالب العالمية). لإضافة صورتك الشخصية، قم بالترقية إلى باقة Plus.
+                    </p>
+                    <a href="/pricing" className="inline-block text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 px-3 py-1.5 rounded-lg mt-2 transition-all">
+                      الترقية إلى Plus ⚡
+                    </a>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">

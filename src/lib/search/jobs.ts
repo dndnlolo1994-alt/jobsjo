@@ -78,7 +78,12 @@ export async function searchJobsAdvanced(params: JobSearchParams) {
   if (params.remote) where.jobType = "REMOTE";
   if (params.hybrid) where.jobType = "HYBRID";
   if (params.sourceType && params.includeAdminFilters) where.sourceType = params.sourceType as never;
-  if (params.salaryMin) where.OR = [...(where.OR ?? []), { salaryMax: { gte: params.salaryMin } }, { salaryMin: { gte: params.salaryMin } }];
+  if (params.salaryMin) {
+    // Salary must be ANDed with the text-search OR (not merged into it), otherwise
+    // a job matching the salary but NOT the query text would leak into results.
+    const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
+    where.AND = [...existingAnd, { OR: [{ salaryMax: { gte: params.salaryMin } }, { salaryMin: { gte: params.salaryMin } }] }];
+  }
   if (params.salaryMax) where.salaryMin = { lte: params.salaryMax };
 
   const orderBy: Prisma.JobOrderByWithRelationInput[] =

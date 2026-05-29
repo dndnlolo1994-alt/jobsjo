@@ -1,18 +1,10 @@
-import React from "react";
-
+// Root loading boundary.
+// Intentionally renders NOTHING: a root-level loading.tsx wraps the whole app
+// in a Suspense boundary, so any visible fallback here would flash on EVERY
+// navigation. Navigation feedback is handled globally by <NextTopLoader /> (the
+// thin green progress bar in the layout). Returning null keeps the streaming
+// benefit of the boundary without a full-screen overlay on every page.
+// Heavy routes can still provide their own scoped loading.tsx (e.g. /employer).
 export default function GlobalLoading() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] py-20 text-center space-y-4">
-      {/* Premium glowing spinner */}
-      <div className="relative w-14 h-14">
-        <div className="absolute inset-0 rounded-full border-4 border-emerald-500/10" />
-        <div className="absolute inset-0 rounded-full border-4 border-t-emerald-500 animate-spin" />
-        <div className="absolute inset-0 rounded-full border-4 border-r-amber-500/30 animate-pulse" />
-      </div>
-      <div className="flex flex-col items-center">
-        <span className="text-sm font-extrabold tracking-wider text-emerald-600 animate-pulse">جاري التحميل...</span>
-        <span className="text-[10px] text-navy-400 mt-1.5 font-bold">يرجى الانتظار قليلاً</span>
-      </div>
-    </div>
-  );
+  return null;
 }

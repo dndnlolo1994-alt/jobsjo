@@ -1,15 +1,21 @@
 import QRCode from "qrcode";
 import { formatJordanPhoneDisplay } from "@/lib/phone";
+import { env } from "@/lib/env";
 
 interface CvPreviewProps {
   cv: any;
   userSkills?: string[];
   lang?: string;
+  /** Personal photo is a Plus-only feature; free CVs are generated without a photo. */
+  isPlus?: boolean;
 }
 
-export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
+export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: CvPreviewProps) {
   const langMode = lang || cv.language || "ar";
   const isEn = langMode === "en";
+
+  // Free CV = no personal photo. Plus CV = photo shown (if uploaded).
+  const showPhoto = Boolean(isPlus && cv.photo);
 
   const t = (label: string) => {
     if (!isEn) return label;
@@ -39,11 +45,14 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
     return trans[label] || label;
   };
 
-  // Generate QR Code dynamically
+  // Generate QR Code dynamically, pointing to the real public verification page.
+  const siteBase = env.SITE_URL.replace(/\/$/, "");
+  const verifyId = cv.userId || cv.id;
+  const verifyUrl = `${siteBase}/cv/${verifyId}`;
+  const verifyLabel = `${siteBase.replace(/^https?:\/\//, "")}/cv`;
   let qrCodeDataUrl = "";
   try {
-    // Point to a simulated verification page
-    qrCodeDataUrl = await QRCode.toDataURL(`https://jojobs.jo/cv/${cv.userId || cv.id}`);
+    qrCodeDataUrl = await QRCode.toDataURL(verifyUrl);
   } catch (err) {
     console.error("Error generating QR code:", err);
   }
@@ -123,7 +132,7 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
       <div className="cv-print cv-print-padded bg-white text-slate-900 mx-auto max-w-[794px] min-h-[1123px] p-8 md:p-12 shadow-card border border-slate-200" dir={isEn ? "ltr" : "rtl"}>
         <div className="cv-header flex justify-between items-start border-b border-slate-300 pb-6 mb-6">
           <div className="flex gap-4 items-start">
-            {cv.photo && (
+            {showPhoto && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={cv.photo} alt={fullName} className="w-20 h-20 rounded-lg object-cover border border-slate-300" />
             )}
@@ -227,12 +236,12 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
       <div className="cv-print cv-print-sidebar bg-white text-navy-900 mx-auto max-w-[794px] min-h-[1123px] shadow-card border border-navy-100 flex flex-row overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
         {/* Sidebar (Personal info) */}
         <aside className="w-[240px] bg-slate-100 p-6 flex flex-col items-center gap-6 border-x border-navy-100">
-          {cv.photo ? (
+          {isPlus && (cv.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={cv.photo} alt={fullName} className="w-28 h-28 rounded-full object-cover border-2 border-navy-800 shadow" />
           ) : (
             <div className="w-28 h-28 rounded-full bg-white border-2 border-navy-800 shadow" />
-          )}
+          ))}
 
           <div className="w-full space-y-4">
             <div>
@@ -342,12 +351,12 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
         {/* Top Banner */}
         <div className="cv-header bg-slate-900 text-white p-8 flex flex-col sm:flex-row justify-between items-center gap-6 border-b-8 border-amber-600">
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            {cv.photo ? (
+            {isPlus && (cv.photo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={cv.photo} alt={fullName} className="w-24 h-24 rounded-full object-cover border-2 border-amber-500 shadow" />
             ) : (
               <div className="w-24 h-24 rounded-full bg-white border-2 border-amber-500 shadow" />
-            )}
+            ))}
             <div className="text-center sm:text-right">
               <h1 className="text-3xl font-extrabold tracking-wide text-amber-500">{fullName}</h1>
               <p className="text-lg text-slate-300 font-semibold mt-1">{jobTitle || t("باحث عن عمل")}</p>
@@ -520,21 +529,23 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
               <p className="text-sm text-[#c2a06c] font-bold mt-1.5">{jobTitle || t("باحث عن عمل")}</p>
             </div>
             
-            {/* Profile Photo */}
-            <div className="relative">
-              <div className="w-[102px] h-[102px] rounded-full border-2 border-[#c2a06c] flex items-center justify-center p-[2px] bg-transparent">
-                {cv.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={cv.photo} 
-                    alt={fullName} 
-                    className="w-24 h-24 rounded-full object-cover border-[3px] border-white shadow-sm" 
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-white border-[3px] border-white shadow-sm" />
-                )}
+            {/* Profile Photo (Plus-only) */}
+            {isPlus && (
+              <div className="relative">
+                <div className="w-[102px] h-[102px] rounded-full border-2 border-[#c2a06c] flex items-center justify-center p-[2px] bg-transparent">
+                  {cv.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={cv.photo}
+                      alt={fullName}
+                      className="w-24 h-24 rounded-full object-cover border-[3px] border-white shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-white border-[3px] border-white shadow-sm" />
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -764,8 +775,8 @@ export async function CvPreview({ cv, userSkills = [], lang }: CvPreviewProps) {
                 <span className="text-[8.5px] text-[#084c41] font-bold block mt-1">
                   {t("سيرة موثقة")}
                 </span>
-                <span className="text-[8px] text-slate-400 block">
-                  jojobs.jo/cv/verify
+                <span className="text-[8px] text-slate-400 block" dir="ltr">
+                  {verifyLabel}
                 </span>
               </div>
             )}

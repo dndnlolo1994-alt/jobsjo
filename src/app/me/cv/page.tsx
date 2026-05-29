@@ -5,12 +5,14 @@ import { requireJobSeeker } from "@/lib/auth";
 import { ensureCvPdfBilling, canDownloadCvPdf } from "@/lib/billing/cv";
 import { BILLING_STATUS_LABEL } from "@/lib/utils";
 import { CvEditorForm } from "@/components/cv/CvEditorForm";
+import { RequestPlusButton } from "@/components/RequestPlusButton";
+import { env } from "@/lib/env";
 
 export const metadata: Metadata = { title: "سيرتي الذاتية", robots: { index: false, follow: false } };
 
 export default async function MyCvPage() {
   const user = await requireJobSeeker();
-  
+
   const cv = await prisma.cVProfile.findUnique({
     where: { userId: user.id },
     include: {
@@ -20,7 +22,9 @@ export default async function MyCvPage() {
       certifications: { orderBy: { order: "asc" } },
     },
   });
-  
+
+  const seeker = await prisma.jobSeekerProfile.findUnique({ where: { userId: user.id }, select: { plan: true } });
+  const isPlus = seeker?.plan === "PLUS";
   const billing = await ensureCvPdfBilling(user.id, cv?.id);
   const isPaid = await canDownloadCvPdf(user.id);
   
@@ -44,8 +48,8 @@ export default async function MyCvPage() {
           </div>
         </div>
 
-        <CvEditorForm cv={cv} defaultEmail={user.email} defaultFullName={user.fullName} isPaid={isPaid} billingStatus={billing.status} />
-        
+        <CvEditorForm cv={cv} defaultEmail={user.email} defaultFullName={user.fullName} isPaid={isPaid} billingStatus={billing.status} isPlus={isPlus} siteUrl={env.SITE_URL} />
+
         <aside className="space-y-4">
           <div className="card-pad sticky top-20">
             <h2 className="font-bold text-navy-900 text-lg">تنزيل PDF</h2>
@@ -58,6 +62,19 @@ export default async function MyCvPage() {
               <Link className="btn-primary text-sm" href="/me/cv/download">📥 تنزيل / طباعة PDF</Link>
               <Link className="btn-ghost text-sm" href="/me/billing">💳 تعليمات الدفع</Link>
             </div>
+
+            {!isPlus && (
+              <div className="mt-5 pt-5 border-t border-navy-50">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">👑</span>
+                  <h3 className="font-bold text-navy-900 text-sm">ترقية إلى باقة Plus</h3>
+                </div>
+                <p className="text-xs text-navy-500 leading-6 mb-3">
+                  أضف صورتك الشخصية للسيرة، نزّلها بدون رسوم، وتقدّم على الوظائف بلا حدود — مقابل 2 دينار/شهرياً.
+                </p>
+                <RequestPlusButton />
+              </div>
+            )}
           </div>
         </aside>
       </div>

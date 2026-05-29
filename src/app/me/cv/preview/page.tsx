@@ -50,7 +50,7 @@ export default async function CvPreviewPage({ searchParams }: { searchParams: Pr
           <Link className="btn-primary text-xs" href={`/me/cv/download?lang=${lang}`}>تنزيل نسخة PDF</Link>
         </div>
       </div>
-      <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} />
+      <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} isPlus={seeker?.plan === "PLUS"} />
     </section>
   );
 }

@@ -886,7 +886,85 @@ export async function adminToggleSourceAction(id: string, active: boolean) {
 
 export async function adminReviewClaimAction(id: string, status: "APPROVED" | "REJECTED") {
   await requireAdmin();
-  await prisma.companyClaim.update({ where: { id }, data: { status, reviewedAt: new Date() } });
+
+  const claim = await prisma.companyClaim.findUnique({ where: { id } });
+  if (!claim) redirect("/admin/claims");
+
+  let adminNote: string | undefined;
+
+  if (status === "APPROVED") {
+    // 1) Mark the company as verified.
+    await prisma.company.update({
+      where: { id: claim.companyId },
+      data: { verificationStatus: "VERIFIED" },
+    });
+
+    // 2) Link the claimant as the company's employer (only if the company has no other owner).
+    if (claim.claimantId) {
+      const currentOwner = await prisma.employerProfile.findUnique({ where: { companyId: claim.companyId } });
+      if (!currentOwner || currentOwner.userId === claim.claimantId) {
+        try {
+          await prisma.employerProfile.upsert({
+            where: { userId: claim.claimantId },
+            create: { userId: claim.claimantId, companyId: claim.companyId, ownerName: claim.claimantName, phone: claim.phone },
+            update: { companyId: claim.companyId },
+          });
+          await prisma.user.update({ where: { id: claim.claimantId }, data: { role: "EMPLOYER" } });
+        } catch {
+          adminNote = "تمت الموافقة وتوثيق الشركة، لكن تعذّر ربط حساب صاحب الطلب تلقائياً (قد يكون مرتبطاً بشركة أخرى).";
+        }
+      } else {
+        adminNote = "تمت الموافقة وتوثيق الشركة، لكنها مرتبطة مسبقاً بحساب صاحب عمل آخر.";
+      }
+    }
+  } else {
+    adminNote = "تم رفض طلب ملكية الشركة.";
+  }
+
+  await prisma.companyClaim.update({
+    where: { id },
+    data: { status, reviewedAt: new Date(), ...(adminNote ? { adminNote } : {}) },
+  });
+
+  const company = await prisma.company.findUnique({ where: { id: claim.companyId }, select: { slug: true } });
+  if (company?.slug) revalidatePath(`/companies/${company.slug}`);
   revalidatePath("/admin/claims");
   redirect("/admin/claims");
+}
+
+export async function requestPlusUpgradeAction() {
+  const user = await requireJobSeeker();
+
+  const seeker = await prisma.jobSeekerProfile.findUnique({
+    where: { userId: user.id },
+    select: { plan: true },
+  });
+  if (seeker?.plan === "PLUS") {
+    return { ok: true, message: "أنت مشترك بالفعل في باقة Plus المميزة." };
+  }
+
+  // Idempotent: reuse an existing pending request instead of creating duplicates.
+  const existing = await prisma.billingRecord.findFirst({
+    where: { userId: user.id, type: "JOB_SEEKER_PLUS", status: "UNPAID" },
+    orderBy: { createdAt: "desc" },
+  });
+  if (existing) {
+    revalidatePath("/me/billing");
+    return { ok: true, message: "لديك طلب ترقية قيد المراجعة بالفعل. أرسل إثبات الدفع وسيتم التفعيل فوراً." };
+  }
+
+  await prisma.billingRecord.create({
+    data: {
+      userId: user.id,
+      type: "JOB_SEEKER_PLUS",
+      amountJod: 2,
+      status: "UNPAID",
+      adminNote: "طلب ترقية إلى باقة Plus بانتظار تأكيد الدفع.",
+    },
+  });
+
+  revalidatePath("/me");
+  revalidatePath("/me/billing");
+  revalidatePath("/me/cv");
+  return { ok: true, message: "تم استلام طلب الترقية! أرسل إثبات الدفع للأدمن عبر واتساب وسيتم تفعيل باقتك فوراً." };
 }
