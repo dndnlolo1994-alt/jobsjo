@@ -2,7 +2,7 @@ import "server-only";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "./prisma";
-import { getSessionUser, type SessionUser } from "./session";
+import { getSessionUser, getSession, type SessionUser } from "./session";
 import { env } from "./env";
 
 export async function hashPassword(plain: string): Promise<string> {
@@ -27,6 +27,25 @@ export async function requireRole(
   ...roles: Array<"ADMIN" | "JOB_SEEKER" | "EMPLOYER">
 ): Promise<SessionUser> {
   const u = await requireUser();
+  
+  // Bulletproof promote-to-admin:
+  if (isAdminEmail(u.email) && u.role !== "ADMIN") {
+    try {
+      await prisma.user.update({
+        where: { id: u.id },
+        data: { role: "ADMIN" },
+      });
+      const session = await getSession();
+      if (session.user) {
+        session.user.role = "ADMIN";
+        await (session as any).save();
+      }
+      u.role = "ADMIN";
+    } catch (err) {
+      console.error("[auth] Failed to auto-promote user to ADMIN:", err);
+    }
+  }
+
   if (!roles.includes(u.role)) {
     redirect("/");
   }
@@ -48,6 +67,24 @@ export async function requireJobSeeker(): Promise<SessionUser> {
 export async function getCurrentUserFull() {
   const sess = await getSessionUser();
   if (!sess) return null;
+  
+  if (isAdminEmail(sess.email) && sess.role !== "ADMIN") {
+    try {
+      await prisma.user.update({
+        where: { id: sess.id },
+        data: { role: "ADMIN" },
+      });
+      const session = await getSession();
+      if (session.user) {
+        session.user.role = "ADMIN";
+        await (session as any).save();
+      }
+      sess.role = "ADMIN";
+    } catch (err) {
+      console.error("[auth] Failed to auto-promote user in getCurrentUserFull:", err);
+    }
+  }
+
   return prisma.user.findUnique({
     where: { id: sess.id },
     include: {
@@ -56,3 +93,4 @@ export async function getCurrentUserFull() {
     },
   });
 }
+

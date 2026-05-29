@@ -800,8 +800,8 @@ async function main() {
     createdJobs.push(job);
   }
 
-  // ب. توليد بقية الوظائف برمجياً لبلوغ 65 وظيفة (نحتاج 51 وظيفة إضافية)
-  const jobsToGenerate = 65 - HANDCRAFTED_JOBS.length;
+  // ب. توليد بقية الوظائف برمجياً لبلوغ 220 وظيفة (نحتاج 206 وظيفة إضافية)
+  const jobsToGenerate = 220 - HANDCRAFTED_JOBS.length;
   console.log(`Generating ${jobsToGenerate} additional realistic jobs programmatically...`);
   
   for (let i = 0; i < jobsToGenerate; i++) {

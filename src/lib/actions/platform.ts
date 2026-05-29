@@ -151,6 +151,20 @@ export async function loginAction(_: unknown, form: FormData) {
     return { ok: false, message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" };
   }
   
+  // Auto-promote to admin if email is in ADMIN_EMAILS
+  if (isAdminEmail(user.email) && user.role !== "ADMIN") {
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { role: "ADMIN", isActive: true }, // Ensure active as well
+      });
+      user.role = "ADMIN";
+      user.isActive = true;
+    } catch (err) {
+      console.error("[login] Failed to auto-promote admin email on login:", err);
+    }
+  }
+
   if (!user.isActive) {
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -733,12 +747,12 @@ export async function adminApproveJobAction(jobId: string) {
       sourceVerifiedAt: new Date(),
     },
   });
+  revalidatePath("/admin");
   revalidatePath("/admin/jobs");
   revalidatePath("/");
   if (job?.slug) {
     revalidatePath(`/jobs/${job.slug}`);
   }
-  redirect("/admin/jobs");
 }
 
 export async function adminRejectJobAction(jobId: string) {
@@ -749,8 +763,9 @@ export async function adminRejectJobAction(jobId: string) {
       status: "REJECTED",
     },
   });
+  revalidatePath("/admin");
   revalidatePath("/admin/jobs");
-  redirect("/admin/jobs");
+  revalidatePath("/");
 }
 
 
@@ -905,8 +920,8 @@ export async function adminReviewClaimAction(id: string, status: "APPROVED" | "R
 
   const company = await prisma.company.findUnique({ where: { id: claim.companyId }, select: { slug: true } });
   if (company?.slug) revalidatePath(`/companies/${company.slug}`);
+  revalidatePath("/admin");
   revalidatePath("/admin/claims");
-  redirect("/admin/claims");
 }
 
 const PURGE_CONFIRM_DEMO = "حذف-التجريبي";

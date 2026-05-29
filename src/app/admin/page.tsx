@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { StatCard } from "@/components/StatCard";
-import { adminUpdatePaymentAction, adminReviewClaimAction } from "@/lib/actions/platform";
+import { adminUpdatePaymentAction, adminReviewClaimAction, adminApproveJobAction, adminRejectJobAction } from "@/lib/actions/platform";
 import { BILLING_STATUS_LABEL, BILLING_TYPE_LABEL, formatJod, formatDateArabic } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "لوحة الأدمن | جوبز الأردن", robots: { index: false, follow: false } };
@@ -228,11 +228,23 @@ export default async function AdminPage() {
                   <h3 className="font-bold text-navy-900 text-sm leading-snug">{job.title}</h3>
                   <p className="text-xs text-navy-500 mt-1">{job.company?.name ?? job.companyNameText} · {job.city}</p>
                 </div>
-                <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-100/50">
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3 border-t border-slate-100/50">
                   <span className="text-[10px] text-navy-400">ينتهي في: {formatDateArabic(job.expiresAt)}</span>
-                  <Link href={`/admin/jobs/${job.id}/edit`} className="bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500 hover:text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all">
-                    ✍️ مراجعة وتعديل
-                  </Link>
+                  <div className="flex items-center gap-1.5">
+                    <form action={adminApproveJobAction.bind(null, job.id)}>
+                      <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
+                        ✅ موافقة
+                      </button>
+                    </form>
+                    <form action={adminRejectJobAction.bind(null, job.id)}>
+                      <button type="submit" className="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
+                        رفض
+                      </button>
+                    </form>
+                    <Link href={`/admin/jobs/${job.id}/edit`} className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition-all whitespace-nowrap">
+                      ✍️ تعديل
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
