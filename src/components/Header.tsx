@@ -7,43 +7,66 @@ export async function Header() {
   const user = await getSessionUser();
 
   return (
-    <header className="sticky top-0 z-40 bg-navy-950/90 backdrop-blur border-b border-navy-900/50 shadow-md shadow-emerald-500/5">
-      {/* Bottom glow gradient line */}
-      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+    <header
+      className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b transition-shadow duration-300"
+      style={{
+        borderColor: "var(--color-border)",
+        boxShadow: "0 1px 20px rgba(0,0,0,0.06)",
+      }}
+    >
       <div className="container-jo flex items-center justify-between h-16">
+
+        {/* Logo + Nav */}
         <div className="flex items-center gap-8">
-          <Logo variant="light" />
+          <Logo variant="dark" />
           <HeaderNav />
         </div>
 
+        {/* Auth Actions */}
         <div className="flex items-center gap-2">
           {user ? (
             <>
               {user.role === "ADMIN" && (
-                <Link href="/admin" className="hidden sm:inline-flex text-navy-200 hover:text-white hover:bg-white/5 px-3.5 py-2 rounded-xl text-sm font-bold transition-all duration-200">
+                <Link
+                  href="/admin"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-3.5 py-2 rounded-full transition-all duration-200"
+                >
                   لوحة الأدمن
                 </Link>
               )}
               {user.role === "EMPLOYER" && (
-                <Link href="/employer" className="hidden sm:inline-flex text-navy-200 hover:text-white hover:bg-white/5 px-3.5 py-2 rounded-xl text-sm font-bold transition-all duration-200">
+                <Link
+                  href="/employer"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-3.5 py-2 rounded-full transition-all duration-200"
+                >
                   بوابة الشركات
                 </Link>
               )}
               {user.role === "JOB_SEEKER" && (
-                <Link href="/me" className="hidden sm:inline-flex text-navy-200 hover:text-white hover:bg-white/5 px-3.5 py-2 rounded-xl text-sm font-bold transition-all duration-200">
+                <Link
+                  href="/me"
+                  className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-3.5 py-2 rounded-full transition-all duration-200"
+                >
                   حسابي
                 </Link>
               )}
               <form action="/api/auth/logout" method="POST" className="hidden sm:block">
-                <button className="border border-navy-800 bg-navy-900 text-navy-200 hover:text-white hover:bg-navy-800 text-sm px-4 py-2 rounded-xl font-bold transition-all duration-200 active:scale-[0.98]">
+                <button className="text-sm font-bold border border-gray-200 bg-white text-gray-600 hover:text-gray-900 hover:border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-full transition-all duration-200 active:scale-[.98]">
                   خروج
                 </button>
               </form>
             </>
           ) : (
             <>
-              <Link href="/login" className="hidden sm:inline-flex text-navy-200 hover:text-white hover:bg-white/5 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200">دخول</Link>
-              <Link href="/register" className="btn-primary text-sm px-4 py-2.5 rounded-xl shadow-md shadow-emerald-500/10">إنشاء حساب</Link>
+              <Link
+                href="/login"
+                className="hidden sm:inline-flex text-sm font-bold text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-full transition-all duration-200"
+              >
+                دخول
+              </Link>
+              <Link href="/register" className="btn-primary text-sm px-5 py-2.5">
+                إنشاء حساب
+              </Link>
             </>
           )}
         </div>

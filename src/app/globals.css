@@ -2,239 +2,351 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================================================
+   CSS VARIABLES — Warm Modern Professional  (جوبز الأردن)
+   ================================================================ */
 :root {
-  --bg: #f1f5f9; /* Slate 100 - soft background, not stark white */
-  --bg-card: #ffffff;
-  --text: #0f172a; /* Slate 900 */
-  --text-soft: #475569; /* Slate 600 */
-  --border: #e2e8f0; /* Slate 200 */
-  --ring: #10b981; /* Emerald 500 */
+  /* ── Core palette ────────────────────────────────────────────── */
+  --color-primary:       #1B4FDB;
+  --color-primary-light: #4F79FF;
+  --color-primary-dark:  #1340B5;
+  --color-accent:        #FF6B35;
+  --color-accent-light:  #FF8C6B;
+  --color-accent-soft:   #FFF0EB;
+
+  /* ── Surfaces ────────────────────────────────────────────────── */
+  --color-bg:      #F7F8FC;
+  --color-surface: #FFFFFF;
+
+  /* ── Text ────────────────────────────────────────────────────── */
+  --color-text:  #1A1D2E;
+  --color-muted: #6B7280;
+
+  /* ── Borders ─────────────────────────────────────────────────── */
+  --color-border: #E5E8F0;
+
+  /* ── Semantic ────────────────────────────────────────────────── */
+  --color-success: #10B981;
+  --color-danger:  #EF4444;
+  --color-warning: #F59E0B;
+
+  /* ── Gradients ───────────────────────────────────────────────── */
+  --gradient-hero:   linear-gradient(135deg, #1B4FDB 0%, #4F79FF 55%, #7C3AED 100%);
+  --gradient-accent: linear-gradient(135deg, #FF6B35 0%, #FF8C5A 100%);
+  --gradient-logo:   linear-gradient(135deg, #1B4FDB, #7C3AED);
+  --gradient-footer: linear-gradient(160deg, #1A1D2E 0%, #0F1120 100%);
+
+  /* ── Radii ───────────────────────────────────────────────────── */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ─────────────────────────────────────────────────── */
+  --shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:     0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:     0 12px 32px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.04);
+  --shadow-color:  0 8px 24px rgba(27,79,219,0.25);
+  --shadow-accent: 0 8px 24px rgba(255,107,53,0.30);
+
+  /* ── Transition ──────────────────────────────────────────────── */
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ================================================================
+   BASE
+   ================================================================ */
 html, body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-readex-pro), var(--font-cairo), var(--font-tajawal), system-ui, -apple-system, sans-serif;
-  font-size: 15px;
+  background:  var(--color-bg);
+  color:       var(--color-text);
+  font-family: var(--font-cairo), var(--font-tajawal), var(--font-readex-pro), system-ui, sans-serif;
+  font-size:   15px;
   line-height: 1.9;
   font-weight: 400;
-  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing:  antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
+[dir="rtl"] body { text-align: right; }
 
-[dir="rtl"] body {
-  text-align: right;
-}
-
+/* ================================================================
+   COMPONENT LAYER
+   ================================================================ */
 @layer components {
+
+  /* ── Layout ─────────────────────────────────────────────────── */
   .container-jo {
     @apply w-full max-w-6xl mx-auto px-4 sm:px-6;
     box-sizing: border-box;
   }
 
+  /* ── Buttons (pill shape throughout) ─────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all select-none duration-300;
-    @apply focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold select-none;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    transition: var(--transition);
   }
+
+  /* Primary CTA — warm orange gradient */
   .btn-primary {
-    @apply btn bg-emerald-600 text-white hover:bg-emerald-500 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shadow-md shadow-emerald-600/10 hover:shadow-lg hover:shadow-emerald-600/20;
+    @apply btn text-white focus:ring-accent-400;
+    background:  var(--gradient-accent);
+    box-shadow:  var(--shadow-accent);
   }
+  .btn-primary:hover  { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 32px rgba(255,107,53,.42); }
+  .btn-primary:active { transform: translateY(0) scale(.98); }
+
+  /* Blue — main navigational action */
+  .btn-blue {
+    @apply btn text-white focus:ring-primary-400;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    box-shadow: var(--shadow-color);
+  }
+  .btn-blue:hover  { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 32px rgba(27,79,219,.40); }
+  .btn-blue:active { transform: translateY(0) scale(.98); }
+
+  /* Secondary — kept dark for admin compat */
   .btn-secondary {
-    @apply btn bg-navy-950 text-white hover:bg-navy-900 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shadow-md shadow-navy-950/10 hover:shadow-lg;
+    @apply btn bg-[#1A1D2E] text-white hover:bg-[#252840] active:scale-[.98] shadow-md focus:ring-gray-500;
   }
+
   .btn-outline {
-    @apply btn border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shadow-sm;
+    @apply btn border-2 border-[color:var(--color-primary)] text-[color:var(--color-primary)] bg-transparent;
+    @apply hover:bg-primary-50 active:scale-[.98] focus:ring-primary-400;
   }
+  .btn-outline:hover { transform: translateY(-1px); }
+
   .btn-ghost {
-    @apply btn text-slate-700 hover:bg-slate-100 hover:text-slate-950 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98];
+    @apply btn text-[color:var(--color-text)] hover:bg-gray-100 hover:text-[color:var(--color-primary)];
+    @apply active:scale-[.98] focus:ring-gray-300;
   }
+
   .btn-danger {
-    @apply btn bg-rose-600 text-white hover:bg-rose-500 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shadow-md shadow-rose-600/10 hover:shadow-lg;
+    @apply btn bg-red-600 text-white hover:bg-red-500 active:scale-[.98] shadow-md focus:ring-red-400;
   }
+
+  /* Sand kept for backward compat */
   .btn-sand {
-    @apply btn bg-amber-400 text-slate-950 hover:bg-amber-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shadow-md shadow-amber-400/10 hover:shadow-lg;
+    @apply btn bg-amber-400 text-slate-950 hover:bg-amber-300 active:scale-[.98] shadow-md focus:ring-amber-400;
   }
 
+  /* ── Cards ───────────────────────────────────────────────────── */
   .card {
-    @apply bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(15,23,42,0.02)] hover:shadow-[0_16px_40px_rgb(15,23,42,0.06)] hover:border-slate-200/60 transition-all duration-300;
+    @apply bg-white rounded-2xl border transition-all duration-300 overflow-hidden;
+    border-color: var(--color-border);
+    box-shadow:   var(--shadow-sm);
   }
-  .card-pad {
-    @apply card p-6 sm:p-8;
+  .card:hover {
+    box-shadow:   var(--shadow-md);
+    border-color: #D0D8F0;
   }
 
+  .card-pad { @apply card p-6 sm:p-8; }
+
+  /* ── Forms ───────────────────────────────────────────────────── */
   .input {
-    @apply w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-white text-slate-900 transition-all duration-300;
-    @apply focus:outline-none focus:ring-2 focus:ring-emerald-400/25 focus:border-emerald-500 focus:shadow-md;
-    @apply placeholder:text-slate-400;
-  }
-  .label {
-    @apply block text-sm font-bold text-slate-800 mb-2;
-  }
-  .hint {
-    @apply text-xs text-slate-400 mt-1.5;
-  }
-  .error {
-    @apply text-sm text-rose-600 mt-1.5;
+    @apply w-full px-4 py-3.5 rounded-xl border bg-white transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-400/30 focus:border-primary-500;
+    @apply placeholder:text-gray-400;
+    border-color: var(--color-border);
+    color:        var(--color-text);
   }
 
+  .label {
+    @apply block text-sm font-bold mb-2;
+    color: var(--color-text);
+  }
+
+  .hint  { @apply text-xs text-gray-400 mt-1.5; }
+  .error { @apply text-sm text-red-600 mt-1.5; }
+
+  /* ── Badges ──────────────────────────────────────────────────── */
   .badge {
     @apply inline-flex items-center gap-1 px-3.5 py-1 rounded-full text-xs font-bold transition-all duration-200;
   }
+  .badge-primary { @apply badge bg-primary-50 text-primary-600 border border-primary-100; }
+  .badge-accent  { @apply badge bg-accent-50 text-accent-500 border border-accent-100; }
   .badge-success { @apply badge bg-emerald-500/10 text-emerald-700 border border-emerald-500/20; }
   .badge-warning { @apply badge bg-amber-500/10 text-amber-700 border border-amber-500/20; }
   .badge-danger  { @apply badge bg-rose-500/10 text-rose-700 border border-rose-500/20; }
   .badge-info    { @apply badge bg-sky-500/10 text-sky-700 border border-sky-500/20; }
-  .badge-muted   { @apply badge bg-slate-500/10 text-slate-500 border border-slate-500/20; }
+  .badge-muted   { @apply badge bg-gray-500/10 text-gray-500 border border-gray-500/20; }
 
+  /* ── Links ───────────────────────────────────────────────────── */
   .link {
-    @apply text-emerald-600 hover:text-emerald-500 underline-offset-4 hover:underline transition-colors duration-200;
+    @apply underline-offset-4 hover:underline transition-colors duration-200;
+    color: var(--color-primary);
   }
+  .link:hover { color: var(--color-primary-light); }
 
+  /* ── Section headings ────────────────────────────────────────── */
   .section-title {
-    @apply text-2xl sm:text-3xl font-extrabold text-navy-950 mb-2.5 tracking-normal;
+    @apply text-2xl sm:text-3xl font-extrabold mb-2;
+    color:       var(--color-text);
+    font-family: var(--font-tajawal), sans-serif;
   }
   .section-sub {
-    @apply text-navy-400 mb-7 text-sm sm:text-base font-medium;
+    @apply mb-7 text-sm sm:text-base font-medium;
+    color: var(--color-muted);
+  }
+  .section-accent-line {
+    @apply w-10 h-1 rounded-full mb-3;
+    background: var(--gradient-accent);
   }
 }
 
-.hero-shell {
-  background-image:
-    linear-gradient(to left, rgba(10, 19, 32, 0.9) 0%, rgba(10, 19, 32, 0.55) 45%, rgba(10, 19, 32, 0.05) 100%),
-    url("/images/hero-jojobs.png");
-  background-size: cover;
-  background-position: left center;
-}
+/* ================================================================
+   UTILITY CLASSES
+   ================================================================ */
 
-.mobile-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+/* Gradient text */
+.text-gradient-primary {
+  background: var(--gradient-logo);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
+.text-gradient-accent {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Legacy */
+.text-gradient { background: var(--gradient-logo); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
+/* Glass */
 .app-glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.glass-dark {
+  background: rgba(26,29,46,0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
+/* Surface band (sections with light radial tint) */
 .surface-band {
   background:
-    radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 32rem),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    radial-gradient(circle at top right, rgba(27,79,219,0.04), transparent 32rem),
+    linear-gradient(180deg, #FFFFFF 0%, var(--color-bg) 100%);
 }
 
+/* Hero-shell fallback */
+.hero-shell {
+  background: var(--gradient-hero);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Job card featured accent bar */
 .job-card-accent {
-  background: linear-gradient(135deg, #059669, #047857);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
 }
 
-/* --- Theme Polishing Additions --- */
-/* Smooth scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-22px) scale(1.03); }
 }
-::-webkit-scrollbar-track {
-  background: var(--bg);
+@keyframes floatB {
+  0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+  50%       { transform: translateY(-14px) scale(1.01) rotate(3deg); }
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-/* Subtle selection color */
-::selection {
-  background: rgba(16, 185, 129, 0.2);
-  color: #065f46;
-}
-
-/* Modern shimmer/loading skeleton */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
 }
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,53,0.4); }
+  50%       { box-shadow: 0 0 22px 6px rgba(255,107,53,0.16); }
+}
+
+/* Classes */
+.fade-in       { animation: fadeIn 0.4s ease-out forwards; }
+.fade-slide-up { animation: fadeSlideUp 0.5s ease-out forwards; }
+
 .shimmer {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, #F1F3F9 25%, #E8EAF2 50%, #F1F3F9 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
 }
+.pulse-glow { animation: pulseGlow 2.5s infinite; }
 
-/* Smooth fade-in animation for page content */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Staggered card reveal on load */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeSlideUp 0.55s ease-out forwards;
 }
-.fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.13s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.21s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.29s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.37s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.45s; }
 
-/* Subtle gradient text class for headings */
-.text-gradient {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #059669 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Glass dark class for dark glassmorphism */
-.glass-dark {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Animated underline effect for navigation links */
-.nav-link-underline {
-  position: relative;
-}
+/* ================================================================
+   NAVBAR UNDERLINE HOVER
+   ================================================================ */
+.nav-link-underline { position: relative; }
 .nav-link-underline::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 0;
   height: 2px;
-  bottom: 0;
+  bottom: -2px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #10b981;
+  background: var(--color-primary);
   transition: width 0.3s ease;
 }
-.nav-link-underline:hover::after {
-  width: 80%;
+.nav-link-underline:hover::after { width: 80%; }
+
+/* ================================================================
+   SCROLLBAR
+   ================================================================ */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: #CDD3EE; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9AA4CC; }
+
+/* ================================================================
+   TEXT SELECTION
+   ================================================================ */
+::selection {
+  background: rgba(27,79,219,0.15);
+  color: var(--color-primary-dark);
 }
 
-/* Pulse glow animation for CTA buttons */
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 15px 4px rgba(16, 185, 129, 0.2);
-  }
-}
-.pulse-glow {
-  animation: pulseGlow 2s infinite;
-}
-/* --------------------------------- */
+/* ================================================================
+   MOBILE
+   ================================================================ */
+.mobile-safe { padding-bottom: env(safe-area-inset-bottom); }
 
+@media (max-width: 640px) {
+  .section-title { @apply text-xl; }
+  .btn { @apply min-h-12; }
+}
+
+/* ================================================================
+   PRINT — CV Builder (unchanged logic, keep all print rules)
+   ================================================================ */
 @media print {
-  @page {
-    size: A4;
-    margin: 0;
-  }
+  @page { size: A4; margin: 0; }
   body, html {
     background: #fff !important;
     margin: 0 !important;
@@ -242,7 +354,8 @@ html {
     width: 210mm !important;
     min-height: 297mm !important;
   }
-  header, footer, nav, .no-print, [role="navigation"], button, .btn, .btn-primary, form {
+  header, footer, nav, .no-print, [role="navigation"],
+  button, .btn, .btn-primary, .btn-blue, form {
     display: none !important;
   }
   .cv-print {
@@ -270,9 +383,7 @@ html {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .cv-print-padded {
-    padding: 15mm 20mm !important;
-  }
+  .cv-print-padded { padding: 15mm 20mm !important; }
   .cv-print-sidebar {
     display: flex !important;
     flex-direction: row !important;
@@ -289,30 +400,6 @@ html {
     padding: 15mm 15mm 15mm 10mm !important;
     box-sizing: border-box !important;
   }
-  .cv-print-gold header {
-    padding: 10mm 15mm !important;
-    box-sizing: border-box !important;
-  }
-  .cv-print-gold .p-8 {
-    padding: 10mm 15mm !important;
-    box-sizing: border-box !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .hero-shell {
-    min-height: 500px;
-    background-image:
-      linear-gradient(180deg, rgba(10, 19, 32, 0.85) 0%, rgba(10, 19, 32, 0.5) 60%, rgba(10, 19, 32, 0.2) 100%),
-      url("/images/hero-jojobs.png");
-    background-position: center center;
-  }
-
-  .section-title {
-    @apply text-xl;
-  }
-
-  .btn {
-    @apply min-h-12;
-  }
+  .cv-print-gold header { padding: 10mm 15mm !important; box-sizing: border-box !important; }
+  .cv-print-gold .p-8   { padding: 10mm 15mm !important; box-sizing: border-box !important; }
 }

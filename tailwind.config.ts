@@ -8,6 +8,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // ── New brand palette ──────────────────────────────────────────
+        primary: {
+          50:  "#EBF0FF",
+          100: "#C7D6FF",
+          200: "#95B0FF",
+          300: "#6388FF",
+          400: "#4F79FF",
+          500: "#1B4FDB",
+          600: "#1340B5",
+          700: "#0F3190",
+          800: "#0A2368",
+          900: "#061445",
+          950: "#030A28",
+        },
+        accent: {
+          50:  "#FFF0EB",
+          100: "#FFD9C7",
+          200: "#FFB399",
+          300: "#FF8C6B",
+          400: "#FF6B35",
+          500: "#E85A22",
+          600: "#C44A18",
+          700: "#A03A10",
+          800: "#7A2B09",
+          900: "#541C04",
+        },
+        // ── Keep existing for backward-compat (admin, etc.) ────────────
         navy: {
           50:  "#f1f4f9",
           100: "#dce4ee",
@@ -47,14 +74,45 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['"Readex Pro"', '"Cairo"', '"Tajawal"', "system-ui", "sans-serif"],
+        display: ['"Tajawal"', '"Cairo"', "sans-serif"],
+        sans:    ['"Cairo"', '"Tajawal"', '"Readex Pro"', "system-ui", "sans-serif"],
       },
       boxShadow: {
-        card: "0 2px 12px rgba(10, 19, 32, 0.06)",
-        cardHover: "0 8px 24px rgba(10, 19, 32, 0.10)",
+        card:      "0 2px 12px rgba(10,19,32,0.06)",
+        cardHover: "0 8px 24px rgba(10,19,32,0.10)",
+        primary:   "0 8px 24px rgba(27,79,219,0.25)",
+        accent:    "0 8px 24px rgba(255,107,53,0.30)",
       },
-      borderRadius: {
-        xl2: "1rem",
+      borderRadius: { xl2: "1rem" },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0px) scale(1)" },
+          "50%":       { transform: "translateY(-22px) scale(1.03)" },
+        },
+        floatB: {
+          "0%, 100%": { transform: "translateY(0px) scale(1) rotate(0deg)" },
+          "50%":       { transform: "translateY(-14px) scale(1.01) rotate(3deg)" },
+        },
+        fadeSlideUp: {
+          "0%":   { opacity: "0", transform: "translateY(24px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        pulseGlow: {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(255,107,53,0.4)" },
+          "50%":       { boxShadow: "0 0 22px 6px rgba(255,107,53,0.16)" },
+        },
+        shimmer: {
+          "0%":   { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+      },
+      animation: {
+        float:         "float 8s ease-in-out infinite alternate",
+        "float-delay": "floatB 11s ease-in-out 2.5s infinite alternate",
+        "float-slow":  "floatB 13s ease-in-out 5s infinite alternate",
+        fadeSlideUp:   "fadeSlideUp 0.5s ease-out forwards",
+        pulseGlow:     "pulseGlow 2.5s infinite",
+        shimmer:       "shimmer 1.5s infinite linear",
       },
     },
   },

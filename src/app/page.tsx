@@ -3,6 +3,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { JobCard } from "@/components/JobCard";
 import { Badge } from "@/components/Badge";
+import { FadeInSection } from "@/components/FadeInSection";
 import { JOB_CATEGORIES, JORDAN_CITIES } from "@/lib/utils";
 
 export const revalidate = 3600;
@@ -12,6 +13,7 @@ export default async function HomePage() {
   let stats = { jobs: 0, companies: 0, cities: 0 };
   let cityCounts: Record<string, number> = {};
   let categoryCounts: Record<string, number> = {};
+
   try {
     const [items, j, c, cities, categories] = await Promise.all([
       prisma.job.findMany({
@@ -22,71 +24,107 @@ export default async function HomePage() {
       }),
       prisma.job.count({ where: { status: "PUBLISHED" } }),
       prisma.company.count(),
-      prisma.job.groupBy({
-        by: ["city"],
-        where: { status: "PUBLISHED" },
-        _count: { _all: true },
-      }),
-      prisma.job.groupBy({
-        by: ["jobCategory"],
-        where: { status: "PUBLISHED" },
-        _count: { _all: true },
-      }),
+      prisma.job.groupBy({ by: ["city"], where: { status: "PUBLISHED" }, _count: { _all: true } }),
+      prisma.job.groupBy({ by: ["jobCategory"], where: { status: "PUBLISHED" }, _count: { _all: true } }),
     ]);
     featured = items;
     stats = { jobs: j, companies: c, cities: cities.length };
-    cityCounts = Object.fromEntries(cities.map((city) => [city.city, city._count._all]));
-    categoryCounts = Object.fromEntries(categories.map((cat) => [cat.jobCategory, cat._count._all]));
+    cityCounts     = Object.fromEntries(cities.map((x) => [x.city, x._count._all]));
+    categoryCounts = Object.fromEntries(categories.map((x) => [x.jobCategory, x._count._all]));
   } catch (e) {
-    console.error("Failed to load homepage stats:", e);
+    console.error("Failed to load homepage:", e);
   }
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-[#07120f] text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(16,185,129,0.16),transparent_24rem),linear-gradient(180deg,rgba(2,6,23,0.06),rgba(2,6,23,0.32))]" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-l from-transparent via-emerald-400/30 to-transparent" />
+      {/* ══════════════════════════════════════════════════════════
+          HERO
+         ══════════════════════════════════════════════════════════ */}
+      <section
+        className="relative overflow-hidden flex items-center"
+        style={{ background: "var(--gradient-hero)", minHeight: "clamp(560px, 88vh, 800px)" }}
+      >
+        {/* Dot-grid texture */}
+        <div
+          className="absolute inset-0 opacity-[0.12]"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
 
-        <div className="container-jo relative z-10 grid gap-7 py-8 sm:py-12 lg:grid-cols-[0.86fr_1.14fr] lg:gap-12 lg:py-16 lg:items-center">
-          {/* Right Column: Text Content */}
-          <div className="order-1 flex flex-col justify-center lg:order-1">
-            <Badge className="bg-sand-400 text-navy-900 mb-4 w-fit">منصة الأردن للوظائف</Badge>
-            <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight max-w-2xl">
-              وظائف الأردن القريبة منك
-              <span className="block text-emerald-400 mt-1 text-xl sm:text-3xl font-bold">
-                وقدّم بسيرة ذاتية جاهزة
+        {/* Animated blobs */}
+        <div
+          className="animate-float absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full opacity-20 blur-[90px] pointer-events-none"
+          style={{ background: "#7C3AED" }}
+        />
+        <div
+          className="animate-float-delay absolute -bottom-20 left-10 w-80 h-80 rounded-full opacity-20 blur-[80px] pointer-events-none"
+          style={{ background: "#4F79FF" }}
+        />
+        <div
+          className="animate-float-slow absolute top-1/3 -left-10 w-64 h-64 rounded-full opacity-15 blur-3xl pointer-events-none"
+          style={{ background: "#FF6B35" }}
+        />
+
+        <div className="container-jo relative z-10 grid gap-10 py-20 sm:py-16 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14 lg:items-center">
+
+          {/* ── Text column ─────────────────────────────────────── */}
+          <div className="text-white flex flex-col justify-center order-2 lg:order-1">
+
+            {/* Social proof bar */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-7 text-sm">
+              <StatPill value={stats.jobs.toLocaleString("ar-JO")} label="وظيفة منشورة" />
+              <Divider />
+              <StatPill value={stats.companies.toLocaleString("ar-JO")} label="شركة مسجلة" />
+              <Divider />
+              <StatPill value="250+" label="مشترك نشط" />
+            </div>
+
+            <h1
+              className="font-extrabold leading-[1.15] text-white"
+              style={{
+                fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
+                fontFamily: "var(--font-tajawal), sans-serif",
+              }}
+            >
+              وظائف الأردن
+              <span className="block" style={{ color: "#FF8C6B" }}>
+                القريبة منك
               </span>
             </h1>
-            <p className="text-navy-100 mt-4 sm:text-lg max-w-2xl">
-              منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF،
-              وتتابع طلباتك من مكان واحد.
+
+            <p className="text-white/75 mt-5 text-base sm:text-lg max-w-lg leading-relaxed">
+              منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF، وتتابع طلباتك من مكان واحد.
             </p>
-            <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-3 mt-7 max-w-xl">
-              <Link href="/jobs" className="btn bg-emerald-500 hover:bg-emerald-600 text-white">
-                ابحث عن وظيفة
+
+            {/* CTA row */}
+            <div className="flex flex-wrap gap-3 mt-8">
+              <Link href="/jobs" className="btn-primary pulse-glow">
+                🔍 ابحث عن وظيفة
               </Link>
-              <Link href="/cv-builder" className="btn bg-sand-400 hover:bg-sand-500 text-navy-900">
-                اعمل CV الآن
+              <Link
+                href="/cv-builder"
+                className="btn border-2 border-white/50 text-white hover:bg-white/10 rounded-full"
+              >
+                📄 اعمل CV الآن
               </Link>
-              <Link href="/employer" className="btn bg-white/10 hover:bg-white/20 text-white border border-white/20">
+              <Link
+                href="/employer"
+                className="btn text-white/65 hover:text-white hover:bg-white/10 rounded-full text-sm"
+              >
                 انشر وظيفة
               </Link>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-10 max-w-xl">
-              <Stat label="وظائف منشورة" value={stats.jobs.toLocaleString("ar-JO")} />
-              <Stat label="شركات مسجلة" value={stats.companies.toLocaleString("ar-JO")} />
-              <Stat label="مدن مغطاة" value={stats.cities.toLocaleString("ar-JO")} />
-            </div>
-            <p className="text-[10px] text-navy-300 mt-4 font-semibold text-center sm:text-right opacity-80">
+            <p className="text-[11px] text-white/40 mt-5 font-semibold">
               ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة
             </p>
           </div>
 
-          {/* Left Column: Dedicated Jordanian Workspace Image */}
-          <div className="order-2 w-full lg:order-2">
-            <div className="group relative mx-auto aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl shadow-navy-950/50 sm:rounded-3xl lg:min-h-[460px]">
+          {/* ── Image column ────────────────────────────────────── */}
+          <div className="order-1 lg:order-2 w-full">
+            <div className="group relative mx-auto aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-2xl shadow-primary-950/50 sm:rounded-[28px] lg:min-h-[420px]">
               <Image
                 src="/images/hero-jojobs.png"
                 alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
@@ -95,238 +133,439 @@ export default async function HomePage() {
                 sizes="(min-width: 1024px) 54vw, 100vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/22 via-transparent to-white/5" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-900/25 via-transparent to-white/5" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Cities */}
-      <section className="surface-band border-b border-navy-100">
-        <div className="container-jo py-10">
-        <h2 className="section-title">تصفّح حسب المدينة</h2>
-        <p className="section-sub">ابدأ من مدينتك ووسّع البحث لاحقاً</p>
-        <div className="flex flex-wrap gap-2">
-          {JORDAN_CITIES.map((c) => (
-            <Link
-              key={c}
-              href={`/jobs?city=${encodeURIComponent(c)}`}
-              className="px-3 py-2 rounded-full bg-white border border-navy-100 text-sm font-semibold text-navy-700 hover:border-emerald-300 hover:text-emerald-700"
+      {/* ══════════════════════════════════════════════════════════
+          CITIES — Pill chips
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="surface-band border-b" style={{ borderColor: "var(--color-border)" }}>
+          <div className="container-jo py-10">
+            <div className="section-accent-line" />
+            <h2 className="section-title">تصفّح حسب المدينة</h2>
+            <p className="section-sub">ابدأ من مدينتك ووسّع البحث لاحقاً</p>
+            <div
+              className="flex flex-wrap gap-2 overflow-x-auto pb-1"
+              style={{ scrollSnapType: "x mandatory" }}
             >
-              {c} ({(cityCounts[c] ?? 0).toLocaleString("ar-JO")})
+              {JORDAN_CITIES.map((city) => (
+                <Link
+                  key={city}
+                  href={`/jobs?city=${encodeURIComponent(city)}`}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                  style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "#4F79FF";
+                    (e.currentTarget as HTMLElement).style.color = "#1B4FDB";
+                    (e.currentTarget as HTMLElement).style.background = "#EBF0FF";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--color-border)";
+                    (e.currentTarget as HTMLElement).style.color = "var(--color-text)";
+                    (e.currentTarget as HTMLElement).style.background = "white";
+                  }}
+                >
+                  <span>📍</span>
+                  <span>{city}</span>
+                  {cityCounts[city] ? (
+                    <span
+                      className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                      style={{ background: "var(--color-accent-soft)", color: "var(--color-accent)" }}
+                    >
+                      {(cityCounts[city]).toLocaleString("ar-JO")}
+                    </span>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      </FadeInSection>
+
+      {/* ══════════════════════════════════════════════════════════
+          FEATURED JOBS
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="container-jo py-14">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <div className="section-accent-line" />
+              <h2 className="section-title">وظائف مختارة</h2>
+              <p className="section-sub">أحدث الوظائف المنشورة على المنصة</p>
+            </div>
+            <Link href="/jobs" className="link text-sm font-bold">
+              عرض الكل ←
             </Link>
-          ))}
-        </div>
-        </div>
-      </section>
+          </div>
 
-      {/* Featured jobs */}
-      <section className="container-jo py-10">
-        <div className="flex items-end justify-between mb-4">
-          <div>
-            <h2 className="section-title">وظائف مختارة</h2>
-            <p className="section-sub">أحدث الوظائف المنشورة</p>
-          </div>
-          <Link href="/jobs" className="link text-sm font-semibold">عرض الكل ←</Link>
-        </div>
-        {featured.length === 0 ? (
-          <div className="card-pad text-center text-navy-500">
-            لا توجد وظائف بعد. عُد لاحقاً أو شغّل seed لإضافة بيانات تجريبية.
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
-            {featured.map((j) => <JobCard key={j.id} job={j} />)}
-          </div>
-        )}
-      </section>
+          {featured.length === 0 ? (
+            <div className="card-pad text-center" style={{ color: "var(--color-muted)" }}>
+              لا توجد وظائف بعد. عُد لاحقاً أو شغّل seed لإضافة بيانات تجريبية.
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-4 stagger-children">
+              {featured.map((j) => (
+                <JobCard key={j.id} job={j} />
+              ))}
+            </div>
+          )}
+        </section>
+      </FadeInSection>
 
-      {/* Problem / Solution */}
-      <section className="bg-white border-y border-navy-100">
-        <div className="container-jo py-12 grid lg:grid-cols-2 gap-10">
-          <div>
-            <Badge variant="danger" className="mb-3">المشكلة</Badge>
-            <h2 className="section-title">الباحث عن عمل في الأردن يواجه:</h2>
-            <ul className="space-y-3 text-navy-700">
-              <Bullet>لا يوجد CV مرتب وجاهز</Bullet>
-              <Bullet>الوظائف موزّعة بين فيسبوك وواتساب ومواقع مختلفة</Bullet>
-              <Bullet>صعوبة معرفة أين قدّم وما وصل من ردود</Bullet>
-              <Bullet>الشركات لا ترد ولا تعطي تحديثات</Bullet>
-            </ul>
+      {/* ══════════════════════════════════════════════════════════
+          PROBLEM / SOLUTION
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="bg-white border-y" style={{ borderColor: "var(--color-border)" }}>
+          <div className="container-jo py-16 grid lg:grid-cols-2 gap-10">
+            <div>
+              <Badge variant="danger" className="mb-3">المشكلة</Badge>
+              <h2 className="section-title">الباحث عن عمل في الأردن يواجه:</h2>
+              <ul className="space-y-3.5">
+                <Bullet>لا يوجد CV مرتب وجاهز</Bullet>
+                <Bullet>الوظائف موزّعة بين فيسبوك وواتساب ومواقع مختلفة</Bullet>
+                <Bullet>صعوبة معرفة أين قدّم وما وصل من ردود</Bullet>
+                <Bullet>الشركات لا ترد ولا تعطي تحديثات</Bullet>
+              </ul>
+            </div>
+            <div>
+              <Badge variant="success" className="mb-3">الحل</Badge>
+              <h2 className="section-title">جوبز الأردن تجمع كل شيء بمكان واحد:</h2>
+              <ul className="space-y-3.5">
+                <Bullet good>وظائف منظمة وقابلة للفلترة</Bullet>
+                <Bullet good>سيرة ذاتية جاهزة وقابلة للتنزيل PDF</Bullet>
+                <Bullet good>تقديم سريع داخل المنصة أو عبر واتساب</Bullet>
+                <Bullet good>تتبّع لكل الطلبات وحالة كل واحدة</Bullet>
+                <Bullet good>نسبة مطابقة ذكية لكل وظيفة</Bullet>
+              </ul>
+            </div>
           </div>
-          <div>
-            <Badge variant="success" className="mb-3">الحل</Badge>
-            <h2 className="section-title">جوبز الأردن تجمع كل شيء بمكان واحد:</h2>
-            <ul className="space-y-3 text-navy-700">
-              <Bullet good>وظائف منظمة وقابلة للفلترة</Bullet>
-              <Bullet good>سيرة ذاتية جاهزة وقابلة للتنزيل PDF</Bullet>
-              <Bullet good>تقديم سريع داخل المنصة أو عبر واتساب</Bullet>
-              <Bullet good>تتبّع لكل الطلبات وحالة كل واحدة</Bullet>
-              <Bullet good>نسبة مطابقة ذكية لكل وظيفة</Bullet>
-            </ul>
-          </div>
-        </div>
-      </section>
+        </section>
+      </FadeInSection>
 
-      {/* Categories */}
-      <section className="container-jo py-10">
-        <h2 className="section-title">تصنيفات الوظائف</h2>
-        <p className="section-sub">القطاعات الأكثر طلباً في الأردن</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {JOB_CATEGORIES.map((c) => {
-            const count = categoryCounts[c] ?? 0;
-            return (
-              <Link
-                key={c}
-                href={`/jobs?category=${encodeURIComponent(c)}`}
-                className="card-pad text-center hover:border-emerald-300 hover:text-emerald-700 font-semibold"
+      {/* ══════════════════════════════════════════════════════════
+          CATEGORIES — Icon cards grid
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="container-jo py-14">
+          <div className="section-accent-line" />
+          <h2 className="section-title">تصنيفات الوظائف</h2>
+          <p className="section-sub">القطاعات الأكثر طلباً في الأردن</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {JOB_CATEGORIES.map((cat) => {
+              const count = categoryCounts[cat] ?? 0;
+              return (
+                <Link
+                  key={cat}
+                  href={`/jobs?category=${encodeURIComponent(cat)}`}
+                  className="card p-5 text-center font-semibold text-sm transition-all duration-200 hover:-translate-y-1 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-700"
+                  style={{ color: "var(--color-text)" }}
+                >
+                  <div className="mb-1.5 text-lg">💼</div>
+                  <div className="leading-snug">{cat}</div>
+                  {count > 0 && (
+                    <div className="text-[11px] font-bold mt-1.5 text-primary-500">
+                      {count.toLocaleString("ar-JO")} وظيفة
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      </FadeInSection>
+
+      {/* ══════════════════════════════════════════════════════════
+          WHO WE SERVE
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="bg-white border-y" style={{ borderColor: "var(--color-border)" }}>
+          <div className="container-jo py-14 grid md:grid-cols-3 gap-6">
+            <Persona
+              title="للأشخاص"
+              description="طلاب، خريجون جدد، عمّال، باحثون عن دوام جزئي، نساء يبحثن عن عمل مرن، وأصحاب مهارات يدوية أو مكتبية."
+              cta={<Link className="link text-sm font-bold" href="/register">سجّل كباحث عمل ←</Link>}
+              icon="🧑‍💼"
+              accent="#EBF0FF"
+              accentText="#1B4FDB"
+            />
+            <Persona
+              title="للشركات"
+              description="محلات، مطاعم، مصانع، مستودعات، صيدليات، عيادات، مدارس، شركات صغيرة، وصفحات تجارة إلكترونية."
+              cta={<Link className="link text-sm font-bold" href="/employer">انشر وظيفتك ←</Link>}
+              icon="🏢"
+              accent="#FFF0EB"
+              accentText="#E85A22"
+            />
+            <Persona
+              title="للمنصة"
+              description="فريق إدارة محلي ينظّم الوظائف، يتحقق من الشركات، ويساعد على ربط المرشحين بأصحاب العمل."
+              cta={<Link className="link text-sm font-bold" href="/about">اعرف أكثر ←</Link>}
+              icon="🛡️"
+              accent="#F0FDF4"
+              accentText="#059669"
+            />
+          </div>
+        </section>
+      </FadeInSection>
+
+      {/* ══════════════════════════════════════════════════════════
+          HOW IT WORKS — Timeline
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="container-jo py-16">
+          <div className="section-accent-line" />
+          <h2 className="section-title">كيف تعمل المنصة؟</h2>
+          <p className="section-sub">أربع خطوات بسيطة تفصلك عن وظيفتك القادمة</p>
+
+          {/* Desktop: horizontal timeline | Mobile: vertical cards */}
+          <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+            {/* Connector line (desktop only) */}
+            <div
+              className="hidden lg:block absolute top-[28px] right-[12.5%] left-[12.5%] h-[2px] -translate-y-1/2"
+              style={{ background: "linear-gradient(90deg, #1B4FDB, #4F79FF, #7C3AED)" }}
+            />
+            <Step n={1} title="سجّل حساب"  text="اختر إن كنت باحث عمل أو صاحب شركة." />
+            <Step n={2} title="جهّز ملفك"  text="باحث: اعمل CV. شركة: عبّي بيانات الشركة." />
+            <Step n={3} title="تقدّم أو انشر" text="باحث: تقدّم لوظائف. شركة: انشر وظيفة." />
+            <Step n={4} title="تابع الحالة" text="شوف وضع الطلبات والمراسلات في مكان واحد." />
+          </div>
+        </section>
+      </FadeInSection>
+
+      {/* ══════════════════════════════════════════════════════════
+          PRICING — Cards
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section style={{ background: "#1A1D2E" }}>
+          <div className="container-jo py-16">
+            <div className="text-center mb-10">
+              <div
+                className="inline-block w-10 h-1 rounded-full mb-3"
+                style={{ background: "var(--gradient-accent)" }}
+              />
+              <h2
+                className="text-2xl sm:text-3xl font-extrabold text-white mb-2"
+                style={{ fontFamily: "var(--font-tajawal), sans-serif" }}
               >
-                {c} ({count.toLocaleString("ar-JO")})
+                خطط بسيطة وشفافة
+              </h2>
+              <p className="text-gray-400 text-sm">ابدأ مجاناً، وترقّى عندما تحتاج</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <Plan
+                title="مجاني"
+                price="0 د"
+                features={["تصفّح الوظائف", "حساب باحث عمل", "حفظ وظائف محدود"]}
+              />
+              <Plan
+                title="Plus للباحث"
+                price="2 د/شهر"
+                features={["CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]}
+                highlight
+              />
+              <Plan
+                title="نشر وظيفة"
+                price="من 5 د"
+                features={["إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
+              />
+            </div>
+
+            <div className="text-center mt-10">
+              <Link href="/pricing" className="btn-primary">
+                شاهد كل الأسعار
               </Link>
-            );
-          })}
-        </div>
-      </section>
+            </div>
+          </div>
+        </section>
+      </FadeInSection>
 
-      {/* Who we serve */}
-      <section className="bg-white border-y border-navy-100">
-        <div className="container-jo py-12 grid md:grid-cols-3 gap-6">
-          <Persona
-            title="للأشخاص"
-            description="طلاب، خريجون جدد، عمّال، باحثون عن دوام جزئي، نساء يبحثن عن عمل مرن، وأصحاب مهارات يدوية أو مكتبية."
-            cta={<Link className="link text-sm" href="/register">سجّل كباحث عمل</Link>}
-            icon="🧑‍💼"
-          />
-          <Persona
-            title="للشركات"
-            description="محلات، مطاعم، مصانع، مستودعات، صيدليات، عيادات، مدارس، شركات صغيرة، وصفحات تجارة إلكترونية."
-            cta={<Link className="link text-sm" href="/employer">انشر وظيفتك</Link>}
-            icon="🏢"
-          />
-          <Persona
-            title="للمنصة"
-            description="فريق إدارة محلي ينظّم الوظائف، يتحقق من الشركات، ويساعد على ربط المرشحين بأصحاب العمل."
-            cta={<Link className="link text-sm" href="/about">اعرف أكثر</Link>}
-            icon="🛡️"
-          />
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="container-jo py-12">
-        <h2 className="section-title">كيف تعمل المنصة؟</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          <Step n={1} title="سجّل حساب" text="اختر إن كنت باحث عمل أو صاحب شركة." />
-          <Step n={2} title="جهّز ملفك" text="باحث: اعمل CV. شركة: عبّي بيانات الشركة." />
-          <Step n={3} title="تقدّم أو انشر" text="باحث: تقدّم لوظائف. شركة: انشر وظيفة." />
-          <Step n={4} title="تابع الحالة" text="شوف وضع الطلبات والمراسلات في مكان واحد." />
-        </div>
-      </section>
-
-      {/* Pricing teaser */}
-      <section className="bg-navy-900 text-white">
-        <div className="container-jo py-12 grid md:grid-cols-3 gap-6">
-          <Plan title="مجاني" price="0 د" features={["تصفّح الوظائف", "حساب باحث عمل", "حفظ وظائف محدود"]} />
-          <Plan title="Plus للباحث" price="2 د/شهر" features={["CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]} highlight />
-          <Plan title="نشر وظيفة" price="من 5 د" features={["إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]} />
-        </div>
-        <div className="container-jo pb-12 text-center">
-          <Link href="/pricing" className="btn bg-sand-400 hover:bg-sand-500 text-navy-900">شاهد كل الأسعار</Link>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="container-jo py-12">
-        <h2 className="section-title">أسئلة شائعة</h2>
-        <div className="grid md:grid-cols-2 gap-4 mt-4">
-          <Faq q="هل المنصة مجانية؟" a="نعم، التصفّح والتسجيل والتقديم بشكل أساسي مجاني. الميزات المتقدمة (مثل تنزيل CV PDF أو نشر إعلان للشركة) مدفوعة برسوم رمزية." />
-          <Faq q="كيف أدفع؟" a="حالياً الدفع يدوي عبر نقد، CliQ، أو حوالة بنكية. الفريق يتواصل معك ويفعّل الخدمة بعد التحقق." />
-          <Faq q="هل بياناتي محمية؟" a="نخزّن فقط ما تحتاجه المنصة لتقديم الخدمة، ولا نعرض رقم هاتفك علناً إلا إذا اخترت ذلك." />
-          <Faq q="هل أقدر أحذف حسابي؟" a="نعم، يمكنك طلب حذف حسابك في أي وقت من إعدادات الحساب أو بالتواصل معنا." />
-        </div>
-      </section>
+      {/* ══════════════════════════════════════════════════════════
+          FAQ
+         ══════════════════════════════════════════════════════════ */}
+      <FadeInSection>
+        <section className="container-jo py-14">
+          <div className="section-accent-line" />
+          <h2 className="section-title">أسئلة شائعة</h2>
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
+            <Faq
+              q="هل المنصة مجانية؟"
+              a="نعم، التصفّح والتسجيل والتقديم بشكل أساسي مجاني. الميزات المتقدمة (مثل تنزيل CV PDF أو نشر إعلان للشركة) مدفوعة برسوم رمزية."
+            />
+            <Faq
+              q="كيف أدفع؟"
+              a="حالياً الدفع يدوي عبر نقد، CliQ، أو حوالة بنكية. الفريق يتواصل معك ويفعّل الخدمة بعد التحقق."
+            />
+            <Faq
+              q="هل بياناتي محمية؟"
+              a="نخزّن فقط ما تحتاجه المنصة لتقديم الخدمة، ولا نعرض رقم هاتفك علناً إلا إذا اخترت ذلك."
+            />
+            <Faq
+              q="هل أقدر أحذف حسابي؟"
+              a="نعم، يمكنك طلب حذف حسابك في أي وقت من إعدادات الحساب أو بالتواصل معنا."
+            />
+          </div>
+        </section>
+      </FadeInSection>
     </>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+/* ================================================================
+   HELPER COMPONENTS
+   ================================================================ */
+
+function StatPill({ value, label }: { value: string; label: string }) {
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center backdrop-blur-md hover:bg-white/10 hover:border-emerald-500/30 transition-all duration-300">
-      <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400">{value}</div>
-      <div className="text-[10px] sm:text-xs text-slate-300 mt-1 font-medium">{label}</div>
-    </div>
+    <span className="text-sm text-white/70 font-medium">
+      <strong className="font-extrabold" style={{ color: "#FF8C6B" }}>{value}</strong>{" "}
+      {label}
+    </span>
   );
+}
+
+function Divider() {
+  return <span className="w-px h-3 bg-white/20 hidden sm:inline-block" />;
 }
 
 function Bullet({ children, good }: { children: React.ReactNode; good?: boolean }) {
   return (
-    <li className="flex gap-2.5 items-start text-sm">
-      <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
-        good ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-500"
-      }`}>
+    <li className="flex gap-3 items-start text-sm">
+      <span
+        className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+          good
+            ? "bg-emerald-50 text-emerald-600"
+            : "bg-rose-50 text-rose-500"
+        }`}
+      >
         {good ? "✓" : "✗"}
       </span>
-      <span className="text-slate-700 font-medium">{children}</span>
+      <span className="font-medium" style={{ color: "var(--color-text)" }}>
+        {children}
+      </span>
     </li>
   );
 }
 
-function Persona({ title, description, cta, icon }: any) {
+function Persona({
+  title, description, cta, icon, accent, accentText,
+}: {
+  title: string; description: string; cta: React.ReactNode;
+  icon: string; accent: string; accentText: string;
+}) {
   return (
-    <div className="card-pad hover:border-emerald-100 hover:shadow-md transition-all duration-300 group hover:-translate-y-1">
-      <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300 w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">{icon}</div>
-      <h3 className="font-extrabold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors text-base">{title}</h3>
-      <p className="text-xs text-slate-500 leading-relaxed mb-5">{description}</p>
-      <div className="border-t border-slate-100 pt-3">{cta}</div>
+    <div className="card p-6 sm:p-7 group hover:-translate-y-1.5 transition-all duration-300">
+      <div
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4 transition-transform duration-300 group-hover:scale-110 border"
+        style={{ background: accent, borderColor: `${accentText}20` }}
+      >
+        {icon}
+      </div>
+      <h3 className="font-extrabold mb-2 text-base" style={{ color: "var(--color-text)" }}>
+        {title}
+      </h3>
+      <p className="text-xs leading-relaxed mb-5" style={{ color: "var(--color-muted)" }}>
+        {description}
+      </p>
+      <div className="border-t pt-3" style={{ borderColor: "var(--color-border)" }}>
+        {cta}
+      </div>
     </div>
   );
 }
 
 function Step({ n, title, text }: { n: number; title: string; text: string }) {
   return (
-    <div className="card-pad hover:border-emerald-100 hover:shadow-md transition-all duration-300 group hover:-translate-y-0.5">
-      <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 grid place-items-center font-extrabold text-lg mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm border border-emerald-100/50">
+    <div className="card p-6 group hover:-translate-y-1 transition-all duration-300 relative z-10">
+      <div
+        className="w-14 h-14 rounded-2xl grid place-items-center font-extrabold text-xl mb-4 transition-all duration-300 group-hover:scale-105 shadow-md"
+        style={{
+          background: "linear-gradient(135deg, #1B4FDB, #4F79FF)",
+          color: "white",
+          boxShadow: "0 4px 14px rgba(27,79,219,0.35)",
+        }}
+      >
         {n}
       </div>
-      <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors text-sm sm:text-base">{title}</h3>
-      <p className="text-xs text-slate-500 mt-2 leading-relaxed">{text}</p>
+      <h3 className="font-bold mb-1.5" style={{ color: "var(--color-text)" }}>
+        {title}
+      </h3>
+      <p className="text-xs leading-relaxed" style={{ color: "var(--color-muted)" }}>
+        {text}
+      </p>
     </div>
   );
 }
 
-function Plan({ title, price, features, highlight }: any) {
-  return (
-    <div className={`rounded-2xl p-7 flex flex-col justify-between transition-all duration-300 ${
-      highlight 
-        ? "bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-xl shadow-emerald-950/20 hover:scale-[1.02] border border-emerald-500/20" 
-        : "bg-slate-800/40 border border-slate-700/60 backdrop-blur-sm hover:bg-slate-800/60"
-    }`}>
-      <div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-bold tracking-wider uppercase opacity-95">{title}</span>
-          {highlight && <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">الأكثر طلباً</span>}
+function Plan({
+  title, price, features, highlight,
+}: {
+  title: string; price: string; features: string[]; highlight?: boolean;
+}) {
+  if (highlight) {
+    return (
+      <div
+        className="relative rounded-2xl p-[2px] shadow-2xl"
+        style={{ background: "linear-gradient(135deg, #FF6B35, #1B4FDB, #7C3AED)" }}
+      >
+        {/* "Most popular" badge */}
+        <div
+          className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[11px] font-extrabold text-white whitespace-nowrap shadow-lg"
+          style={{ background: "var(--gradient-accent)" }}
+        >
+          ★ الأكثر طلباً
         </div>
-        <div className="text-4xl font-extrabold mt-3">{price}</div>
-        <ul className="mt-6 space-y-2.5 text-xs">
-          {features.map((f: string) => (
-            <li key={f} className="flex gap-2 items-center opacity-90">
-              <span className={highlight ? "text-amber-300" : "text-emerald-400 font-bold"}>✓</span>
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
+        <div
+          className="rounded-[14px] p-7 flex flex-col h-full"
+          style={{ background: "#1E2235" }}
+        >
+          <div className="text-xs font-bold tracking-wider uppercase text-white/60 mb-1">{title}</div>
+          <div className="text-4xl font-extrabold text-white mt-2 mb-6">{price}</div>
+          <ul className="space-y-3 text-sm flex-1">
+            {features.map((f) => (
+              <li key={f} className="flex items-center gap-2 text-white/80">
+                <span className="text-accent-400 font-bold">✓</span> {f}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div
+      className="rounded-2xl p-7 flex flex-col border transition-all duration-300 hover:border-primary-700/50"
+      style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
+    >
+      <div className="text-xs font-bold tracking-wider uppercase text-gray-400 mb-1">{title}</div>
+      <div className="text-4xl font-extrabold text-white mt-2 mb-6">{price}</div>
+      <ul className="space-y-3 text-sm flex-1">
+        {features.map((f) => (
+          <li key={f} className="flex items-center gap-2 text-gray-400">
+            <span className="text-primary-400 font-bold">✓</span> {f}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 function Faq({ q, a }: { q: string; a: string }) {
   return (
-    <div className="card-pad hover:border-emerald-100 hover:shadow-sm transition-all duration-200">
-      <h3 className="font-bold text-slate-900 flex items-start gap-2 text-sm sm:text-base">
-        <span className="text-emerald-600">Q.</span>
+    <div className="card p-6 hover:shadow-md transition-all duration-200">
+      <h3 className="font-bold flex items-start gap-2 text-sm sm:text-base" style={{ color: "var(--color-text)" }}>
+        <span className="text-accent-400 font-extrabold shrink-0">؟</span>
         <span>{q}</span>
       </h3>
-      <p className="text-xs text-slate-600 mt-2 pr-6 leading-relaxed">{a}</p>
+      <p className="text-xs mt-2 pr-6 leading-relaxed" style={{ color: "var(--color-muted)" }}>
+        {a}
+      </p>
     </div>
   );
 }

@@ -1,10 +1,5 @@
 import Link from "next/link";
-import { Briefcase } from "lucide-react";
-import {
-  JOB_TYPE_LABEL,
-  formatJod,
-  formatRelativeArabic,
-} from "@/lib/utils";
+import { JOB_TYPE_LABEL, formatJod, formatRelativeArabic } from "@/lib/utils";
 
 type Props = {
   job: {
@@ -31,116 +26,175 @@ type Props = {
   matchScore?: number;
 };
 
+/* First letter avatar colour pairs */
+const AVATAR_COLORS = [
+  ["#EBF0FF", "#1B4FDB"],
+  ["#FFF0EB", "#E85A22"],
+  ["#F0FDF4", "#059669"],
+  ["#FEF3C7", "#D97706"],
+  ["#F3E8FF", "#7C3AED"],
+  ["#FEE2E2", "#DC2626"],
+];
+
+function avatarColors(name: string) {
+  const idx = name.charCodeAt(0) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[idx];
+}
+
 export function JobCard({ job, matchScore }: Props) {
   const companyName = job.company?.name ?? job.companyNameText ?? "صاحب عمل خاص";
-  
+  const firstLetter = companyName[0] ?? "ج";
+  const [bg, fg]    = avatarColors(companyName);
+
   const salary =
     job.salaryMin || job.salaryMax
       ? `${formatJod(job.salaryMin ?? job.salaryMax ?? 0)}${
           job.salaryMax && job.salaryMin && job.salaryMax !== job.salaryMin
-            ? ` - ${formatJod(job.salaryMax)}`
+            ? ` – ${formatJod(job.salaryMax)}`
             : ""
         }`
-      : job.salaryText || "غير محدد";
-
-  const cardClasses = [
-    "block rounded-2xl border transition-all duration-200 relative group overflow-hidden shadow-[0_8px_28px_rgba(15,23,42,0.045)] hover:-translate-y-0.5 hover:shadow-[0_16px_38px_rgba(15,23,42,0.09)]",
-    job.featured
-      ? "border-amber-200 bg-white hover:border-amber-300"
-      : "border-slate-100 bg-white hover:border-emerald-200",
-  ].join(" ");
+      : job.salaryText || null;
 
   return (
-    <Link href={`/jobs/${job.slug}`} className={cardClasses}>
+    <Link
+      href={`/jobs/${job.slug}`}
+      className="block bg-white border rounded-[16px] transition-all duration-300 relative group overflow-hidden"
+      style={{
+        borderColor: job.featured ? "#FFD9C7" : "var(--color-border)",
+        boxShadow: "var(--shadow-sm)",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
+        (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-lg)";
+        (e.currentTarget as HTMLElement).style.borderColor = job.featured ? "#FF8C6B" : "#C7D6FF";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = "";
+        (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
+        (e.currentTarget as HTMLElement).style.borderColor = job.featured ? "#FFD9C7" : "var(--color-border)";
+      }}
+    >
+      {/* ── Top accent bar ─────────────────────────────────────── */}
       {job.featured ? (
-        <div className="bg-gradient-to-l from-amber-400 via-amber-300 to-emerald-500 px-4 py-1.5 text-[11px] font-extrabold text-navy-950">
-          وظيفة مميزة
+        <div
+          className="px-4 py-1.5 text-[11px] font-extrabold text-white flex items-center gap-1.5"
+          style={{ background: "linear-gradient(90deg, #FF6B35, #FF8C5A)" }}
+        >
+          <span>★</span> وظيفة مميزة
         </div>
       ) : (
-        <div className="h-1 bg-emerald-500/80 transition-all duration-300" />
+        <div
+          className="h-[3px] transition-all duration-300"
+          style={{ background: "linear-gradient(90deg, #1B4FDB, #4F79FF)" }}
+        />
       )}
 
-      <div className="flex items-start gap-3 p-4 sm:gap-4 sm:p-5">
-        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-emerald-400/20 bg-navy-950 text-white shadow-md shadow-navy-950/10 transition-transform duration-200 group-hover:scale-[1.03]">
+      {/* ── Card body ──────────────────────────────────────────── */}
+      <div className="flex items-start gap-3.5 p-4 sm:gap-4 sm:p-5">
+
+        {/* Avatar / Logo */}
+        <div
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full border text-lg font-extrabold overflow-hidden transition-transform duration-200 group-hover:scale-105"
+          style={{ background: bg, color: fg, borderColor: `${fg}22` }}
+        >
           {job.company?.logoUrl ? (
             <img
-               src={job.company.logoUrl}
-               alt={companyName}
-               className="w-full h-full object-cover"
+              src={job.company.logoUrl}
+              alt={companyName}
+              className="w-full h-full object-cover"
             />
           ) : (
-            <Briefcase className="h-6 w-6 text-emerald-400" />
+            firstLetter
           )}
         </div>
 
+        {/* Content */}
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 space-y-1">
+
+              {/* Badges row */}
               <div className="flex flex-wrap items-center gap-1.5">
                 {job.urgent && (
-                  <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
-                    عاجل
+                  <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-[10px] font-bold text-rose-700">
+                    ⚡ عاجل
                   </span>
                 )}
-                <span className="inline-flex items-center rounded-full border border-emerald-100 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                <span className="inline-flex items-center rounded-full border border-primary-100 bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold text-primary-600">
                   {JOB_TYPE_LABEL[job.jobType] ?? job.jobType}
                 </span>
               </div>
-              <h3 className="line-clamp-2 text-sm font-extrabold leading-snug text-navy-950 transition-colors duration-200 group-hover:text-emerald-700 sm:text-base">
+
+              {/* Title */}
+              <h3 className="line-clamp-2 text-sm font-extrabold leading-snug transition-colors duration-200 group-hover:text-primary-600 sm:text-base"
+                  style={{ color: "var(--color-text)" }}>
                 {job.title}
               </h3>
-              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold text-navy-500 sm:text-[13px]">
+
+              {/* Company + City */}
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold sm:text-[13px]"
+                   style={{ color: "var(--color-muted)" }}>
                 <span>{companyName}</span>
-                <span className="text-slate-300" aria-hidden="true">•</span>
-                <span>{job.city}</span>
-                {job.area && (
-                  <>
-                    <span className="text-slate-300" aria-hidden="true">•</span>
-                    <span>{job.area}</span>
-                  </>
-                )}
+                <span className="text-gray-300" aria-hidden>•</span>
+                <span>📍 {job.city}{job.area ? ` — ${job.area}` : ""}</span>
               </div>
             </div>
 
+            {/* Time stamp */}
             {job.publishedAt && (
-              <div className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold text-navy-500 sm:text-[11px]">
+              <div className="shrink-0 rounded-full border border-gray-100 bg-gray-50 px-2.5 py-1 text-[10px] font-semibold text-gray-500 sm:text-[11px] whitespace-nowrap">
                 {formatRelativeArabic(job.publishedAt)}
               </div>
             )}
           </div>
 
+          {/* Footer row */}
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
+
+            {/* Salary */}
+            {salary && (
+              <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[11px] sm:text-xs font-bold text-emerald-700">
+                💰 {salary}
+              </span>
+            )}
+            {!salary && (
+              <span className="inline-flex items-center rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-1 text-[10px] sm:text-xs font-semibold text-gray-500">
+                الراتب غير محدد
+              </span>
+            )}
+
+            {/* Source */}
             {job.source === "scraped" ? (
-              <span className="inline-flex items-center rounded-lg border border-orange-500/20 bg-orange-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-orange-700">
+              <span className="inline-flex items-center rounded-lg border border-orange-200 bg-orange-50 px-2.5 py-1 text-[10px] sm:text-xs font-bold text-orange-700">
                 مصدر خارجي
               </span>
             ) : (
-              <span className="inline-flex items-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-emerald-700">
+              <span className="inline-flex items-center rounded-lg border border-primary-100 bg-primary-50 px-2.5 py-1 text-[10px] sm:text-xs font-bold text-primary-600">
                 ✓ موثقة
               </span>
             )}
-            <span className="inline-flex items-center rounded-lg border border-slate-200/70 bg-slate-50 px-2 py-1 text-[10px] sm:text-xs font-bold text-navy-700">
-              الراتب: {salary}
-            </span>
+
             {job.noExperienceRequired && (
-              <span className="inline-flex items-center rounded-lg border border-sky-100 bg-sky-50 px-2 py-1 text-[10px] sm:text-xs font-bold text-sky-700">
+              <span className="inline-flex items-center rounded-lg border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] sm:text-xs font-bold text-sky-700">
                 بدون خبرة
               </span>
             )}
             {job.womenFriendly && (
-              <span className="inline-flex items-center rounded-lg border border-fuchsia-100 bg-fuchsia-50 px-2 py-1 text-[10px] sm:text-xs font-bold text-fuchsia-700">
+              <span className="inline-flex items-center rounded-lg border border-fuchsia-100 bg-fuchsia-50 px-2.5 py-1 text-[10px] sm:text-xs font-bold text-fuchsia-700">
                 مناسبة للسيدات
               </span>
             )}
+
+            {/* Match score */}
             {matchScore !== undefined && (
-              <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] sm:text-xs font-extrabold ${
+              <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] sm:text-xs font-extrabold ${
                 matchScore >= 75
-                  ? "bg-emerald-500/20 text-emerald-800 border border-emerald-500/30"
+                  ? "bg-emerald-500/15 text-emerald-800 border border-emerald-500/25"
                   : matchScore >= 50
                   ? "bg-amber-500/10 text-amber-800 border border-amber-500/20"
-                  : "bg-slate-100 text-slate-600 border border-slate-200"
+                  : "bg-gray-100 text-gray-600 border border-gray-200"
               }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${matchScore >= 75 ? "bg-emerald-500 animate-pulse" : matchScore >= 50 ? "bg-amber-500" : "bg-slate-400"}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${matchScore >= 75 ? "bg-emerald-500 animate-pulse" : matchScore >= 50 ? "bg-amber-500" : "bg-gray-400"}`} />
                 مطابقة {matchScore}%
               </span>
             )}

@@ -79,7 +79,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#0a1320",
+  themeColor: "#1B4FDB",
   colorScheme: "light",
 };
 
@@ -88,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ar" dir="rtl" data-scroll-behavior="smooth">
       <body className={`${readexPro.variable} ${cairo.variable} ${tajawal.variable}`}>
         <NextTopLoader
-          color="#10b981"
+          color="#FF6B35"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
@@ -96,7 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           showSpinner={false}
           easing="ease"
           speed={200}
-          shadow="0 0 10px #10b981,0 0 5px #10b981"
+          shadow="0 0 10px #FF6B35,0 0 5px #FF6B35"
         />
         <div className="min-h-screen flex flex-col pb-16 md:pb-0">
           <Header />
