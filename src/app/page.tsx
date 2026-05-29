@@ -42,50 +42,47 @@ export default async function HomePage() {
          ══════════════════════════════════════════════════════════ */}
       <section
         className="relative overflow-hidden text-white"
-        style={{ minHeight: "clamp(580px, 90vh, 820px)" }}
+        style={{ background: "#06091F" }}
       >
-        {/* ── Background image (fills entire section) ─────────── */}
-        <Image
-          src="/images/hero-jojobs.png"
-          alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-          style={{ objectPosition: "center 20%" }}
-        />
+        {/* ── Background image — object-contain shows the full image, no cropping ── */}
+        <div className="relative w-full" style={{ aspectRatio: "16/9", maxHeight: "82vh" }}>
+          <Image
+            src="/images/hero-jojobs.png"
+            alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
+            fill
+            priority
+            sizes="100vw"
+            className="object-contain"
+          />
 
-        {/* ── Overlay: dark right (text) → transparent left (image) ── */}
-        {/* Desktop: directional fade for RTL */}
-        <div
-          className="absolute inset-0 hidden sm:block"
-          style={{
-            background:
-              "linear-gradient(to left, rgba(5,8,28,0.93) 0%, rgba(5,8,28,0.82) 30%, rgba(5,8,28,0.50) 58%, rgba(5,8,28,0.08) 100%)",
-          }}
-        />
-        {/* Mobile: uniform dark overlay */}
-        <div
-          className="absolute inset-0 sm:hidden"
-          style={{ background: "rgba(5,8,28,0.78)" }}
-        />
+          {/* ── Overlay: semi-transparent gradient so text is readable ── */}
+          {/* Desktop: dark on right (text side RTL) → fade to left */}
+          <div
+            className="absolute inset-0 hidden sm:block"
+            style={{
+              background:
+                "linear-gradient(to left, rgba(6,9,31,0.88) 0%, rgba(6,9,31,0.65) 35%, rgba(6,9,31,0.20) 65%, rgba(6,9,31,0.05) 100%)",
+            }}
+          />
+          {/* Mobile: uniform overlay */}
+          <div
+            className="absolute inset-0 sm:hidden"
+            style={{ background: "rgba(6,9,31,0.72)" }}
+          />
 
-        {/* Subtle blue brand tint at bottom */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-64 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(5,8,28,0.70) 0%, rgba(27,79,219,0.18) 55%, transparent 100%)",
-          }}
-        />
+          {/* Bottom fade to match section bg */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+            style={{
+              background: "linear-gradient(to top, #06091F 0%, transparent 100%)",
+            }}
+          />
 
-        {/* ── Content ─────────────────────────────────────────── */}
-        <div
-          className="container-jo relative z-10 flex items-end"
-          style={{ minHeight: "clamp(580px, 90vh, 820px)" }}
-        >
-          {/* Text block — anchored to bottom, max half-width so image shows on left */}
-          <div className="flex flex-col justify-end max-w-xl pb-14 sm:pb-20 pt-40 w-full sm:w-1/2">
+          {/* ── Content pinned to bottom of the image ─────────── */}
+          <div className="absolute inset-0 flex items-end">
+            <div className="container-jo w-full pb-10 sm:pb-14">
+              {/* Text block — right half in RTL so image details show on left */}
+              <div className="max-w-xl w-full sm:w-1/2">
 
             {/* Social proof bar */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-7 text-sm">
@@ -136,8 +133,10 @@ export default async function HomePage() {
             <p className="text-[11px] text-white/40 mt-5 font-semibold">
               ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة
             </p>
-          </div>
-        </div>
+              </div>  {/* max-w-xl text block */}
+            </div>    {/* container-jo */}
+          </div>      {/* absolute inset-0 content */}
+        </div>        {/* aspect-ratio wrapper */}
       </section>
 
       {/* ══════════════════════════════════════════════════════════
