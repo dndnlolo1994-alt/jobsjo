@@ -5,6 +5,7 @@ import { JobCard } from "@/components/JobCard";
 import { createClaimAction } from "@/lib/actions/platform";
 import { getSessionUser } from "@/lib/session";
 import { CompanyReviewForm } from "@/components/CompanyReviewForm";
+import { Building2 } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -73,7 +74,9 @@ export default async function CompanyPage({
                 {company.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={company.logoUrl} alt={company.name} className="h-full w-full object-cover" />
-                ) : company.name.slice(0, 1)}
+                ) : (
+                  <Building2 className="h-12 w-12 text-emerald-700" />
+                )}
               </div>
               <div>
                 <h1 className="text-3xl font-extrabold text-navy-950">{company.name}</h1>

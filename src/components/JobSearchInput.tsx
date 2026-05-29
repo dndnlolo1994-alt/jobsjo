@@ -9,13 +9,16 @@ export function JobSearchInput() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(searchParams.get("q") ?? "");
+  const [isDirty, setIsDirty] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     setValue(searchParams.get("q") ?? "");
+    setIsDirty(false);
   }, [searchParams]);
 
   useEffect(() => {
+    if (!isDirty) return;
     const timer = window.setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       if (value.trim()) params.set("q", value.trim());
@@ -28,14 +31,17 @@ export function JobSearchInput() {
     }, 300);
 
     return () => window.clearTimeout(timer);
-  }, [pathname, router, searchParams, value]);
+  }, [pathname, router, searchParams, value, isDirty]);
 
   return (
     <div className="relative">
       <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       <input
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => {
+          setValue(e.target.value);
+          setIsDirty(true);
+        }}
         className="input h-12 pr-10 text-sm"
         placeholder="ابحث بالمسمى، الشركة، المهارة..."
         aria-label="بحث نصي في الوظائف"

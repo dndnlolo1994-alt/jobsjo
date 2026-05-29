@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Briefcase } from "lucide-react";
 import {
   JOB_TYPE_LABEL,
   formatJod,
@@ -66,7 +67,7 @@ export function JobCard({ job, matchScore }: Props) {
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-white text-lg">{companyName.slice(0, 1)}</span>
+            <Briefcase className="h-6 w-6 text-emerald-400" />
           )}
         </div>
 
