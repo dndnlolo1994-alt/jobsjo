@@ -63,7 +63,7 @@ export const cvSampleData = {
       id: "cert-1",
       name: "Google Digital Marketing",
       issuer: "Google",
-      year: "2023",
+      year: "2021",
       order: 0,
     },
     {

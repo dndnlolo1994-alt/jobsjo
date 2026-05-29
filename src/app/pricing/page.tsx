@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CvPreview } from "@/components/cv/CvPreview";
+import { cvSampleData, cvSampleUserSkills } from "@/lib/cv-sample-data";
 import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
@@ -8,7 +10,7 @@ export const metadata: Metadata = {
 };
 export const revalidate = 3600;
 
-export default function PricingPage() {
+export default async function PricingPage() {
   const seekerPlans = [
     {
       name: "الحساب المجاني",
@@ -118,9 +120,9 @@ export default function PricingPage() {
           <p className="text-xs text-slate-300 mt-1">باقات مخصصة لمساعدتك في بناء سيرتك الذاتية والتقديم على الوظائف</p>
         </div>
         
-        <div className="grid xl:grid-cols-[1fr_minmax(260px,340px)] lg:grid-cols-[1fr_300px] gap-5 lg:gap-6 items-start max-w-6xl mx-auto">
+        <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(320px,400px)] gap-5 lg:gap-6 items-start max-w-6xl mx-auto">
           {/* Seeker Plans Cards */}
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-5 w-full items-start">
+          <div className="order-2 xl:order-1 grid md:grid-cols-2 gap-4 sm:gap-5 w-full items-start">
             {seekerPlans.map((plan) => (
               <div
                 key={plan.name}
@@ -174,22 +176,42 @@ export default function PricingPage() {
             ))}
           </div>
 
-          {/* CV Template — لقطة حقيقية من قالب modern-emerald (Plus + صورة) */}
-          <div className="rounded-2xl p-3 sm:p-4 border border-emerald-500/20 bg-[#07110f] text-center w-full shadow-lg shadow-emerald-950/20 xl:sticky xl:top-24">
-            <h4 className="font-extrabold text-white text-xs sm:text-sm mb-2 border-b border-white/10 pb-2">
-              هكذا ستبدو سيرتك بعد التفعيل (مثال حقيقي)
-            </h4>
-            <div className="relative rounded-lg overflow-hidden border border-[#c2a06c]/50 bg-white shadow-inner group">
-              <img
-                src="/cv-mockup.png"
-                alt="مثال سيرة ذاتية PDF — قالب زمردي مع صورة شخصية ورمز QR"
-                width={397}
-                height={562}
-                className="w-full h-auto object-cover object-top transition-transform duration-300 group-hover:scale-[1.01]"
-              />
+          {/* معاينة حية — نفس قالب PDF (Plus + صورة) — قابلة للتمرير على الموبايل */}
+          <div className="order-1 xl:order-2 rounded-2xl p-3 sm:p-4 border border-emerald-500/20 bg-[#07110f] w-full shadow-lg shadow-emerald-950/20 xl:sticky xl:top-24">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2 mb-3">
+              <h4 className="font-extrabold text-white text-sm sm:text-base">
+                هكذا ستبدو سيرتك بعد التفعيل (مثال حقيقي)
+              </h4>
+              <Link
+                href="/cv/sample"
+                className="text-[11px] font-bold text-emerald-300 hover:text-emerald-200 underline underline-offset-2"
+              >
+                عرض بحجم كامل
+              </Link>
             </div>
-            <p className="text-[10px] text-slate-400 mt-2 leading-snug">
-              من باني السيرة في المنصة: رأس أخضر، لمسات ذهبية، صورة شخصية، QR موثق — نفس شكل ملف PDF.
+
+            {/* موبايل/تابلت: تمرير أفقي بحجم A4 الحقيقي — النص واضح */}
+            <div className="xl:hidden -mx-1 overflow-x-auto overscroll-x-contain touch-pan-x rounded-lg border border-[#c2a06c]/40 bg-slate-100 shadow-inner">
+              <div className="w-[794px] min-w-[794px] shrink-0">
+                <CvPreview cv={cvSampleData} userSkills={cvSampleUserSkills} lang="ar" isPlus />
+              </div>
+            </div>
+            <p className="xl:hidden text-[11px] text-emerald-200/90 mt-2 text-center font-medium">
+              ← اسحب لقراءة كل التفاصيل بوضوح
+            </p>
+
+            {/* ديسكتوب: تصغير متناسب داخل العمود */}
+            <div className="hidden xl:block overflow-hidden rounded-lg border border-[#c2a06c]/40 bg-white shadow-inner">
+              <div
+                className="origin-top"
+                style={{ transform: "scale(0.48)", width: 794, marginBottom: -580 }}
+              >
+                <CvPreview cv={cvSampleData} userSkills={cvSampleUserSkills} lang="ar" isPlus />
+              </div>
+            </div>
+
+            <p className="hidden xl:block text-[10px] text-slate-400 mt-2 leading-snug text-center">
+              من باني السيرة: رأس أخضر، لمسات ذهبية، صورة شخصية، QR موثق — نفس شكل ملف PDF.
             </p>
           </div>
         </div>

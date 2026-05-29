@@ -15,8 +15,8 @@ const baseUrl = process.argv[2] || "http://127.0.0.1:3000";
 async function main() {
   const browser = await chromium.launch();
   const page = await browser.newPage({
-    viewport: { width: 900, height: 1200 },
-    deviceScaleFactor: 2,
+    viewport: { width: 820, height: 1180 },
+    deviceScaleFactor: 3,
   });
 
   await page.goto(`${baseUrl}/cv/sample`, { waitUntil: "networkidle", timeout: 120_000 });
