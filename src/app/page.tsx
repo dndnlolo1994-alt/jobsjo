@@ -51,7 +51,8 @@ export default async function HomePage() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover"
+          style={{ objectPosition: "center 20%" }}
         />
 
         {/* ── Overlay: dark right (text) → transparent left (image) ── */}
@@ -71,20 +72,20 @@ export default async function HomePage() {
 
         {/* Subtle blue brand tint at bottom */}
         <div
-          className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-64 pointer-events-none"
           style={{
             background:
-              "linear-gradient(to top, rgba(27,79,219,0.28) 0%, transparent 100%)",
+              "linear-gradient(to top, rgba(5,8,28,0.70) 0%, rgba(27,79,219,0.18) 55%, transparent 100%)",
           }}
         />
 
         {/* ── Content ─────────────────────────────────────────── */}
         <div
-          className="container-jo relative z-10 flex items-center"
+          className="container-jo relative z-10 flex items-end"
           style={{ minHeight: "clamp(580px, 90vh, 820px)" }}
         >
-          {/* Text block — max half-width so image shows on left */}
-          <div className="flex flex-col justify-center max-w-xl py-20 sm:py-24 w-full sm:w-1/2">
+          {/* Text block — anchored to bottom, max half-width so image shows on left */}
+          <div className="flex flex-col justify-end max-w-xl pb-14 sm:pb-20 pt-40 w-full sm:w-1/2">
 
             {/* Social proof bar */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-7 text-sm">
