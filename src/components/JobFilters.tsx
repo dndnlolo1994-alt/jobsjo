@@ -21,7 +21,7 @@ export function JobFilters() {
   return (
     <form
       action={apply}
-      className="sticky top-24 rounded-2xl border border-emerald-400/15 bg-slate-950 p-4 shadow-xl shadow-slate-950/10 space-y-3"
+      className="w-full max-w-full rounded-2xl border border-emerald-400/15 bg-slate-950 p-4 shadow-xl shadow-slate-950/10 space-y-3 lg:sticky lg:top-24"
     >
       <div>
         <label className="label text-white">بحث</label>

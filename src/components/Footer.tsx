@@ -9,8 +9,8 @@ export function Footer() {
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500/80 via-emerald-600/20 to-transparent" />
       
       {/* Background soft glow decoration */}
-      <div className="absolute -left-40 -top-40 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute -right-40 -bottom-40 w-80 h-80 bg-navy-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute left-0 top-0 w-64 h-64 -translate-x-1/2 -translate-y-1/2 bg-emerald-500/5 rounded-full blur-[90px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-64 h-64 translate-x-1/2 translate-y-1/2 bg-navy-500/5 rounded-full blur-[90px] pointer-events-none" />
 
       <div className="container-jo relative z-10 py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div className="flex flex-col justify-between">

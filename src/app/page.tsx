@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { JobCard } from "@/components/JobCard";
 import { Badge } from "@/components/Badge";
@@ -43,12 +44,13 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-navy-950 via-[#07110f] to-navy-950 text-white py-10 sm:py-14 lg:py-16 relative overflow-hidden">
+      <section className="relative overflow-hidden bg-[#07120f] text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(16,185,129,0.16),transparent_24rem),linear-gradient(180deg,rgba(2,6,23,0.06),rgba(2,6,23,0.32))]" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-l from-transparent via-emerald-400/30 to-transparent" />
 
-        <div className="container-jo grid lg:grid-cols-[0.82fr_1.18fr] gap-8 lg:gap-12 items-center relative z-10">
+        <div className="container-jo relative z-10 grid gap-7 py-8 sm:py-12 lg:grid-cols-[0.86fr_1.14fr] lg:gap-12 lg:py-16 lg:items-center">
           {/* Right Column: Text Content */}
-          <div className="flex flex-col justify-center order-2 lg:order-1">
+          <div className="order-1 flex flex-col justify-center lg:order-1">
             <Badge className="bg-sand-400 text-navy-900 mb-4 w-fit">منصة الأردن للوظائف</Badge>
             <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight max-w-2xl">
               وظائف الأردن القريبة منك
@@ -83,15 +85,17 @@ export default async function HomePage() {
           </div>
 
           {/* Left Column: Dedicated Jordanian Workspace Image */}
-          <div className="w-full flex justify-center mb-6 lg:mb-0 order-1 lg:order-2">
-            <div className="relative w-full max-w-2xl min-h-[300px] sm:min-h-[380px] lg:min-h-[500px] rounded-2xl sm:rounded-3xl overflow-hidden border border-emerald-400/20 shadow-2xl shadow-navy-950/60 group">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src="/images/hero-jojobs.png" 
-                alt="مكتب العمل والتوظيف بالأردن" 
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.025] transition-transform duration-700" 
+          <div className="order-2 w-full lg:order-2">
+            <div className="group relative mx-auto aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-slate-900 shadow-2xl shadow-navy-950/50 sm:rounded-3xl lg:min-h-[460px]">
+              <Image
+                src="/images/hero-jojobs.png"
+                alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
+                fill
+                priority
+                sizes="(min-width: 1024px) 54vw, 100vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/20 via-transparent to-transparent pointer-events-none" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/22 via-transparent to-white/5" />
             </div>
           </div>
         </div>

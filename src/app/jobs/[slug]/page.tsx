@@ -191,16 +191,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
                 )}
 
                 {job.contactMethod === "EMAIL" && job.contactEmail && (
-                  isFreePlan ? (
-                    <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center space-y-2 mt-3">
-                      <p className="text-xs text-slate-500 leading-relaxed">البريد الإلكتروني المباشر للشركة مغلق للخطط المجانية.</p>
-                      <Link href="/pricing" className="btn bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold w-full">
-                        اشترك في Plus لفتح التقديم 🔓
-                      </Link>
-                    </div>
-                  ) : (
-                    <a className="btn-primary w-full text-sm mt-3" href={`mailto:${job.contactEmail}?subject=${encodeURIComponent(`تقديم لوظيفة: ${job.title}`)}`}>تقديم عبر البريد الإلكتروني</a>
-                  )
+                  <a className="btn-primary w-full text-sm mt-3" href={`mailto:${job.contactEmail}?subject=${encodeURIComponent(`تقديم لوظيفة: ${job.title}`)}`}>
+                    تقديم عبر البريد الإلكتروني
+                  </a>
                 )}
 
                 {job.contactMethod === "EXTERNAL_LINK" && job.externalUrl && (
@@ -229,6 +222,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
               <p>تاريخ النشر: {formatDateArabic(job.publishedAt)}</p>
               <p>ينتهي في: {formatDateArabic(job.expiresAt)}</p>
               <p>المصدر: {job.sourceName ?? "جوبز الأردن"}</p>
+              {job.contactEmail && (
+                <p>
+                  بريد الشركة:{" "}
+                  <a className="link font-bold" href={`mailto:${job.contactEmail}?subject=${encodeURIComponent(`استفسار حول وظيفة: ${job.title}`)}`}>
+                    {job.contactEmail}
+                  </a>
+                </p>
+              )}
             </div>
           </div>
         </aside>

@@ -125,6 +125,12 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
       return value.length > 42 ? `${value.slice(0, 39)}...` : value;
     }
   };
+  const initials = String(fullName || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
 
   // Render Template: Minimalist
   if (activeTemplate === "minimalist") {
@@ -515,13 +521,15 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   ) => {
     return (
       <div 
-        className="cv-print bg-white text-navy-950 mx-auto max-w-[794px] h-[1123px] min-h-[1123px] max-h-[1123px] relative overflow-hidden shadow-card border border-navy-100 mb-8 flex flex-col" 
+        className="cv-print bg-white text-navy-950 mx-auto max-w-[794px] h-[1123px] min-h-[1123px] max-h-[1123px] relative overflow-hidden shadow-card border border-navy-100 mb-8 flex flex-col"
         dir={isEn ? "ltr" : "rtl"}
         key={pageNum}
       >
+        <div className="absolute -right-3 top-[275px] h-[360px] w-7 rounded-l-2xl bg-[#0f7a57]" />
         {/* Header */}
-        <div className="cv-header bg-[#084c41] text-white h-[160px] min-h-[160px] px-10 flex items-center relative overflow-hidden">
-          <div className="absolute inset-x-0 bottom-0 h-[5px] bg-[#c2a06c]" />
+        <div className="cv-header bg-gradient-to-l from-[#0f7a57] via-[#0b5f48] to-[#083b34] text-white h-[158px] min-h-[158px] px-10 flex items-center relative overflow-hidden">
+          <div className="absolute inset-x-0 bottom-0 h-[6px] bg-[#d0ad61]" />
+          <div className="absolute -bottom-16 left-12 h-40 w-72 rounded-full bg-black/10 blur-2xl" />
           <div className="flex items-center justify-between w-full z-10" dir="ltr">
             {/* Name and Job Title */}
             <div className={`flex flex-col ${isEn ? "text-left" : "text-right"}`} dir={isEn ? "ltr" : "rtl"}>
@@ -529,30 +537,30 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               <p className="text-sm text-[#c2a06c] font-bold mt-1.5">{jobTitle || t("باحث عن عمل")}</p>
             </div>
             
-            {/* Profile Photo (Plus-only) */}
-            {isPlus && (
-              <div className="relative">
-                <div className="w-[102px] h-[102px] rounded-full border-2 border-[#c2a06c] flex items-center justify-center p-[2px] bg-transparent">
-                  {cv.photo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={cv.photo}
-                      alt={fullName}
-                      className="w-24 h-24 rounded-full object-cover border-[3px] border-white shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-white border-[3px] border-white shadow-sm" />
-                  )}
-                </div>
+            {/* Real photo is Plus-only; free CVs keep the same layout with initials. */}
+            <div className="relative">
+              <div className="flex h-[108px] w-[108px] items-center justify-center rounded-full border-[3px] border-[#d0ad61] bg-transparent p-[4px]">
+                {showPhoto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={cv.photo}
+                    alt={fullName}
+                    className="h-24 w-24 rounded-full border-[4px] border-white object-cover shadow-sm"
+                  />
+                ) : (
+                  <div className="grid h-24 w-24 place-items-center rounded-full border-[4px] border-white bg-[#f3f7f5] text-2xl font-extrabold text-[#0b5f48] shadow-sm">
+                    {initials || "CV"}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
         {/* Columns Container - Forced LTR to keep Left column on Left and Right column on Right */}
         <div className="flex-1 flex flex-row overflow-hidden" dir="ltr">
           {/* Main Body */}
-          <div className="w-[67%] bg-white p-8 border-l-[16px] border-[#084c41] flex flex-col justify-between overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
+          <div className="w-[69%] bg-white p-8 flex flex-col justify-between overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
             <div className="space-y-4">
               {/* Summary */}
               {showSummary && summary && (
@@ -671,7 +679,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
           </div>
 
           {/* Sidebar */}
-          <aside className="w-[33%] bg-[#f4f6f5] p-5 flex flex-col justify-between border-x border-[#084c41]/5 overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
+          <aside className="w-[31%] bg-[#f4f6f2] p-5 flex flex-col justify-between border-x border-[#0b5f48]/5 overflow-hidden" dir={isEn ? "ltr" : "rtl"}>
             <div className="space-y-5">
               {pageNum > 1 && (
                 <section className="rounded-lg bg-white/80 border border-[#084c41]/10 p-2 text-center">
@@ -733,9 +741,9 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                           <span>{s.name}</span>
                         </div>
                         {/* Progress Bar */}
-                        <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                           <div 
-                            className="h-full rounded-full bg-[#084c41]" 
+                            className="h-full rounded-full bg-gradient-to-l from-[#0f7a57] to-[#d0ad61]"
                             style={{ width: `${s.level * 20}%` }}
                           />
                         </div>
@@ -769,8 +777,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={qrCodeDataUrl} 
-                  alt="QR Verification" 
-                  className="w-14 h-14 border border-emerald-100 p-0.5 rounded bg-white shadow-sm" 
+                  alt="QR Verification"
+                  className="w-14 h-14 border border-emerald-100 p-0.5 rounded bg-white shadow-sm"
                 />
                 <span className="text-[8.5px] text-[#084c41] font-bold block mt-1">
                   {t("سيرة موثقة")}

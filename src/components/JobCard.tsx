@@ -44,24 +44,24 @@ export function JobCard({ job, matchScore }: Props) {
       : job.salaryText || "غير محدد";
 
   const cardClasses = [
-    "block rounded-2xl border p-4 sm:p-5 transition-all duration-200 relative group overflow-hidden shadow-[0_12px_34px_rgba(15,23,42,0.06)] hover:-translate-y-0.5 hover:shadow-[0_18px_46px_rgba(15,23,42,0.11)]",
+    "block rounded-2xl border transition-all duration-200 relative group overflow-hidden shadow-[0_8px_28px_rgba(15,23,42,0.045)] hover:-translate-y-0.5 hover:shadow-[0_16px_38px_rgba(15,23,42,0.09)]",
     job.featured
-      ? "border-amber-300/80 bg-gradient-to-l from-white via-white to-amber-50/80 hover:border-amber-400"
-      : "border-emerald-100 bg-gradient-to-l from-white via-white to-emerald-50/70 hover:border-emerald-300",
+      ? "border-amber-200 bg-white hover:border-amber-300"
+      : "border-slate-100 bg-white hover:border-emerald-200",
   ].join(" ");
 
   return (
     <Link href={`/jobs/${job.slug}`} className={cardClasses}>
       {job.featured ? (
-        <div className="absolute inset-x-0 top-0 bg-gradient-to-l from-amber-400 via-amber-300 to-emerald-500 px-4 py-1.5 text-xs font-extrabold text-navy-950">
+        <div className="bg-gradient-to-l from-amber-400 via-amber-300 to-emerald-500 px-4 py-1.5 text-[11px] font-extrabold text-navy-950">
           وظيفة مميزة
         </div>
       ) : (
-        <div className="absolute inset-x-0 top-0 h-1 bg-emerald-500/80 transition-all duration-300" />
+        <div className="h-1 bg-emerald-500/80 transition-all duration-300" />
       )}
 
-      <div className={`flex items-start gap-3 sm:gap-4 ${job.featured ? "pt-8" : "pt-1"}`}>
-        <div className="shrink-0 w-12 h-12 rounded-2xl bg-navy-950 border border-emerald-400/20 grid place-items-center text-white font-extrabold shadow-md shadow-navy-950/10 overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
+      <div className="flex items-start gap-3 p-4 sm:gap-4 sm:p-5">
+        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-emerald-400/20 bg-navy-950 text-white shadow-md shadow-navy-950/10 transition-transform duration-200 group-hover:scale-[1.03]">
           {job.company?.logoUrl ? (
             <img
                src={job.company.logoUrl}
@@ -73,42 +73,43 @@ export function JobCard({ job, matchScore }: Props) {
           )}
         </div>
 
-        <div className="flex-1 min-w-0 space-y-2">
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              {job.urgent && (
-                <div className="mb-1.5 flex flex-wrap gap-1.5">
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {job.urgent && (
                   <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">
                     عاجل
                   </span>
-                </div>
-              )}
-
-              <h3 className="text-sm sm:text-base font-extrabold leading-snug text-navy-900 transition-colors duration-200 line-clamp-2 group-hover:text-emerald-700">
+                )}
+                <span className="inline-flex items-center rounded-full border border-emerald-100 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                  {JOB_TYPE_LABEL[job.jobType] ?? job.jobType}
+                </span>
+              </div>
+              <h3 className="line-clamp-2 text-sm font-extrabold leading-snug text-navy-950 transition-colors duration-200 group-hover:text-emerald-700 sm:text-base">
                 {job.title}
               </h3>
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold text-navy-500 sm:text-[13px]">
+                <span>{companyName}</span>
+                <span className="text-slate-300" aria-hidden="true">•</span>
+                <span>{job.city}</span>
+                {job.area && (
+                  <>
+                    <span className="text-slate-300" aria-hidden="true">•</span>
+                    <span>{job.area}</span>
+                  </>
+                )}
+              </div>
             </div>
 
             {job.publishedAt && (
-              <div className="hidden shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-navy-500 sm:block">
+              <div className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold text-navy-500 sm:text-[11px]">
                 {formatRelativeArabic(job.publishedAt)}
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs sm:text-sm font-medium text-navy-500">
-            <span>{companyName}</span>
-            <span className="text-slate-300" aria-hidden="true">•</span>
-            <span>{job.city}</span>
-            {job.area && (
-              <>
-                <span className="text-slate-300" aria-hidden="true">•</span>
-                <span className="text-navy-400 text-xs">{job.area}</span>
-              </>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
             {job.source === "scraped" ? (
               <span className="inline-flex items-center rounded-lg border border-orange-500/20 bg-orange-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-orange-700">
                 مصدر خارجي
@@ -118,9 +119,6 @@ export function JobCard({ job, matchScore }: Props) {
                 ✓ موثقة
               </span>
             )}
-            <span className="inline-flex items-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-emerald-700">
-              {JOB_TYPE_LABEL[job.jobType] ?? job.jobType}
-            </span>
             <span className="inline-flex items-center rounded-lg border border-slate-200/70 bg-slate-50 px-2 py-1 text-[10px] sm:text-xs font-bold text-navy-700">
               الراتب: {salary}
             </span>

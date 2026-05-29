@@ -5,7 +5,8 @@ import { JobCard } from "@/components/JobCard";
 import { createClaimAction } from "@/lib/actions/platform";
 import { getSessionUser } from "@/lib/session";
 import { CompanyReviewForm } from "@/components/CompanyReviewForm";
-import { Building2 } from "lucide-react";
+import { SubmitButton } from "@/components/forms/SubmitButton";
+import { Building2, ExternalLink, Mail, MessageCircle } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -51,6 +52,8 @@ export default async function CompanyPage({
     getSessionUser(),
   ]);
   if (!company) notFound();
+  const hiringEmail = company.email ?? company.jobs.find((job) => job.contactEmail)?.contactEmail ?? null;
+  const mailSubject = `استفسار توظيف عبر جوبز الأردن - ${company.name}`;
   const orgLd = company.name && company.city ? { "@context": "https://schema.org", "@type": "Organization", name: company.name, address: { "@type": "PostalAddress", addressCountry: "JO", addressLocality: company.city }, url: company.website ?? undefined } : null;
   return (
     <section className="container-jo py-8">
@@ -63,9 +66,10 @@ export default async function CompanyPage({
         </div>
       )}
 
-      <div className="mb-6 overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-xl shadow-slate-950/5">
-        <div className="relative min-h-44 bg-gradient-to-l from-emerald-950 via-emerald-800 to-slate-950">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(209,179,111,0.25),transparent_28rem)]" />
+      <div className="mb-6 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-950/5">
+        <div className="relative min-h-40 bg-gradient-to-l from-navy-950 via-emerald-950 to-slate-900">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(209,179,111,0.22),transparent_24rem)]" />
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-l from-emerald-500 via-amber-300 to-transparent" />
         </div>
         <div className="p-5 sm:p-7">
           <div className="-mt-20 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -92,9 +96,24 @@ export default async function CompanyPage({
           </div>
           {company.description && <p className="mt-5 max-w-4xl leading-8 text-navy-700">{company.description}</p>}
           <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold">
-            {company.website && <a href={company.website} target="_blank" className="btn-outline px-3 py-2">الموقع الإلكتروني</a>}
-            {company.whatsapp && <a href={`https://wa.me/${company.whatsapp}`} target="_blank" className="btn-outline px-3 py-2">واتساب</a>}
-            {company.email && <a href={`mailto:${company.email}`} className="btn-outline px-3 py-2">البريد الإلكتروني</a>}
+            {hiringEmail && (
+              <a href={`mailto:${hiringEmail}?subject=${encodeURIComponent(mailSubject)}`} className="btn-primary px-3 py-2">
+                <Mail className="h-4 w-4" />
+                تواصل بالإيميل
+              </a>
+            )}
+            {company.whatsapp && (
+              <a href={`https://wa.me/${company.whatsapp}`} target="_blank" className="btn-outline px-3 py-2">
+                <MessageCircle className="h-4 w-4" />
+                واتساب
+              </a>
+            )}
+            {company.website && (
+              <a href={company.website} target="_blank" className="btn-outline px-3 py-2">
+                <ExternalLink className="h-4 w-4" />
+                الموقع الإلكتروني
+              </a>
+            )}
             {company.facebookUrl && <a href={company.facebookUrl} target="_blank" className="btn-outline px-3 py-2">فيسبوك</a>}
           </div>
         </div>
@@ -122,6 +141,31 @@ export default async function CompanyPage({
         </main>
         <aside className="space-y-4">
           <div className="card-pad h-fit">
+            <h2 className="mb-3 font-extrabold text-navy-950">التواصل مع الشركة</h2>
+            <div className="space-y-2 text-sm text-navy-600">
+              {hiringEmail ? (
+                <a
+                  className="btn-primary w-full text-sm"
+                  href={`mailto:${hiringEmail}?subject=${encodeURIComponent(mailSubject)}`}
+                >
+                  <Mail className="h-4 w-4" />
+                  إرسال إيميل للتوظيف
+                </a>
+              ) : (
+                <p className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-xs leading-6">
+                  لا يوجد بريد منشور لهذه الشركة حالياً. يمكنك التقديم على الوظائف المفتوحة أو مطالبة الشركة بإدارة الصفحة.
+                </p>
+              )}
+              {company.whatsapp && (
+                <a className="btn-outline w-full text-sm" href={`https://wa.me/${company.whatsapp}`} target="_blank">
+                  <MessageCircle className="h-4 w-4" />
+                  تواصل واتساب
+                </a>
+              )}
+            </div>
+          </div>
+
+          <div className="card-pad h-fit">
             <h2 className="mb-3 font-bold">أضف تقييمك للشركة</h2>
             {user ? (
               <CompanyReviewForm companyId={company.id} />
@@ -131,8 +175,8 @@ export default async function CompanyPage({
               </div>
             )}
           </div>
-        {company.verificationStatus !== "VERIFIED" && (
-          <aside className="card-pad h-fit">
+          {company.verificationStatus !== "VERIFIED" && (
+          <div className="card-pad h-fit">
             <h2 className="font-bold mb-3">هل أنت صاحب الشركة؟ طالب بإدارة الصفحة</h2>
             <form action={createClaimAction.bind(null, null)} className="space-y-3">
               <input type="hidden" name="companyId" value={company.id}/>
@@ -142,9 +186,9 @@ export default async function CompanyPage({
               <input className="input" name="companyRole" placeholder="صفتك في الشركة" required/>
               <textarea className="input" name="proofText" placeholder="كيف نتحقق من ملكيتك أو صفتك؟"/>
               <input className="input" name="websiteOrSocialUrl" placeholder="رابط موقع أو صفحة إن وجد"/>
-              <button className="btn-primary w-full">إرسال المطالبة</button>
+              <SubmitButton className="btn-primary w-full" pendingText="جاري إرسال المطالبة...">إرسال المطالبة</SubmitButton>
             </form>
-          </aside>
+          </div>
         )}
         </aside>
       </div>

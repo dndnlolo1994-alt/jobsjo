@@ -53,8 +53,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         <p className="section-sub">فلترة سريعة وروابط قابلة للمشاركة للوظائف المحلية.</p>
       </div>
       <div className="grid lg:grid-cols-[300px_1fr] gap-6">
-        <aside className="no-print"><JobFilters /></aside>
-        <main>
+        <aside className="no-print min-w-0"><JobFilters /></aside>
+        <main className="min-w-0">
           <div className="mb-4 space-y-3">
             <JobSearchInput />
             {user && query.toString() && (
@@ -93,7 +93,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
               {result.items.map((job) => <JobCard key={job.id} job={job} />)}
             </div>
           )}
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="mt-6 flex max-w-full flex-wrap justify-center gap-2 overflow-hidden px-1">
             {Array.from({ length: result.pages }).slice(0, 10).map((_, i) => {
               const p = i + 1;
               query.set("page", String(p));
