@@ -127,7 +127,11 @@ export async function searchJobsAdvanced(params: JobSearchParams) {
       }
       if (params.salaryMax) conditions.push(Prisma.sql`j."salaryMin" <= ${params.salaryMax}`);
 
-      const whereSql = Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`;
+      const whereSql = conditions.reduce(
+        (sql, condition, index) =>
+          index === 0 ? Prisma.sql`WHERE ${condition}` : Prisma.sql`${sql} AND ${condition}`,
+        Prisma.empty
+      );
       const orderSql =
         params.sort === "salary-high" ? Prisma.sql`j."salaryMax" DESC NULLS LAST, j."salaryMin" DESC NULLS LAST` :
         params.sort === "salary-low" ? Prisma.sql`j."salaryMin" ASC NULLS LAST, j."salaryMax" ASC NULLS LAST` :

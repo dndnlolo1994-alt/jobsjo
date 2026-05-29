@@ -56,7 +56,7 @@ export default async function CompanyPage({
   const mailSubject = `استفسار توظيف عبر جوبز الأردن - ${company.name}`;
   const orgLd = company.name && company.city ? { "@context": "https://schema.org", "@type": "Organization", name: company.name, address: { "@type": "PostalAddress", addressCountry: "JO", addressLocality: company.city }, url: company.website ?? undefined } : null;
   return (
-    <section className="container-jo py-8">
+    <section className="container-jo py-6 pb-28 md:py-8 md:pb-8">
       {orgLd && <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(orgLd)}} />}
       
       {claimed === "true" && (
@@ -66,35 +66,41 @@ export default async function CompanyPage({
         </div>
       )}
 
-      <div className="mb-6 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xl shadow-slate-950/5">
-        <div className="relative min-h-40 bg-gradient-to-l from-navy-950 via-emerald-950 to-slate-900">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(209,179,111,0.22),transparent_24rem)]" />
+      <div className="mb-6 rounded-[1.75rem] border border-slate-100 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.07)]">
+        <div className="relative h-28 overflow-hidden rounded-t-[1.75rem] bg-[linear-gradient(135deg,#0f172a_0%,#15352d_48%,#08111f_100%)] sm:h-36 lg:h-44">
+          <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle_at_20%_20%,rgba(16,185,129,0.26),transparent_18rem),radial-gradient(circle_at_75%_10%,rgba(209,179,111,0.18),transparent_16rem)]" />
+          <div className="absolute inset-x-5 top-5 flex justify-between opacity-15">
+            <div className="h-12 w-28 rounded-full border border-white/40" />
+            <div className="h-20 w-20 rounded-3xl border border-emerald-200/50" />
+          </div>
           <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-l from-emerald-500 via-amber-300 to-transparent" />
         </div>
-        <div className="p-5 sm:p-7">
-          <div className="-mt-20 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="grid h-24 w-24 place-items-center overflow-hidden rounded-3xl border-4 border-white bg-slate-50 text-3xl font-extrabold text-emerald-800 shadow-lg">
+        <div className="relative p-4 pt-0 sm:p-7 sm:pt-0">
+          <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-end">
+              <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-3xl border-4 border-white bg-slate-50 text-2xl font-extrabold text-emerald-800 shadow-xl shadow-slate-950/10 sm:h-24 sm:w-24 sm:text-3xl">
                 {company.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={company.logoUrl} alt={company.name} className="h-full w-full object-cover" />
                 ) : (
-                  <Building2 className="h-12 w-12 text-emerald-700" />
+                  <Building2 className="h-10 w-10 text-emerald-700 sm:h-12 sm:w-12" />
                 )}
               </div>
-              <div>
-                <h1 className="text-3xl font-extrabold text-navy-950">{company.name}</h1>
-                <p className="mt-2 text-sm font-semibold text-navy-600">
+              <div className="min-w-0">
+                <h1 className="break-words text-2xl font-extrabold leading-tight text-navy-950 sm:text-3xl">
+                  {company.name}
+                </h1>
+                <p className="mt-2 text-sm font-semibold leading-7 text-navy-600">
                   {company.industry ?? "قطاع غير محدد"} · {company.companySize ?? "حجم غير محدد"} · {company.city ?? "الأردن"}{company.area ? ` - ${company.area}` : ""}
                 </p>
               </div>
             </div>
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-center">
-              <div className="text-2xl font-extrabold text-emerald-700">{company.jobs.length.toLocaleString("ar-JO")}</div>
+            <div className="w-full rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-center sm:w-auto sm:min-w-36">
+              <div className="text-xl font-extrabold text-emerald-700 sm:text-2xl">{company.jobs.length.toLocaleString("ar-JO")}</div>
               <div className="text-xs font-bold text-emerald-900">وظائف مفتوحة</div>
             </div>
           </div>
-          {company.description && <p className="mt-5 max-w-4xl leading-8 text-navy-700">{company.description}</p>}
+          {company.description && <p className="mt-5 max-w-4xl text-base leading-8 text-navy-700">{company.description}</p>}
           <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold">
             {hiringEmail && (
               <a href={`mailto:${hiringEmail}?subject=${encodeURIComponent(mailSubject)}`} className="btn-primary px-3 py-2">

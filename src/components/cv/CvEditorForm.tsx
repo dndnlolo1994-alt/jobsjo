@@ -20,7 +20,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
   const qrVerifyId = cv?.userId || cv?.id || "verify";
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`${qrBase}/cv/${qrVerifyId}`)}`;
   const qrLabel = `${qrBase.replace(/^https?:\/\//, "")}/cv`;
-  const [activeTab, setActiveTab] = useState<"basic" | "experiences" | "educations" | "skills" | "certifications" | "translation" | "design">("basic");
+  const [activeTab, setActiveTab] = useState<"basic" | "experiences" | "educations" | "skills" | "certifications" | "extras" | "translation" | "design">("basic");
   
   // Premium Pre-populated Defaults
   const DEFAULT_EXPERIENCES = [
@@ -58,7 +58,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
   const [linkedin, setLinkedin] = useState<string>(cv?.linkedin ?? "");
   const [summary, setSummary] = useState<string>(cv?.summary ?? "موظف خدمة عملاء متميز بخبرة عملية تتجاوز 3 سنوات في الأسواق المحلية، أسعى لتوظيف مهاراتي في الاتصال والتفاوض وحل مشكلات العملاء لتحقيق أهداف الشركة وضمان رضا العملاء التام.");
 
-  const [editorMode, setEditorMode] = useState<"classic" | "visual">("visual"); // Open by default!
+  const [editorMode, setEditorMode] = useState<"classic" | "visual">("classic");
   const [lang, setLang] = useState<"ar" | "en">("ar");
   const [showPrintLockModal, setShowPrintLockModal] = useState(false); // Lock modal state
 
@@ -80,12 +80,27 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
     return DEFAULT_CERTIFICATIONS;
   });
 
-  // English version state
-  const [englishVersion, setEnglishVersion] = useState<any>(() => {
+  const parsedEnglishVersion = (() => {
     if (cv?.englishVersion) {
       try {
         return JSON.parse(cv.englishVersion);
       } catch (e) {}
+    }
+    return null;
+  })();
+
+  // English version state
+  const [englishVersion, setEnglishVersion] = useState<any>(() => {
+    if (parsedEnglishVersion) {
+      return {
+        fullName: parsedEnglishVersion.fullName || "",
+        jobTitle: parsedEnglishVersion.jobTitle || "",
+        summary: parsedEnglishVersion.summary || "",
+        experiences: parsedEnglishVersion.experiences || [],
+        educations: parsedEnglishVersion.educations || [],
+        skills: parsedEnglishVersion.skills || [],
+        certifications: parsedEnglishVersion.certifications || [],
+      };
     }
     return {
       fullName: "",
@@ -96,6 +111,16 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
       skills: [],
       certifications: []
     };
+  });
+
+  const [extraInfo, setExtraInfo] = useState<any>(() => parsedEnglishVersion?.extras ?? {
+    languages: "العربية: ممتاز\nالإنجليزية: جيد جداً",
+    tools: "Microsoft Office\nGoogle Workspace\nأنظمة خدمة العملاء CRM",
+    achievements: "تحسين رضا العملاء من خلال المتابعة الدقيقة\nإنجاز المهام ضمن الوقت المحدد وبأخطاء قليلة",
+    projects: "",
+    volunteer: "",
+    interests: "",
+    references: "متاحة عند الطلب",
   });
 
   // Form submit state
@@ -306,7 +331,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
     formData.append("educationsJson", JSON.stringify(educations));
     formData.append("skillsJson", JSON.stringify(skills));
     formData.append("certificationsJson", JSON.stringify(certifications));
-    formData.append("englishVersion", JSON.stringify(englishVersion));
+    formData.append("englishVersion", JSON.stringify({ ...englishVersion, extras: extraInfo }));
 
     const res = await saveCvAction(null, formData);
     setIsPending(false);
@@ -326,6 +351,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
     { id: "educations", name: "التعليم والدراسة", icon: "🎓" },
     { id: "skills", name: "المهارات المهنية", icon: "⚡" },
     { id: "certifications", name: "الشهادات والدورات", icon: "📜" },
+    { id: "extras", name: "إضافات احترافية", icon: "⭐" },
     { id: "translation", name: "مراجعة وترجمة إنجليزي", icon: "🌐" },
     { id: "design", name: "تصميم السيرة", icon: "🎨" },
   ];
@@ -1714,6 +1740,81 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab content: Professional Extras */}
+        {activeTab === "extras" && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-7 text-emerald-900">
+              هذه الحقول اختيارية، لكنها تجعل السيرة المدفوعة أقوى وأكثر اكتمالاً. اكتب كل عنصر في سطر مستقل، وسيتم ترتيبه تلقائياً داخل القالب بدون تخبيص وبحد أقصى صفحة أو صفحتين.
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="label">اللغات</label>
+                <textarea
+                  className="input min-h-28"
+                  value={extraInfo.languages || ""}
+                  onChange={(e) => setExtraInfo({ ...extraInfo, languages: e.target.value })}
+                  placeholder={"العربية: ممتاز\nالإنجليزية: جيد جداً"}
+                />
+              </div>
+              <div>
+                <label className="label">الأدوات والبرامج</label>
+                <textarea
+                  className="input min-h-28"
+                  value={extraInfo.tools || ""}
+                  onChange={(e) => setExtraInfo({ ...extraInfo, tools: e.target.value })}
+                  placeholder={"Microsoft Excel\nCRM\nGoogle Workspace"}
+                />
+              </div>
+              <div>
+                <label className="label">إنجازات مختصرة</label>
+                <textarea
+                  className="input min-h-32"
+                  value={extraInfo.achievements || ""}
+                  onChange={(e) => setExtraInfo({ ...extraInfo, achievements: e.target.value })}
+                  placeholder={"رفعت رضا العملاء بنسبة 15%\nأنجزت أكثر من 40 طلباً يومياً بدقة عالية"}
+                />
+              </div>
+              <div>
+                <label className="label">مشاريع أو روابط أعمال</label>
+                <textarea
+                  className="input min-h-32"
+                  value={extraInfo.projects || ""}
+                  onChange={(e) => setExtraInfo({ ...extraInfo, projects: e.target.value })}
+                  placeholder={"مشروع تنظيم مخزون داخلي - تحسين سرعة الجرد\ngithub.com/name أو portfolio.com"}
+                />
+              </div>
+              <div>
+                <label className="label">تطوع ونشاطات</label>
+                <textarea
+                  className="input min-h-28"
+                  value={extraInfo.volunteer || ""}
+                  onChange={(e) => setExtraInfo({ ...extraInfo, volunteer: e.target.value })}
+                  placeholder={"متطوع في مبادرة شبابية\nمنظم فعاليات جامعية"}
+                />
+              </div>
+              <div>
+                <label className="label">اهتمامات مهنية</label>
+                <textarea
+                  className="input min-h-28"
+                  value={extraInfo.interests || ""}
+                  onChange={(e) => setExtraInfo({ ...extraInfo, interests: e.target.value })}
+                  placeholder={"تطوير خدمة العملاء\nتحليل البيانات\nإدارة العمليات"}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="label">المراجع</label>
+                <input
+                  className="input"
+                  value={extraInfo.references || ""}
+                  onChange={(e) => setExtraInfo({ ...extraInfo, references: e.target.value })}
+                  placeholder="متاحة عند الطلب، أو اكتب اسم المرجع ورقم التواصل إذا رغبت"
+                />
+              </div>
             </div>
           </div>
         )}

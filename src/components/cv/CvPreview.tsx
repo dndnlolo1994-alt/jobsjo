@@ -41,6 +41,13 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
       "حتى الآن": "Present",
       "باحث عن عمل": "Job Seeker",
       "رمز الاستجابة": "Verification QR",
+      "اللغات": "Languages",
+      "الأدوات والبرامج": "Tools",
+      "إنجازات مختصرة": "Achievements",
+      "مشاريع وأعمال": "Projects",
+      "تطوع ونشاطات": "Volunteer Work",
+      "اهتمامات مهنية": "Professional Interests",
+      "المراجع": "References",
     };
     return trans[label] || label;
   };
@@ -66,10 +73,17 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   let educations = cv.educations ?? [];
   let skills = cv.skills ?? [];
   let certifications = cv.certifications ?? [];
+  let parsedVersion: any = null;
 
-  if (isEn && cv.englishVersion) {
+  if (cv.englishVersion) {
     try {
-      const eng = JSON.parse(cv.englishVersion);
+      parsedVersion = JSON.parse(cv.englishVersion);
+    } catch (e) {}
+  }
+
+  if (isEn && parsedVersion) {
+    try {
+      const eng = parsedVersion;
       if (eng.fullName) fullName = eng.fullName;
       if (eng.jobTitle) jobTitle = eng.jobTitle;
       if (eng.summary) summary = eng.summary;
@@ -112,6 +126,23 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
       }
     } catch (e) {}
   }
+
+  const extras = parsedVersion?.extras ?? {};
+  const toLines = (value?: string | null) =>
+    String(value || "")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .slice(0, 8);
+  const extraSections = [
+    { title: t("اللغات"), lines: toLines(extras.languages) },
+    { title: t("الأدوات والبرامج"), lines: toLines(extras.tools) },
+    { title: t("إنجازات مختصرة"), lines: toLines(extras.achievements) },
+    { title: t("مشاريع وأعمال"), lines: toLines(extras.projects) },
+    { title: t("تطوع ونشاطات"), lines: toLines(extras.volunteer) },
+    { title: t("اهتمامات مهنية"), lines: toLines(extras.interests) },
+    { title: t("المراجع"), lines: toLines(extras.references) },
+  ].filter((section) => section.lines.length > 0);
 
   const allSkills = [...(skills ?? []).map((s: any) => s.name), ...userSkills].filter(Boolean);
   const compactUrl = (value?: string | null) => {
@@ -479,12 +510,14 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     ...educations.map((item: any) => item.description),
     ...certifications.map((item: any) => `${item.name ?? ""} ${item.issuer ?? ""}`),
     ...skillsWithLevels.map((item: any) => item.name),
+    ...extraSections.flatMap((section) => [section.title, ...section.lines]),
   ].filter(Boolean).join(" ").length;
   const isTwoPages =
     experiences.length > 3 ||
     educations.length > 2 ||
     certifications.length > 4 ||
     skillsWithLevels.length > 8 ||
+    extraSections.length > 3 ||
     cvTextLength > 1400;
 
   let page1Exps = experiences;
@@ -495,6 +528,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   let page2Skills: any[] = [];
   let page1Certs = certifications;
   let page2Certs: any[] = [];
+  let page1Extras = extraSections;
+  let page2Extras: typeof extraSections = [];
 
   if (isTwoPages) {
     page1Exps = experiences.slice(0, 3);
@@ -508,6 +543,9 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     
     page1Certs = certifications.slice(0, 2);
     page2Certs = certifications.slice(2);
+
+    page1Extras = extraSections.slice(0, 3);
+    page2Extras = extraSections.slice(3);
   }
 
   const renderPage = (
@@ -516,6 +554,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     pageEdus: any[],
     pageSkills: any[],
     pageCerts: any[],
+    pageExtras: typeof extraSections,
     showSummary: boolean,
     showFooter: boolean
   ) => {
@@ -769,6 +808,23 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                   </div>
                 </section>
               )}
+
+              {/* Professional extras */}
+              {pageExtras.map((section) => (
+                <section key={section.title}>
+                  <h3 className="text-[11px] font-bold text-[#084c41] uppercase tracking-wider mb-2 pb-1 border-b border-[#c2a06c]/30">
+                    {section.title}
+                  </h3>
+                  <ul className="space-y-1.5">
+                    {section.lines.slice(0, 5).map((line, idx) => (
+                      <li key={idx} className="text-[9px] leading-[1.45] text-slate-700">
+                        <span className="text-[#0f7a57] font-extrabold">•</span>{" "}
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
             </div>
 
             {/* QR Code Verification */}
@@ -796,8 +852,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
   return (
     <div className="space-y-0 print:space-y-0">
-      {renderPage(1, page1Exps, page1Edus, page1Skills, page1Certs, true, !isTwoPages)}
-      {isTwoPages && renderPage(2, page2Exps, page2Edus, page2Skills, page2Certs, false, true)}
+      {renderPage(1, page1Exps, page1Edus, page1Skills, page1Certs, page1Extras, true, !isTwoPages)}
+      {isTwoPages && renderPage(2, page2Exps, page2Edus, page2Skills, page2Certs, page2Extras, false, true)}
     </div>
   );
 }
