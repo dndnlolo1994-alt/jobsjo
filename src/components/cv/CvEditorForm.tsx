@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import { saveCvAction } from "@/lib/actions/platform";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const SUPPORT_PHONE_DISPLAY = "0790565018";
-const SUPPORT_WHATSAPP = "962790565018";
+const SUPPORT_WHATSAPP = WHATSAPP_NUMBER;
 
 interface CvEditorFormProps {
   cv: any;

@@ -246,8 +246,7 @@ export default async function HomePage() {
                 <Link
                   key={cat}
                   href={`/jobs?category=${encodeURIComponent(cat)}`}
-                  className="card p-5 text-center font-semibold text-sm transition-all duration-200 hover:-translate-y-1 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-700"
-                  style={{ color: "var(--color-text)" }}
+                  className="card p-5 text-center font-semibold text-sm text-[var(--text)] transition-all duration-200 hover:-translate-y-1 hover:bg-primary-50 hover:border-primary-200 hover:text-primary-700 dark:hover:bg-primary-950/40 dark:hover:border-primary-800/60 dark:hover:text-primary-400"
                 >
                   <div className="mb-1.5 text-lg">💼</div>
                   <div className="leading-snug">{cat}</div>

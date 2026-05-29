@@ -5,6 +5,7 @@ import { FadeInSection } from "@/components/FadeInSection";
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { publicMetadata } from "@/lib/seo/site";
 import { env } from "@/lib/env";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 export const metadata: Metadata = publicMetadata({
   title: "قصتنا | جوبز الأردن — منصة وظائف أردنية شفافة",
@@ -31,7 +32,7 @@ export default async function AboutPage() {
     console.error("Failed to load statistics for about page:", error);
   }
 
-  const supportWhatsapp = env.SUPPORT_WHATSAPP || "962790565018";
+  const supportWhatsapp = env.SUPPORT_WHATSAPP || WHATSAPP_NUMBER;
   const contactEmail = env.CONTACT_EMAIL || "info@jordan-job.shop";
 
   return (

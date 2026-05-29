@@ -1,4 +1,4 @@
-// تطبيع أرقام الهاتف الأردنية إلى شكل موحّد دولي بدون "+" مثلاً: 962790000000
+// تطبيع أرقام الهاتف الأردنية إلى شكل موحّد دولي بدون "+" مثلاً: 962790565018
 // يقبل: 07XXXXXXXX  أو  +9627XXXXXXXX  أو  9627XXXXXXXX  أو  00962...
 
 export function normalizeJordanPhone(input: string | null | undefined): string | null {

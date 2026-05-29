@@ -1,4 +1,5 @@
 // مركزية للوصول لمتغيرات البيئة بأمان
+import { WHATSAPP_NUMBER } from "./constants";
 
 /** Strip BOM and whitespace from env values */
 function clean(value: string): string {
@@ -40,8 +41,8 @@ export const env = {
   REQUIRE_CV_PAYMENT: (process.env.REQUIRE_CV_PAYMENT ?? "true") === "true",
   ENABLE_EXTERNAL_JOB_SOURCES: process.env.ENABLE_EXTERNAL_JOB_SOURCES === "true",
   DEFAULT_CITY: process.env.DEFAULT_CITY ?? "إربد",
-  SUPPORT_WHATSAPP: process.env.SUPPORT_WHATSAPP ?? "962790565018",
-  PLATFORM_WHATSAPP: process.env.PLATFORM_WHATSAPP ?? process.env.SUPPORT_WHATSAPP ?? "962790565018",
+  SUPPORT_WHATSAPP: process.env.SUPPORT_WHATSAPP ?? WHATSAPP_NUMBER,
+  PLATFORM_WHATSAPP: process.env.PLATFORM_WHATSAPP ?? process.env.SUPPORT_WHATSAPP ?? WHATSAPP_NUMBER,
   SUPPORT_EMAIL:
     process.env.SUPPORT_EMAIL ??
     process.env.NEXT_PUBLIC_SUPPORT_EMAIL ??
