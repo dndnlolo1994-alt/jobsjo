@@ -27,7 +27,7 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card-pad max-w-md mx-auto space-y-4 shadow-xl border border-navy-100 bg-white">
+    <form onSubmit={handleSubmit} className="card-pad max-w-md mx-auto space-y-4 shadow-xl">
       {error && <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800">{error}</div>}
       {message && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800">{message}</div>}
 

@@ -35,8 +35,12 @@ export function Footer() {
             <a href={`https://wa.me/${env.PLATFORM_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 mt-3 transition-colors">
               <span>📱</span> تواصل عبر واتساب
             </a>
-            <a href={`mailto:${env.CONTACT_EMAIL}`} className="block text-sm text-gray-400 hover:text-primary-300 mt-1 transition-colors">
-              ✉️ {env.CONTACT_EMAIL}
+            <a href={`mailto:${env.CONTACT_EMAIL}`} className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-primary-300 mt-1 transition-colors group">
+              <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              <span className="underline underline-offset-2 decoration-gray-600 group-hover:decoration-primary-400">{env.CONTACT_EMAIL}</span>
             </a>
           </div>
 

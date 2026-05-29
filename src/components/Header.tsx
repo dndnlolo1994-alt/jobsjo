@@ -8,10 +8,11 @@ export async function Header() {
 
   return (
     <header
-      className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b transition-shadow duration-300"
+      className="sticky top-0 z-40 backdrop-blur-xl border-b transition-shadow duration-300"
       style={{
-        borderColor: "var(--color-border)",
-        boxShadow: "0 1px 20px rgba(0,0,0,0.06)",
+        background: "rgba(237,241,255,0.95)",
+        borderColor: "rgba(180,205,255,0.55)",
+        boxShadow: "0 1px 24px rgba(27,79,219,0.09)",
       }}
     >
       <div className="container-jo flex items-center justify-between h-16">

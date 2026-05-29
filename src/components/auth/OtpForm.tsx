@@ -66,7 +66,7 @@ export default function OtpForm() {
   }
 
   return (
-    <div className="card-pad max-w-md mx-auto shadow-xl border border-navy-100 bg-white text-right">
+    <div className="card-pad max-w-md mx-auto shadow-xl text-right">
       <div className="text-center mb-6">
         <span className="text-4xl block mb-2">✉️</span>
         <h2 className="text-xl font-extrabold text-navy-950">تأكيد البريد الإلكتروني</h2>

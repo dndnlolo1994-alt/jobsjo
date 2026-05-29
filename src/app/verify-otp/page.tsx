@@ -8,7 +8,7 @@ export default function VerifyOtpPage() {
   return (
     <section className="container-jo py-12 max-w-xl">
       <Suspense fallback={
-        <div className="card-pad text-center text-navy-500 py-10 bg-white border border-slate-100 rounded-2xl">
+        <div className="card-pad text-center text-navy-500 py-10">
           <div className="animate-pulse flex flex-col items-center gap-3">
             <div className="w-12 h-12 bg-slate-100 rounded-full"></div>
             <div className="w-40 h-4 bg-slate-100 rounded"></div>

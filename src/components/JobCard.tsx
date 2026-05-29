@@ -59,14 +59,8 @@ export function JobCard({ job, matchScore }: Props) {
   return (
     <Link
       href={`/jobs/${job.slug}`}
-      className={[
-        "block bg-white border rounded-[16px] transition-all duration-300 relative group overflow-hidden",
-        "hover:-translate-y-1 hover:shadow-lg",
-        job.featured
-          ? "border-accent-100 hover:border-accent-300"
-          : "border-[#E5E8F0] hover:border-primary-200",
-      ].join(" ")}
-      style={{ boxShadow: "var(--shadow-sm)" }}
+      className="block card relative group"
+      style={job.featured ? { borderColor: "rgba(255,107,53,0.30)" } : undefined}
     >
       {/* ── Top accent bar ─────────────────────────────────────── */}
       {job.featured ? (

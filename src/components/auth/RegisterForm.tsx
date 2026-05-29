@@ -41,7 +41,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card-pad grid sm:grid-cols-2 gap-4 shadow-xl border border-navy-100 bg-white">
+    <form onSubmit={handleSubmit} className="card-pad grid sm:grid-cols-2 gap-4 shadow-xl">
       {error && (
         <div className="sm:col-span-2 bg-red-50 border border-red-200 text-red-800 text-sm p-4 rounded-xl flex items-start gap-2 animate-shake">
           <svg className="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

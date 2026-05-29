@@ -217,7 +217,7 @@ export default async function HomePage() {
           PROBLEM / SOLUTION
          ══════════════════════════════════════════════════════════ */}
       <FadeInSection>
-        <section className="bg-white border-y" style={{ borderColor: "var(--color-border)" }}>
+        <section className="surface-band border-y" style={{ borderColor: "rgba(180,205,255,0.45)" }}>
           <div className="container-jo py-16 grid lg:grid-cols-2 gap-10">
             <div>
               <Badge variant="danger" className="mb-3">المشكلة</Badge>
@@ -280,7 +280,7 @@ export default async function HomePage() {
           WHO WE SERVE
          ══════════════════════════════════════════════════════════ */}
       <FadeInSection>
-        <section className="bg-white border-y" style={{ borderColor: "var(--color-border)" }}>
+        <section className="surface-band border-y" style={{ borderColor: "rgba(180,205,255,0.45)" }}>
           <div className="container-jo py-14 grid md:grid-cols-3 gap-6">
             <Persona
               title="للأشخاص"
