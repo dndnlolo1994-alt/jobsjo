@@ -190,28 +190,14 @@ export default async function PricingPage() {
               </Link>
             </div>
 
-            {/* موبايل/تابلت: تمرير أفقي بحجم A4 الحقيقي — النص واضح */}
-            <div className="xl:hidden -mx-1 overflow-x-auto overscroll-x-contain touch-pan-x rounded-lg border border-[#c2a06c]/40 bg-slate-100 shadow-inner">
-              <div className="w-[794px] min-w-[794px] shrink-0">
+            {/* معاينة A4 كاملة — تمرير أفقي/عمودي بدون scale (يتجنب قص المحتوى) */}
+            <div className="rounded-lg border border-[#c2a06c]/40 bg-slate-100 shadow-inner overflow-auto max-h-[min(72vh,560px)] overscroll-contain touch-pan-x touch-pan-y">
+              <div className="w-[794px] min-w-[794px] shrink-0 [&_.cv-print]:mb-0 [&_.cv-print]:shadow-none">
                 <CvPreview cv={cvSampleData} userSkills={cvSampleUserSkills} lang="ar" isPlus />
               </div>
             </div>
-            <p className="xl:hidden text-[11px] text-emerald-200/90 mt-2 text-center font-medium">
-              ← اسحب لقراءة كل التفاصيل بوضوح
-            </p>
-
-            {/* ديسكتوب: تصغير متناسب داخل العمود */}
-            <div className="hidden xl:block overflow-hidden rounded-lg border border-[#c2a06c]/40 bg-white shadow-inner">
-              <div
-                className="origin-top"
-                style={{ transform: "scale(0.48)", width: 794, marginBottom: -580 }}
-              >
-                <CvPreview cv={cvSampleData} userSkills={cvSampleUserSkills} lang="ar" isPlus />
-              </div>
-            </div>
-
-            <p className="hidden xl:block text-[10px] text-slate-400 mt-2 leading-snug text-center">
-              من باني السيرة: رأس أخضر، لمسات ذهبية، صورة شخصية، QR موثق — نفس شكل ملف PDF.
+            <p className="text-[11px] text-emerald-200/90 mt-2 text-center font-medium leading-snug">
+              اسحب داخل الإطار لقراءة كل التفاصيل بوضوح — نفس شكل ملف PDF بعد التفعيل
             </p>
           </div>
         </div>
