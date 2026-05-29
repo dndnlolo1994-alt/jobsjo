@@ -107,7 +107,7 @@ export const jobCreateSchema = z.object({
   requiresDrivingLicense: z.coerce.boolean().optional().default(false),
   contactMethod: z.enum(["INTERNAL_APPLY", "WHATSAPP", "EMAIL", "EXTERNAL_LINK"]).default("INTERNAL_APPLY"),
   contactWhatsapp: optionalJordanPhoneSchema,
-  contactEmail: z.string().email().optional().or(z.literal("")),
+  contactEmail: z.string().email("الرجاء إدخال بريد إلكتروني صحيح للتقديم"),
   externalUrl: tolerantUrlSchema,
   expiresInDays: z.coerce.number().int().min(1).max(120).default(30),
 });

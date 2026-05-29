@@ -42,7 +42,7 @@ export async function AdminJobForm() {
       
       <Select name="contactMethod" label="طريقة التقديم" options={[["INTERNAL_APPLY", "داخل المنصة"], ["WHATSAPP", "واتساب"], ["EMAIL", "بريد إلكتروني"], ["EXTERNAL_LINK", "رابط خارجي"]]} />
       <Field name="contactWhatsapp" label="رقم واتساب" />
-      <Field name="contactEmail" label="بريد التقديم" type="email" />
+      <Field name="contactEmail" label="بريد التقديم" type="email" required />
       <Field name="externalUrl" label="رابط خارجي" />
       
       {isAdmin && (
