@@ -152,6 +152,16 @@ html { scroll-behavior: smooth; }
     @apply placeholder:text-gray-400;
     border-color: var(--color-border);
     color:        var(--color-text);
+    min-height: 3rem;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  select.input {
+    padding-block: 0.65rem;
+    line-height: 1.5;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .label {

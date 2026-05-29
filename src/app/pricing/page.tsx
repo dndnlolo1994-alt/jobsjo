@@ -20,9 +20,9 @@ export default async function PricingPage() {
     {
       name: "الحساب المجاني",
       price: "0 د.أ",
-      originalPrice: null,
+      originalPrice: "1 د.أ",
       period: "دائمًا",
-      description: "عرض عيد الاستقلال: كان 1 د.أ وأصبح 0 د.أ للراغبين بتصفح الوظائف والتقديم بشكل محدود.",
+      description: "عرض خاص بمناسبة عيد الاستقلال للراغبين بتصفح الوظائف والتقديم بشكل محدود.",
       features: [
         "تصفح جميع الوظائف الشاغرة يومياً",
         "حفظ الوظائف المفضلة للرجوع إليها لاحقاً",
@@ -38,7 +38,7 @@ export default async function PricingPage() {
       price: "2 د.أ",
       originalPrice: "4 د.أ",
       period: "شهرياً",
-      description: "عرض عيد الاستقلال للأفراد الباحثين عن عمل: كان 4 د.أ وأصبح 2 د.أ شهرياً.",
+      description: "عرض خاص بمناسبة عيد الاستقلال للأفراد الباحثين عن عمل.",
       features: [
         "التقديم السريع غير المحدود على جميع الوظائف",
         "تنزيل السيرة الذاتية PDF باللغتين العربية والإنجليزية معاً (نسخة عربية كاملة + نسخة إنجليزية كاملة) بعدة قوالب احترافية وألوان متميزة",
@@ -59,7 +59,7 @@ export default async function PricingPage() {
       price: "5 د.أ",
       originalPrice: "8 د.أ",
       period: "لكل وظيفة",
-      description: "عرض عيد الاستقلال لأصحاب العمل: كان 8 د.أ وأصبح 5 د.أ لكل إعلان.",
+      description: "عرض خاص بمناسبة عيد الاستقلال لأصحاب العمل.",
       features: [
         "إعلان عادي نشط لمدة 30 يوماً متواصلة",
         "تصفية وفرز المتقدمين عبر لوحة التحكم",
@@ -123,7 +123,7 @@ export default async function PricingPage() {
           سواء كنت تبحث عن وظيفتك القادمة أو ترغب في توظيف أفضل الكفاءات لشركتك، لدينا الباقة المناسبة لاحتياجاتك بأفضل الأسعار.
         </p>
         <p className="mt-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-extrabold text-amber-800">
-          عروض ترويجية بمناسبة عيد الاستقلال: المجاني 1 د.أ صار 0، Plus 4 د.أ صار 2، ونشر الوظيفة 8 د.أ صار 5
+          بمناسبة عيد الاستقلال، أسعار ترويجية لفترة محدودة
         </p>
       </div>
 
@@ -157,9 +157,14 @@ export default async function PricingPage() {
                 <p className="text-[11px] mt-1 leading-snug text-slate-300">{plan.description}</p>
 
                 <div className="mt-3 mb-3 flex flex-wrap items-baseline gap-2">
+                  {plan.originalPrice && (
+                    <span className="text-xs font-bold text-slate-400 line-through decoration-2">السعر الأساسي {plan.originalPrice}</span>
+                  )}
                   <span className="text-xl sm:text-2xl font-extrabold">{plan.price}</span>
                   {plan.originalPrice && (
-                    <span className="text-xs text-slate-400 line-through">{plan.originalPrice}</span>
+                    <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold text-emerald-300">
+                      سعر العرض
+                    </span>
                   )}
                   <span className="text-[11px] text-slate-400">/ {plan.period}</span>
                 </div>
@@ -250,10 +255,17 @@ export default async function PricingPage() {
               </p>
 
               <div className="mt-3 mb-3 flex flex-wrap items-baseline gap-2">
+                {plan.originalPrice && (
+                  <span className={`text-xs font-bold line-through decoration-2 ${plan.highlight ? "text-slate-400" : "text-slate-400"}`}>
+                    السعر الأساسي {plan.originalPrice}
+                  </span>
+                )}
                 <span className="text-2xl sm:text-3xl font-extrabold">{plan.price}</span>
                 {plan.originalPrice && (
-                  <span className={`text-xs line-through ${plan.highlight ? "text-slate-400" : "text-slate-400"}`}>
-                    {plan.originalPrice}
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
+                    plan.highlight ? "bg-amber-500/10 text-amber-300" : "bg-amber-50 text-amber-700"
+                  }`}>
+                    سعر العرض
                   </span>
                 )}
                 <span className={`text-[11px] ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>/ {plan.period}</span>

@@ -21,21 +21,21 @@ export function JobFilters() {
   return (
     <form
       action={apply}
-      className="w-full max-w-full rounded-2xl border border-emerald-400/15 bg-slate-950 p-4 shadow-xl shadow-slate-950/10 space-y-3 lg:sticky lg:top-24"
+      className="w-full max-w-full rounded-2xl border border-emerald-400/15 bg-slate-950 p-4 shadow-xl shadow-slate-950/10 space-y-4 lg:sticky lg:top-24"
     >
       <div>
         <label className="label text-white">بحث</label>
         <input
           name="q"
           defaultValue={params.get("q") ?? ""}
-          placeholder="اكتب وظيفة، شركة، مهارة..."
-          className="input h-11 text-sm"
+          placeholder="اكتب اسم وظيفة، شركة، أو مهارة"
+          className="input min-h-12 text-sm leading-6"
         />
       </div>
 
       <div>
         <label className="label text-white">المدينة</label>
-        <select name="city" defaultValue={params.get("city") ?? ""} className="input h-11 text-sm">
+        <select name="city" defaultValue={params.get("city") ?? ""} className="input min-h-12 text-sm leading-6">
           <option value="">جميع المدن</option>
           {JORDAN_CITIES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -45,13 +45,13 @@ export function JobFilters() {
 
       <div>
         <label className="label text-white">المنطقة</label>
-        <input name="area" defaultValue={params.get("area") ?? ""} className="input h-11 text-sm" placeholder="مثال: الحي الشرقي" />
+        <input name="area" defaultValue={params.get("area") ?? ""} className="input min-h-12 text-sm leading-6" placeholder="مثال: الحي الشرقي" />
       </div>
 
       <div>
         <label className="label text-white">نوع الدوام</label>
-        <select name="jobType" defaultValue={params.get("jobType") ?? ""} className="input h-11 text-sm">
-          <option value="">الكل</option>
+        <select name="jobType" defaultValue={params.get("jobType") ?? ""} className="input min-h-12 text-sm leading-6">
+          <option value="">كل أنواع الدوام</option>
           {Object.entries(JOB_TYPE_LABEL).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
           ))}
@@ -60,7 +60,7 @@ export function JobFilters() {
 
       <div>
         <label className="label text-white">التصنيف</label>
-        <select name="category" defaultValue={params.get("category") ?? ""} className="input h-11 text-sm">
+        <select name="category" defaultValue={params.get("category") ?? ""} className="input min-h-12 text-sm leading-6">
           <option value="">جميع التصنيفات</option>
           {JOB_CATEGORIES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -76,19 +76,19 @@ export function JobFilters() {
           min="0"
           step="50"
           defaultValue={params.get("salaryMin") ?? ""}
-          className="input h-11 text-sm"
+          className="input min-h-12 text-sm leading-6"
           placeholder="مثال: 300"
         />
       </div>
 
       <div>
-        <label className="label text-white">حد أعلى للراتب المطلوب</label>
-        <input type="number" name="salaryMax" min="0" step="50" defaultValue={params.get("salaryMax") ?? ""} className="input h-11 text-sm" placeholder="مثال: 500" />
+        <label className="label text-white">حد أعلى للراتب (دينار)</label>
+        <input type="number" name="salaryMax" min="0" step="50" defaultValue={params.get("salaryMax") ?? ""} className="input min-h-12 text-sm leading-6" placeholder="مثال: 500" />
       </div>
 
       <div>
         <label className="label text-white">الخبرة</label>
-        <select name="experience" defaultValue={params.get("experience") ?? ""} className="input h-11 text-sm">
+        <select name="experience" defaultValue={params.get("experience") ?? ""} className="input min-h-12 text-sm leading-6">
           <option value="">كل مستويات الخبرة</option>
           {Object.entries(EXPERIENCE_LEVEL_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
@@ -96,7 +96,7 @@ export function JobFilters() {
 
       <div>
         <label className="label text-white">التعليم</label>
-        <select name="education" defaultValue={params.get("education") ?? ""} className="input h-11 text-sm">
+        <select name="education" defaultValue={params.get("education") ?? ""} className="input min-h-12 text-sm leading-6">
           <option value="">كل المستويات التعليمية</option>
           {Object.entries(EDUCATION_LEVEL_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>

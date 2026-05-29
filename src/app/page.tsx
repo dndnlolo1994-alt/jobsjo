@@ -351,28 +351,28 @@ export default async function HomePage() {
               >
                 خطط بسيطة وشفافة
               </h2>
-              <p className="text-gray-400 text-sm">عروض ترويجية بمناسبة عيد الاستقلال — ابدأ مجاناً، وترقّى عندما تحتاج</p>
+              <p className="text-gray-400 text-sm">بمناسبة عيد الاستقلال، أسعار ترويجية لفترة محدودة</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               <Plan
                 title="مجاني"
                 price="0 د"
-                promo="عرض عيد الاستقلال: كان 1 د وأصبح 0 د"
-                features={["كان 1 د والآن 0 د", "تصفّح الوظائف", "حساب باحث عمل", "حفظ وظائف محدود"]}
+                originalPrice="1 د"
+                features={["تصفّح الوظائف", "حساب باحث عمل", "حفظ وظائف محدود"]}
               />
               <Plan
                 title="Plus للباحث"
                 price="2 د/شهر"
-                promo="عرض عيد الاستقلال: كان 4 د وأصبح 2 د"
-                features={["كان 4 د والآن 2 د", "CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]}
+                originalPrice="4 د/شهر"
+                features={["CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]}
                 highlight
               />
               <Plan
                 title="نشر وظيفة"
                 price="من 5 د"
-                promo="عرض عيد الاستقلال: كان 8 د وأصبح 5 د"
-                features={["كان 8 د والآن 5 د", "إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
+                originalPrice="8 د"
+                features={["إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
               />
             </div>
 
@@ -503,9 +503,9 @@ function Step({ n, title, text }: { n: number; title: string; text: string }) {
 }
 
 function Plan({
-  title, price, features, promo, highlight,
+  title, price, features, originalPrice, highlight,
 }: {
-  title: string; price: string; features: string[]; promo?: string; highlight?: boolean;
+  title: string; price: string; features: string[]; originalPrice?: string; highlight?: boolean;
 }) {
   if (highlight) {
     return (
@@ -525,12 +525,15 @@ function Plan({
           style={{ background: "#1E2235" }}
         >
           <div className="text-xs font-bold tracking-wider uppercase text-white/60 mb-1">{title}</div>
-          <div className="text-4xl font-extrabold text-white mt-2 mb-6">{price}</div>
-          {promo && (
-            <div className="mb-4 rounded-xl border border-accent-400/25 bg-accent-400/10 px-3 py-2 text-[11px] font-extrabold leading-5 text-accent-200">
-              {promo}
+          {originalPrice && (
+            <div className="mt-3 text-xs font-extrabold text-white/45 line-through decoration-2">
+              السعر الأساسي {originalPrice}
             </div>
           )}
+          <div className="mt-1 mb-2 text-4xl font-extrabold text-white">{price}</div>
+          <div className="mb-5 inline-flex w-fit rounded-full border border-accent-400/25 bg-accent-400/10 px-3 py-1 text-[11px] font-extrabold text-accent-200">
+            سعر العرض
+          </div>
           <ul className="space-y-3 text-sm flex-1">
             {features.map((f) => (
               <li key={f} className="flex items-center gap-2 text-white/80">
@@ -549,12 +552,15 @@ function Plan({
       style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
     >
       <div className="text-xs font-bold tracking-wider uppercase text-gray-400 mb-1">{title}</div>
-      <div className="text-4xl font-extrabold text-white mt-2 mb-6">{price}</div>
-      {promo && (
-        <div className="mb-4 rounded-xl border border-accent-400/20 bg-white/5 px-3 py-2 text-[11px] font-extrabold leading-5 text-accent-200">
-          {promo}
+      {originalPrice && (
+        <div className="mt-3 text-xs font-extrabold text-gray-500 line-through decoration-2">
+          السعر الأساسي {originalPrice}
         </div>
       )}
+      <div className="mt-1 mb-2 text-4xl font-extrabold text-white">{price}</div>
+      <div className="mb-5 inline-flex w-fit rounded-full border border-accent-400/20 bg-white/5 px-3 py-1 text-[11px] font-extrabold text-accent-200">
+        سعر العرض
+      </div>
       <ul className="space-y-3 text-sm flex-1">
         {features.map((f) => (
           <li key={f} className="flex items-center gap-2 text-gray-400">
