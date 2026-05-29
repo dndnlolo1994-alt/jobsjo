@@ -53,25 +53,51 @@ export default async function ApplicationsPage({
         {apps.map((a) => {
           const statusText = isPlus 
             ? APP_STATUS_LABEL[a.status] 
-            : "تم التقديم";
+            : "تم التقديم بنجاح";
           
           return (
-            <div className="card-pad" key={a.id}>
-              <h2 className="font-bold text-navy-900">{a.job.title}</h2>
-              <p className="text-sm text-navy-600">
-                {a.job.company?.name ?? a.job.companyNameText} · {formatDateArabic(a.createdAt)} · 
-                <span className={`inline-block mr-1.5 px-2 py-0.5 rounded-full text-xs font-bold ${
-                  isPlus ? "bg-emerald-50 text-emerald-800 border border-emerald-100" : "bg-slate-100 text-slate-700"
-                }`}>
-                  {statusText}
-                </span>
-              </p>
-              {a.coverNote && <p className="text-sm mt-2 text-navy-500 leading-relaxed">{a.coverNote}</p>}
+            <div className="card-pad hover:border-emerald-100 transition-all duration-200" key={a.id}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-50">
+                <div>
+                  <h2 className="font-extrabold text-navy-950 text-base">{a.job.title}</h2>
+                  <p className="text-sm text-navy-600 mt-1">
+                    {a.job.company?.name ?? a.job.companyNameText}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-navy-500 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-lg">
+                    📅 {formatDateArabic(a.createdAt)}
+                  </span>
+                  
+                  <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg ${
+                    isPlus 
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-150" 
+                      : "bg-blue-50 text-blue-800 border border-blue-100"
+                  }`}>
+                    {isPlus ? "👑" : "💼"} {statusText}
+                  </span>
+
+                  {a.appliedVia === "INTERNAL" && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-extrabold bg-emerald-600 text-white px-2.5 py-1 rounded-lg shadow-sm">
+                      📧 تم إرسال الـ CV للشركة بنجاح
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {a.coverNote ? (
+                <div className="mt-3 p-3 bg-slate-50/60 rounded-xl border border-slate-100">
+                  <span className="text-[10px] font-bold text-navy-400 block mb-1">الرسالة المرفقة:</span>
+                  <p className="text-xs text-navy-700 leading-relaxed whitespace-pre-line">{a.coverNote}</p>
+                </div>
+              ) : (
+                <p className="text-[10px] text-navy-400 mt-2">لم يتم إرفاق رسالة تغطية إضافية مع الطلب.</p>
+              )}
             </div>
           );
         })}
       </div>
-      {apps.length === 0 && <div className="card-pad text-navy-500">لم تتقدم لأي وظيفة بعد.</div>}
+      {apps.length === 0 && <div className="card-pad text-navy-500 text-center py-10">لم تتقدم لأي وظيفة بعد.</div>}
     </section>
   );
 }
