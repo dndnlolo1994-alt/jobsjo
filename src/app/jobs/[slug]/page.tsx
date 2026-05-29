@@ -14,6 +14,18 @@ import { publicMetadata } from "@/lib/seo/site";
 
 export const revalidate = 3600;
 
+export async function generateStaticParams() {
+  const jobs = await prisma.job.findMany({
+    where: { status: "PUBLISHED" },
+    select: { slug: true },
+    orderBy: { publishedAt: "desc" },
+    take: 100,
+  });
+  return jobs.map((job) => ({
+    slug: job.slug,
+  }));
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);

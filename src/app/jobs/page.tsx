@@ -8,7 +8,7 @@ import { SaveSearchForm } from "@/components/SaveSearchForm";
 import { parseJobSearchParams, searchJobsAdvanced } from "@/lib/search/jobs";
 import { getSessionUser } from "@/lib/session";
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
-import { publicMetadata } from "@/lib/seo/site";
+import { absoluteUrl, publicMetadata } from "@/lib/seo/site";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +55,22 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
   return (
     <section className="container-jo py-8">
       <BreadcrumbJsonLd items={[{ name: "وظائف الأردن", path: "/jobs" }]} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "وظائف الأردن الشاغرة",
+            "itemListElement": result.items.map((job, i) => ({
+              "@type": "ListItem",
+              "position": i + 1,
+              "url": absoluteUrl(`/jobs/${job.slug}`),
+              "name": job.title,
+            })),
+          }),
+        }}
+      />
       <div className="mb-6">
         <h1 className="section-title">وظائف الأردن</h1>
         <p className="section-sub">
