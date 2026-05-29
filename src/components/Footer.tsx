@@ -30,7 +30,7 @@ export function Footer() {
           <div>
             <Logo size="md" variant="light" />
             <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-xs">
-              منصة وظائف الأردن — تجمع الفرص المحلية وتساعدك تعمل سيرة ذاتية احترافية وتتابع طلباتك من مكان واحد وبشكل آمن وموثوق.
+              منصة جوبز الأردن — تجمع الفرص المحلية وتساعدك تعمل سيرة ذاتية احترافية وتتابع طلباتك من مكان واحد وبشكل آمن وموثوق.
             </p>
             <a href={`https://wa.me/${env.PLATFORM_WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 mt-3 transition-colors">
               <span>📱</span> تواصل عبر واتساب

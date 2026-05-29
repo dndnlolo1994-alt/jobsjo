@@ -10,6 +10,9 @@ import { getSessionUser } from "@/lib/session";
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { publicMetadata } from "@/lib/seo/site";
 
+export const dynamic = "force-dynamic";
+
+
 export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
   const sp = await searchParams;
   const city = typeof sp.city === "string" ? sp.city : "";
