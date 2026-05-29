@@ -26,7 +26,7 @@ export async function ensureCvPdfBilling(userId: string, cvId?: string) {
   return prisma.billingRecord.create({
     data: {
       userId,
-      relatedCvId: cvId,
+      relatedCvId: cvId || null,
       type: "CV_PDF",
       amountJod: 2,
       status: (!env.REQUIRE_CV_PAYMENT || isPlus) ? "WAIVED" : "UNPAID",

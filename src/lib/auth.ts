@@ -2,7 +2,7 @@ import "server-only";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "./prisma";
-import { getSessionUser, getSession, type SessionUser } from "./session";
+import { getSessionUser, getSession, destroySession, type SessionUser } from "./session";
 import { env } from "./env";
 
 export async function hashPassword(plain: string): Promise<string> {
@@ -20,6 +20,21 @@ export function isAdminEmail(email: string): boolean {
 export async function requireUser(): Promise<SessionUser> {
   const u = await getSessionUser();
   if (!u) redirect("/login");
+
+  const userExists = await prisma.user.findUnique({
+    where: { id: u.id },
+    select: { id: true },
+  });
+
+  if (!userExists) {
+    try {
+      await destroySession();
+    } catch (err) {
+      console.error("[auth] Failed to destroy stale session:", err);
+    }
+    redirect("/login");
+  }
+
   return u;
 }
 
