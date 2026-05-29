@@ -29,8 +29,18 @@ export const sessionOptions: SessionOptions = {
 
 export async function getSession(): Promise<AppSession> {
   const store = await cookies();
-  const session = await getIronSession<AppSession>(store, sessionOptions);
-  return session;
+  try {
+    return await getIronSession<AppSession>(store, sessionOptions);
+  } catch (err) {
+    console.error("[session] Decryption or parse failed. Wiping corrupt session cookie:", err);
+    try {
+      store.delete("jojobs_session");
+      return await getIronSession<AppSession>(store, sessionOptions);
+    } catch (retryErr) {
+      console.error("[session] Failed to recover iron session:", retryErr);
+      return {};
+    }
+  }
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {

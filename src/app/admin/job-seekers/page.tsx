@@ -1,5 +1,110 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-export const metadata: Metadata = { title: "الباحثون عن عمل", robots: { index: false, follow: false } };
-export default async function Page(){ await requireAdmin(); const items=await prisma.user.findMany({where:{role:"JOB_SEEKER"},include:{jobSeekerProfile:true,cvProfile:true},orderBy:{createdAt:"desc"},take:100}); return <section className="container-jo py-8"><h1 className="section-title">الباحثون عن عمل</h1><div className="space-y-3">{items.map(i=><div className="card-pad" key={i.id}><b>{i.fullName}</b><p className="text-sm text-navy-600">{i.email} · {i.jobSeekerProfile?.city ?? "مدينة غير محددة"} · CV: {i.cvProfile ? "موجود" : "غير مكتمل"}</p></div>)}</div></section>; }
+import { adminToggleUserSuspensionAction, adminUpdateJobSeekerPlanAction } from "@/lib/actions/platform";
+
+export const metadata: Metadata = { title: "إدارة الباحثين عن عمل | لوحة التحكم", robots: { index: false, follow: false } };
+
+export default async function Page() {
+  await requireAdmin();
+  const items = await prisma.user.findMany({
+    where: { role: "JOB_SEEKER" },
+    include: {
+      jobSeekerProfile: true,
+      cvProfile: true
+    },
+    orderBy: { createdAt: "desc" },
+    take: 100
+  });
+
+  return (
+    <section className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold text-navy-950 tracking-tight">إدارة الباحثين عن عمل</h1>
+          <p className="text-sm text-navy-400 mt-1 font-medium">التحكم بعضويات الباحثين عن عمل، ترقية الباقات وإيقاف الحسابات.</p>
+        </div>
+        <div className="bg-slate-100 text-navy-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+          عدد المشتركين الكلي: {items.length}
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        {items.length === 0 ? (
+          <div className="card bg-white p-8 text-center text-navy-400 text-sm font-semibold border border-slate-100">
+            👤 لا يوجد باحثون عن عمل مسجلين حالياً في المنصة.
+          </div>
+        ) : (
+          items.map((user) => {
+            const profile = user.jobSeekerProfile;
+            const currentPlan = profile?.plan ?? "FREE";
+            const cvStatus = user.cvProfile ? "📄 سيرة ذاتية مكتملة" : "❌ سيرة ذاتية غير منشأة";
+
+            return (
+              <div key={user.id} className="card bg-white p-6 shadow-sm border border-slate-150 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:border-emerald-500/20 transition-all">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h3 className="font-bold text-navy-900 text-base">{user.fullName || "مستخدم بدون اسم"}</h3>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      user.isSuspended 
+                        ? "bg-rose-50 text-rose-700 border-rose-100" 
+                        : "bg-emerald-50 text-emerald-700 border-emerald-100"
+                    }`}>
+                      {user.isSuspended ? "🚫 موقوف" : "🟢 نشط"}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                      currentPlan === "PLUS" ? "bg-amber-105 text-amber-800 border border-amber-300 bg-amber-50" : "bg-slate-100 text-slate-700 border border-slate-200"
+                    }`}>
+                      باقة: {currentPlan === "PLUS" ? "Plus المميزة ⚡" : "المجانية"}
+                    </span>
+                  </div>
+                  
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs text-navy-500 font-medium">
+                    <p>📧 {user.email}</p>
+                    {user.phone && <p>📞 {user.phone}</p>}
+                    <p>📍 {profile?.city ?? "المدينة غير حددت"}</p>
+                    <p className={user.cvProfile ? "text-emerald-700 font-bold" : "text-rose-600"}>{cvStatus}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Plan Activation Quick Buttons */}
+                  <div className="flex items-center bg-slate-50 border border-slate-150 rounded-xl p-1 gap-1">
+                    {(["FREE", "PLUS"] as const).map((plan) => (
+                      <form key={plan} action={adminUpdateJobSeekerPlanAction.bind(null, user.id, plan)}>
+                        <button
+                          type="submit"
+                          className={`text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg transition-all ${
+                            currentPlan === plan
+                              ? "bg-emerald-600 text-white shadow-sm"
+                              : "text-navy-600 hover:bg-slate-200/60"
+                          }`}
+                        >
+                          {plan === "FREE" ? "مجاني" : "Plus ⚡"}
+                        </button>
+                      </form>
+                    ))}
+                  </div>
+
+                  {/* Suspension Toggle */}
+                  <form action={adminToggleUserSuspensionAction.bind(null, user.id)}>
+                    <button
+                      type="submit"
+                      className={`text-[10px] font-extrabold px-3 py-2 rounded-xl transition-all border ${
+                        user.isSuspended
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                          : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                      }`}
+                    >
+                      {user.isSuspended ? "🔓 إلغاء الحظر" : "🔒 حظر الحساب"}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </section>
+  );
+}

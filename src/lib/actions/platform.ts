@@ -940,3 +940,57 @@ export async function requestPlusUpgradeAction() {
   revalidatePath("/me/cv");
   return { ok: true, message: "تم استلام طلب الترقية! أرسل إثبات الدفع للأدمن عبر واتساب وسيتم تفعيل باقتك فوراً." };
 }
+
+export async function adminToggleUserSuspensionAction(userId: string) {
+  await requireAdmin();
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isSuspended: !user.isSuspended },
+  });
+  revalidatePath("/admin/employers");
+  revalidatePath("/admin/job-seekers");
+  revalidatePath("/admin");
+}
+
+export async function adminUpdateEmployerPlanAction(userId: string, plan: "FREE" | "BASIC" | "PRO" | "BUSINESS") {
+  await requireAdmin();
+  const monthAhead = new Date(Date.now() + 30 * 86400000);
+  await prisma.employerProfile.upsert({
+    where: { userId },
+    create: {
+      userId,
+      plan,
+      planExpiresAt: plan === "FREE" ? null : monthAhead,
+      ownerName: "صاحب عمل",
+    },
+    update: {
+      plan,
+      planExpiresAt: plan === "FREE" ? null : monthAhead,
+    },
+  });
+  revalidatePath("/admin/employers");
+  revalidatePath("/admin");
+}
+
+export async function adminUpdateJobSeekerPlanAction(userId: string, plan: "FREE" | "PLUS") {
+  await requireAdmin();
+  const monthAhead = new Date(Date.now() + 30 * 86400000);
+  await prisma.jobSeekerProfile.upsert({
+    where: { userId },
+    create: {
+      userId,
+      plan,
+      planExpiresAt: plan === "FREE" ? null : monthAhead,
+      fullName: "باحث عن عمل",
+    },
+    update: {
+      plan,
+      planExpiresAt: plan === "FREE" ? null : monthAhead,
+    },
+  });
+  revalidatePath("/admin/job-seekers");
+  revalidatePath("/admin");
+}
+
