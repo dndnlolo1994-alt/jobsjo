@@ -23,6 +23,7 @@ const navItems = [
   { label: "📂 طلبات التقديم", href: "/admin/applications" },
   { label: "📡 المصادر", href: "/admin/sources" },
   { label: "⚠️ البلاغات", href: "/admin/reports" },
+  { label: "🤖 وكيل الترويج", href: "/admin/agent" },
   { label: "⚙️ الإعدادات", href: "/admin/settings" },
 ];
 
