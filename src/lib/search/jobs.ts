@@ -91,10 +91,32 @@ export async function searchJobsAdvanced(params: JobSearchParams) {
     params.sort === "urgent" ? [{ urgent: "desc" }, { publishedAt: "desc" }] :
     params.sort === "salary-high" ? [{ salaryMax: "desc" }, { salaryMin: "desc" }] :
     params.sort === "salary-low" ? [{ salaryMin: "asc" }, { salaryMax: "asc" }] :
-    [{ pinnedUntil: "desc" }, { featured: "desc" }, { urgent: "desc" }, { publishedAt: "desc" }];
+    [{ featured: "desc" }, { urgent: "desc" }, { publishedAt: "desc" }];
 
   let items: Array<Prisma.JobGetPayload<{ include: { company: { select: { name: true; logoUrl: true; slug: true } } } }>> = [];
   let total = 0;
+  const simplePublishedWhere: Prisma.JobWhereInput = { status: "PUBLISHED" };
+  const simplePublishedOrderBy: Prisma.JobOrderByWithRelationInput[] = [{ featured: "desc" }, { publishedAt: "desc" }];
+
+  async function fallbackToPublishedJobs(reason: unknown) {
+    console.error("searchJobsAdvanced failed; falling back to published jobs", reason);
+    try {
+      const [fallbackItems, fallbackTotal] = await Promise.all([
+        prisma.job.findMany({
+          where: simplePublishedWhere,
+          include: { company: { select: { name: true, logoUrl: true, slug: true } } },
+          orderBy: simplePublishedOrderBy,
+          skip: (page - 1) * perPage,
+          take: perPage,
+        }),
+        prisma.job.count({ where: simplePublishedWhere }),
+      ]);
+      return { items: fallbackItems, total: fallbackTotal };
+    } catch (fallbackError) {
+      console.error("searchJobsAdvanced published fallback failed", fallbackError);
+      return { items: [], total: 0 };
+    }
+  }
 
   if (params.q) {
     try {
@@ -179,8 +201,8 @@ export async function searchJobsAdvanced(params: JobSearchParams) {
         items = found.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
       }
       return { items, total, page, perPage, pages: Math.max(1, Math.ceil(total / perPage)) };
-    } catch {
-      // Fall back to Prisma filters below when raw search is unavailable.
+    } catch (error) {
+      console.error("Raw job search failed; falling back to Prisma search", error);
     }
   }
 
@@ -195,9 +217,8 @@ export async function searchJobsAdvanced(params: JobSearchParams) {
       }),
       prisma.job.count({ where }),
     ]);
-  } catch {
-    items = [];
-    total = 0;
+  } catch (error) {
+    ({ items, total } = await fallbackToPublishedJobs(error));
   }
 
   return { items, total, page, perPage, pages: Math.max(1, Math.ceil(total / perPage)) };

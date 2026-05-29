@@ -18,10 +18,11 @@ function required(name: string, fallback?: string): string {
 
 export const env = {
   DATABASE_URL: required("DATABASE_URL", "postgresql://localhost:5432/jojobs"),
-  SITE_URL: clean(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  SITE_URL: clean(process.env.NEXT_PUBLIC_SITE_URL ?? "") || "https://www.jordan-job.shop",
   SITE_NAME: (() => {
     const raw = process.env.NEXT_PUBLIC_SITE_NAME ?? process.env.NEXT_PUBLIC_APP_NAME_AR ?? "جوبز الأردن";
-    return (raw.includes("?") || raw.includes("؟")) ? "جوبز الأردن" : clean(raw);
+    const value = clean(raw);
+    return !value || /[?\uFFFD]/.test(value) ? "جوبز الأردن" : value;
   })(),
   APP_NAME: process.env.NEXT_PUBLIC_APP_NAME ?? "JoJobs",
   SESSION_PASSWORD: required(
@@ -39,8 +40,8 @@ export const env = {
   REQUIRE_CV_PAYMENT: (process.env.REQUIRE_CV_PAYMENT ?? "true") === "true",
   ENABLE_EXTERNAL_JOB_SOURCES: process.env.ENABLE_EXTERNAL_JOB_SOURCES === "true",
   DEFAULT_CITY: process.env.DEFAULT_CITY ?? "إربد",
-  SUPPORT_WHATSAPP: process.env.SUPPORT_WHATSAPP ?? "962790000000",
-  PLATFORM_WHATSAPP: process.env.PLATFORM_WHATSAPP ?? process.env.SUPPORT_WHATSAPP ?? "962790000000",
+  SUPPORT_WHATSAPP: process.env.SUPPORT_WHATSAPP ?? "962790565018",
+  PLATFORM_WHATSAPP: process.env.PLATFORM_WHATSAPP ?? process.env.SUPPORT_WHATSAPP ?? "962790565018",
   SUPPORT_EMAIL:
     process.env.SUPPORT_EMAIL ??
     process.env.NEXT_PUBLIC_SUPPORT_EMAIL ??

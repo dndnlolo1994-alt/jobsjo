@@ -19,6 +19,47 @@ function str(form: FormData, key: string) {
   return typeof v === "string" && v.trim() !== "" ? v.trim() : undefined;
 }
 
+async function notifyJobSeekerPlanChange(userId: string, plan: "FREE" | "PLUS", expiresAt: Date | null) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, fullName: true },
+  });
+  if (!user?.email) return;
+
+  const isPlus = plan === "PLUS";
+  const expiresText = expiresAt
+    ? new Intl.DateTimeFormat("ar-JO", { dateStyle: "long" }).format(expiresAt)
+    : "";
+  const subject = isPlus
+    ? "تم تفعيل باقة Plus في جوبز الأردن"
+    : "تم تحديث خطة حسابك في جوبز الأردن";
+  const text = isPlus
+    ? `مرحباً ${user.fullName}، تم تفعيل باقة Plus لحسابك في جوبز الأردن. يمكنك الآن استخدام مزايا Plus حتى ${expiresText}.`
+    : `مرحباً ${user.fullName}، تم تحديث خطة حسابك إلى الخطة المجانية في جوبز الأردن.`;
+  const html = `
+    <div dir="rtl" style="font-family:'Cairo',Arial,sans-serif;max-width:560px;margin:0 auto;background:#ffffff;color:#1e293b;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;text-align:right;">
+      <div style="background:#064e3b;color:#ffffff;padding:22px;text-align:center;">
+        <h1 style="margin:0;font-size:20px;">جوبز الأردن</h1>
+        <p style="margin:6px 0 0;color:#bbf7d0;font-size:13px;">إشعار تفعيل الخطة</p>
+      </div>
+      <div style="padding:24px;line-height:1.8;">
+        <p style="margin:0 0 12px;">مرحباً <strong>${user.fullName}</strong>،</p>
+        ${
+          isPlus
+            ? `<p style="margin:0 0 12px;">تم تفعيل <strong>باقة Plus</strong> لحسابك من قبل إدارة المنصة.</p>
+               <div style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:12px;padding:14px;margin:16px 0;">
+                 يمكنك الآن استخدام مزايا Plus: التقديم غير المحدود، مزايا السيرة الذاتية، صفحة QR التعريفية، وتتبع الطلبات.
+                 ${expiresText ? `<br/>تاريخ انتهاء التفعيل الحالي: <strong>${expiresText}</strong>.` : ""}
+               </div>`
+            : `<p style="margin:0 0 12px;">تم تحديث حسابك إلى الخطة المجانية. يمكنك الاستمرار باستخدام مزايا الحساب المجاني.</p>`
+        }
+        <p style="margin:16px 0 0;color:#64748b;font-size:13px;">إذا كان لديك أي استفسار، تواصل معنا عبر صفحة التواصل في المنصة.</p>
+      </div>
+    </div>`;
+
+  await getNotifier().send({ to: user.email, subject, text, html });
+}
+
 /**
  * Delivers a one-time code to the user. Sends a real email via the configured
  * notifier (SMTP in production) and ONLY prints the code to the console in
@@ -481,6 +522,10 @@ export async function saveCvAction(_: unknown, form: FormData) {
   });
 
   revalidatePath("/me/cv");
+  revalidatePath("/me/cv/preview");
+  revalidatePath("/me/cv/download");
+  revalidatePath(`/cv/${user.id}`);
+  revalidatePath(`/cv/${cv.id}`);
   return { ok: true, message: "تم حفظ السيرة الذاتية بنجاح" };
 }
 
@@ -735,6 +780,7 @@ export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAI
         where: { userId: record.userId },
         data: { plan: "PLUS", planExpiresAt: monthAhead },
       });
+      await notifyJobSeekerPlanChange(record.userId, "PLUS", monthAhead);
     }
 
     // 2) Employer subscription plans
@@ -980,19 +1026,21 @@ export async function adminUpdateEmployerPlanAction(userId: string, plan: "FREE"
 export async function adminUpdateJobSeekerPlanAction(userId: string, plan: "FREE" | "PLUS") {
   await requireAdmin();
   const monthAhead = new Date(Date.now() + 30 * 86400000);
+  const planExpiresAt = plan === "FREE" ? null : monthAhead;
   await prisma.jobSeekerProfile.upsert({
     where: { userId },
     create: {
       userId,
       plan,
-      planExpiresAt: plan === "FREE" ? null : monthAhead,
+      planExpiresAt,
       fullName: "باحث عن عمل",
     },
     update: {
       plan,
-      planExpiresAt: plan === "FREE" ? null : monthAhead,
+      planExpiresAt,
     },
   });
+  await notifyJobSeekerPlanChange(userId, plan, planExpiresAt);
   revalidatePath("/admin/job-seekers");
   revalidatePath("/admin");
 }

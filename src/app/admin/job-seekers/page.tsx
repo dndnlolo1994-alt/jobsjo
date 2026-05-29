@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { adminToggleUserSuspensionAction, adminUpdateJobSeekerPlanAction } from "@/lib/actions/platform";
+import { formatDateArabic } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "إدارة الباحثين عن عمل | لوحة التحكم", robots: { index: false, follow: false } };
 
@@ -39,6 +40,7 @@ export default async function Page() {
             const profile = user.jobSeekerProfile;
             const currentPlan = profile?.plan ?? "FREE";
             const cvStatus = user.cvProfile ? "📄 سيرة ذاتية مكتملة" : "❌ سيرة ذاتية غير منشأة";
+            const planExpires = profile?.planExpiresAt ? formatDateArabic(profile.planExpiresAt) : null;
 
             return (
               <div key={user.id} className="card bg-white p-6 shadow-sm border border-slate-150 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:border-emerald-500/20 transition-all">
@@ -64,6 +66,7 @@ export default async function Page() {
                     {user.phone && <p>📞 {user.phone}</p>}
                     <p>📍 {profile?.city ?? "المدينة غير حددت"}</p>
                     <p className={user.cvProfile ? "text-emerald-700 font-bold" : "text-rose-600"}>{cvStatus}</p>
+                    {planExpires && <p className="text-amber-700 font-bold">⏳ Plus حتى {planExpires}</p>}
                   </div>
                 </div>
 
@@ -80,7 +83,7 @@ export default async function Page() {
                               : "text-navy-600 hover:bg-slate-200/60"
                           }`}
                         >
-                          {plan === "FREE" ? "مجاني" : "Plus ⚡"}
+                          {plan === "FREE" ? "مجاني" : "تفعيل Plus + إيميل"}
                         </button>
                       </form>
                     ))}

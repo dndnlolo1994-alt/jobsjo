@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { saveCvAction } from "@/lib/actions/platform";
 
+const SUPPORT_PHONE_DISPLAY = "0790565018";
+const SUPPORT_WHATSAPP = "962790565018";
+
 interface CvEditorFormProps {
   cv: any;
   defaultEmail: string;
@@ -1233,7 +1236,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     <p>1. أرسل قيمة الرسوم (2 دينار) إلى إحدى الخيارات التالية:</p>
                     <div className="bg-navy-955 p-2.5 rounded border border-navy-800 space-y-1 text-[11px] font-mono text-slate-200">
                       <div>• كليك (CliQ Alias): <span className="text-[#c9a84c] font-bold">JOJOBS</span></div>
-                      <div>• محفظة زين كاش (Zain Cash): <span className="text-[#c9a84c] font-bold">0790793777</span></div>
+                      <div>• محفظة زين كاش (Zain Cash): <span className="text-[#c9a84c] font-bold">{SUPPORT_PHONE_DISPLAY}</span></div>
                     </div>
                     <p>2. انقر على الزر بالأسفل لإرسال الوصل للأدمن على الواتساب ليتم التفعيل الفوري لحسابك:</p>
                     <div className="text-[10px] text-slate-400">البريد الإلكتروني الخاص بك: <span className="text-white font-bold">{defaultEmail}</span></div>
@@ -1241,7 +1244,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
 
                   <div className="flex flex-col gap-2">
                     <a
-                      href={`https://wa.me/962790793777?text=مرحباً، قمت بدفع رسوم السيرة الذاتية (2 دينار) وأريد تفعيل ميزة الطباعة لحسابي بالبريد الإلكتروني: ${defaultEmail}`}
+                      href={`https://wa.me/${SUPPORT_WHATSAPP}?text=مرحباً، قمت بدفع رسوم السيرة الذاتية (2 دينار) وأريد تفعيل ميزة الطباعة لحسابي بالبريد الإلكتروني: ${defaultEmail}`}
                       target="_blank"
                       className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2"
                     >
