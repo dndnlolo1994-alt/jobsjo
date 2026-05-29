@@ -118,76 +118,76 @@ export default function PricingPage() {
           <p className="text-xs text-slate-300 mt-1">باقات مخصصة لمساعدتك في بناء سيرتك الذاتية والتقديم على الوظائف</p>
         </div>
         
-        <div className="grid xl:grid-cols-[1fr_500px] lg:grid-cols-[1fr_460px] gap-7 items-stretch max-w-6xl mx-auto">
+        <div className="grid xl:grid-cols-[1fr_minmax(260px,340px)] lg:grid-cols-[1fr_300px] gap-5 lg:gap-6 items-start max-w-6xl mx-auto">
           {/* Seeker Plans Cards */}
-          <div className="grid md:grid-cols-2 gap-6 w-full">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-5 w-full items-start">
             {seekerPlans.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 relative h-full ${
+                className={`rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 relative ${
                   plan.highlight
-                    ? "bg-[#0f1a2a] text-white shadow-xl border border-emerald-500/25 scale-[1.01] hover:scale-[1.02]"
+                    ? "bg-[#0f1a2a] text-white shadow-xl border border-emerald-500/25 ring-1 ring-emerald-500/20 md:-translate-y-0.5"
                     : "bg-white/10 text-white border border-white/15 shadow-sm hover:bg-white/[0.14] hover:shadow-md"
                 }`}
               >
                 {plan.highlight && (
-                  <span className="absolute top-4 left-4 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                  <span className="absolute top-3 left-3 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                     موصى به
                   </span>
                 )}
-                <div>
-                  <h3 className={`text-base sm:text-lg font-bold ${plan.highlight ? "text-emerald-400" : "text-white"}`}>{plan.name}</h3>
-                  <p className={`text-xs mt-1.5 leading-relaxed ${plan.highlight ? "text-slate-300" : "text-slate-300"}`}>{plan.description}</p>
-                  
-                  <div className="my-4 flex items-baseline gap-1">
-                    <span className="text-2xl sm:text-3xl font-extrabold">{plan.price}</span>
-                    <span className={`text-xs ${plan.highlight ? "text-slate-400" : "text-slate-300"}`}>/ {plan.period}</span>
-                  </div>
+                <h3 className={`text-sm sm:text-base font-bold pr-0 ${plan.highlight ? "text-emerald-400 pt-5" : "text-white"}`}>
+                  {plan.name}
+                </h3>
+                <p className="text-[11px] mt-1 leading-snug text-slate-300">{plan.description}</p>
 
-                  <ul className="space-y-2.5 border-t border-slate-100/10 pt-4">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex gap-2 items-start text-xs sm:text-sm">
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                <div className="mt-3 mb-3 flex items-baseline gap-1">
+                  <span className="text-xl sm:text-2xl font-extrabold">{plan.price}</span>
+                  <span className="text-[11px] text-slate-400">/ {plan.period}</span>
+                </div>
+
+                <ul className="space-y-2 border-t border-white/10 pt-3">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-2 items-start text-[11px] sm:text-xs leading-snug">
+                      <span
+                        className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold ${
                           plan.highlight ? "bg-emerald-600/20 text-emerald-400" : "bg-emerald-400/15 text-emerald-300"
-                        }`}>
-                          ✓
-                        </span>
-                        <span className={plan.highlight ? "text-slate-200" : "text-slate-100"}>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                        }`}
+                      >
+                        ✓
+                      </span>
+                      <span className={plan.highlight ? "text-slate-200" : "text-slate-100"}>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
 
-                <div className="mt-6">
-                  <Link
-                    href={plan.href}
-                    className={`w-full text-center py-2.5 px-4 rounded-xl text-xs font-bold block transition-all active:scale-[0.98] ${
-                      plan.highlight
-                        ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/10"
-                        : "bg-white hover:bg-slate-100 text-slate-950"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
-                </div>
+                <Link
+                  href={plan.href}
+                  className={`mt-4 w-full text-center py-2 px-3 rounded-lg text-[11px] sm:text-xs font-bold block transition-all active:scale-[0.98] ${
+                    plan.highlight
+                      ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/10"
+                      : "bg-white hover:bg-slate-100 text-slate-950"
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
               </div>
             ))}
           </div>
 
           {/* CV Template Live Mockup Preview */}
-          <div className="rounded-2xl p-4 sm:p-5 border border-emerald-500/20 bg-[#07110f] text-center w-full shadow-xl shadow-emerald-950/20">
-            <h4 className="font-extrabold text-white text-sm mb-3 border-b border-white/10 pb-3">
+          <div className="rounded-2xl p-3 sm:p-4 border border-emerald-500/20 bg-[#07110f] text-center w-full shadow-lg shadow-emerald-950/20 xl:sticky xl:top-24">
+            <h4 className="font-extrabold text-white text-xs sm:text-sm mb-2 border-b border-white/10 pb-2">
               نموذج مطابق لقالب PDF بعد التفعيل
             </h4>
-            <div className="relative rounded-xl overflow-hidden border border-[#c2a06c]/40 bg-slate-900 group shadow-2xl">
+            <div className="relative rounded-lg overflow-hidden border border-[#c2a06c]/40 bg-slate-900 group max-h-[280px] sm:max-h-[320px]">
               <img
                 src="/cv-mockup.png"
                 alt="نموذج معاينة السيرة الذاتية PDF"
-                className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.015]"
+                className="w-full h-full max-h-[280px] sm:max-h-[320px] object-contain object-top transition-transform duration-300 group-hover:scale-[1.02]"
               />
             </div>
-            <p className="text-[11px] text-slate-300 mt-3 leading-relaxed">
-              نفس الروح البصرية: رأس أخضر، لمسات ذهبية، صورة شخصية، معلومات اتصال، مهارات، شهادات، ورمز QR موثق.
+            <p className="text-[10px] text-slate-400 mt-2 leading-snug">
+              رأس أخضر، لمسات ذهبية، صورة شخصية، QR موثق — كما في PDF بعد التفعيل.
             </p>
           </div>
         </div>
@@ -200,56 +200,58 @@ export default function PricingPage() {
           <p className="text-xs text-slate-500 mt-1">باقات وخدمات مخصصة لنشر الوظائف واستقطاب المرشحين المناسبين</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid md:grid-cols-3 gap-4 sm:gap-5 items-start">
           {employerPlans.map((plan) => (
             <div
               key={plan.name}
-              className={`rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 relative ${
+              className={`rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 relative ${
                 plan.highlight
-                  ? "bg-slate-900 text-white shadow-xl border border-amber-500/20 scale-[1.01] hover:scale-[1.02]"
+                  ? "bg-slate-900 text-white shadow-xl border border-amber-500/20 ring-1 ring-amber-500/15 md:-translate-y-0.5"
                   : "bg-white border border-slate-200 shadow-sm hover:shadow-md"
               }`}
             >
               {plan.highlight && (
-                <span className="absolute top-4 left-4 bg-amber-500 text-slate-950 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                <span className="absolute top-3 left-3 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                   الأكثر توفيراً
                 </span>
               )}
-              <div>
-                <h3 className={`text-base sm:text-lg font-bold ${plan.highlight ? "text-amber-400" : "text-slate-900"}`}>{plan.name}</h3>
-                <p className={`text-xs mt-1.5 ${plan.highlight ? "text-slate-300" : "text-slate-500"}`}>{plan.description}</p>
-                
-                <div className="my-5 flex items-baseline gap-1">
-                  <span className="text-3xl sm:text-4xl font-extrabold">{plan.price}</span>
-                  <span className={`text-xs ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>/ {plan.period}</span>
-                </div>
+              <h3 className={`text-sm sm:text-base font-bold ${plan.highlight ? "text-amber-400 pt-5" : "text-slate-900"}`}>
+                {plan.name}
+              </h3>
+              <p className={`text-[11px] mt-1 leading-snug ${plan.highlight ? "text-slate-300" : "text-slate-500"}`}>
+                {plan.description}
+              </p>
 
-                <ul className="space-y-3 border-t border-slate-100/10 pt-5">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex gap-2.5 items-start text-xs sm:text-sm">
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+              <div className="mt-3 mb-3 flex items-baseline gap-1">
+                <span className="text-2xl sm:text-3xl font-extrabold">{plan.price}</span>
+                <span className={`text-[11px] ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>/ {plan.period}</span>
+              </div>
+
+              <ul className="space-y-2 border-t border-slate-100/10 pt-3">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex gap-2 items-start text-[11px] sm:text-xs leading-snug">
+                    <span
+                      className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold ${
                         plan.highlight ? "bg-amber-500/10 text-amber-400" : "bg-amber-50 text-amber-700"
-                      }`}>
-                        ✓
-                      </span>
-                      <span className={plan.highlight ? "text-slate-200" : "text-slate-700"}>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                      }`}
+                    >
+                      ✓
+                    </span>
+                    <span className={plan.highlight ? "text-slate-200" : "text-slate-700"}>{feature}</span>
+                  </li>
+                ))}
+              </ul>
 
-              <div className="mt-8">
-                <Link
-                  href={plan.href}
-                  className={`w-full text-center py-3 px-4 rounded-xl text-sm font-bold block transition-all active:scale-[0.98] ${
-                    plan.highlight
-                      ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10"
-                      : "bg-slate-100 hover:bg-slate-200 text-slate-800"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
-              </div>
+              <Link
+                href={plan.href}
+                className={`mt-4 w-full text-center py-2 px-3 rounded-lg text-xs font-bold block transition-all active:scale-[0.98] ${
+                  plan.highlight
+                    ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10"
+                    : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+                }`}
+              >
+                {plan.cta}
+              </Link>
             </div>
           ))}
         </div>
