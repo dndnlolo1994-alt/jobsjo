@@ -58,21 +58,14 @@ export function JobCard({ job, matchScore }: Props) {
   return (
     <Link
       href={`/jobs/${job.slug}`}
-      className="block bg-white border rounded-[16px] transition-all duration-300 relative group overflow-hidden"
-      style={{
-        borderColor: job.featured ? "#FFD9C7" : "var(--color-border)",
-        boxShadow: "var(--shadow-sm)",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-        (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-lg)";
-        (e.currentTarget as HTMLElement).style.borderColor = job.featured ? "#FF8C6B" : "#C7D6FF";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.transform = "";
-        (e.currentTarget as HTMLElement).style.boxShadow = "var(--shadow-sm)";
-        (e.currentTarget as HTMLElement).style.borderColor = job.featured ? "#FFD9C7" : "var(--color-border)";
-      }}
+      className={[
+        "block bg-white border rounded-[16px] transition-all duration-300 relative group overflow-hidden",
+        "hover:-translate-y-1 hover:shadow-lg",
+        job.featured
+          ? "border-accent-100 hover:border-accent-300"
+          : "border-[#E5E8F0] hover:border-primary-200",
+      ].join(" ")}
+      style={{ boxShadow: "var(--shadow-sm)" }}
     >
       {/* ── Top accent bar ─────────────────────────────────────── */}
       {job.featured ? (
