@@ -11,10 +11,51 @@ import { uniqueSlug, toCsv } from "@/lib/utils";
 import { computeMatch } from "@/lib/matching/job-score";
 import { ensureCvPdfBilling } from "@/lib/billing/cv";
 import { getNotifier } from "@/lib/notifications";
+import { sendApplicationConfirmation, sendNewApplicationAlert } from "@/lib/emails/applicationConfirmation";
+import { env } from "@/lib/env";
 
 function str(form: FormData, key: string) {
   const v = form.get(key);
   return typeof v === "string" && v.trim() !== "" ? v.trim() : undefined;
+}
+
+/**
+ * Delivers a one-time code to the user. Sends a real email via the configured
+ * notifier (SMTP in production) and ONLY prints the code to the console in
+ * development — production logs must never contain OTP codes.
+ */
+async function deliverOtp(email: string, code: string, purpose: "register" | "login" | "reset") {
+  const titles = {
+    register: "تفعيل حسابك في جوبز الأردن",
+    login: "رمز تسجيل الدخول",
+    reset: "إعادة تعيين كلمة المرور",
+  } as const;
+  const title = titles[purpose];
+  const subject = `${title} — رمز التحقق ${code}`;
+  const text = `رمز التحقق الخاص بك هو: ${code}\nالرمز صالح لمدة 10 دقائق.\nإذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة.`;
+  const html = `
+    <div dir="rtl" style="font-family:'Cairo',Arial,sans-serif;max-width:480px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#ffffff;color:#1e293b;text-align:right;">
+      <div style="background:#084c41;padding:20px;text-align:center;color:#ffffff;">
+        <h2 style="margin:0;font-size:18px;font-weight:bold;">منصة جوبز الأردن | JoJobs</h2>
+        <p style="margin:6px 0 0 0;font-size:12px;color:#c2a06c;font-weight:bold;">${title}</p>
+      </div>
+      <div style="padding:24px;">
+        <p style="margin:0 0 12px 0;font-size:14px;">استخدم الرمز التالي لإتمام العملية:</p>
+        <div style="text-align:center;font-size:30px;font-weight:bold;letter-spacing:8px;color:#084c41;background:#ecfdf5;border:1px dashed #84cc16;border-radius:10px;padding:14px;margin:0 0 14px 0;">${code}</div>
+        <p style="margin:0;font-size:12px;color:#64748b;">الرمز صالح لمدة 10 دقائق. إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة بأمان.</p>
+      </div>
+    </div>`;
+  try {
+    await getNotifier().send({ to: email, subject, text, html });
+  } catch (err) {
+    console.error("[otp] فشل إرسال رمز التحقق:", err);
+  }
+  // Dev convenience only — never log OTP codes in production.
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`\n======================================================`);
+    console.log(`🔑 OTP [${purpose}] [${email}]: [${code}]`);
+    console.log(`======================================================\n`);
+  }
 }
 
 export async function registerAction(_: unknown, form: FormData) {
@@ -48,9 +89,7 @@ export async function registerAction(_: unknown, form: FormData) {
       update: { code: otpCode, expiresAt, createdAt: new Date() },
     });
 
-    console.log(`\n======================================================`);
-    console.log(`🔑 رمز التحقق (OTP) للتسجيل الجديد [${user.email}]: [${otpCode}]`);
-    console.log(`======================================================\n`);
+    await deliverOtp(user.email, otpCode, "register");
 
     redirect(`/verify-otp?email=${encodeURIComponent(user.email)}`);
   }
@@ -81,9 +120,7 @@ export async function loginAction(_: unknown, form: FormData) {
       update: { code: otpCode, expiresAt, createdAt: new Date() },
     });
 
-    console.log(`\n======================================================`);
-    console.log(`🔑 رمز تحقق دخول معلق (OTP) للبريد [${user.email}]: [${otpCode}]`);
-    console.log(`======================================================\n`);
+    await deliverOtp(user.email, otpCode, "login");
 
     redirect(`/verify-otp?email=${encodeURIComponent(user.email)}`);
   }
@@ -149,9 +186,7 @@ export async function resendOtpAction(email: string) {
     update: { code: otpCode, expiresAt, createdAt: new Date() },
   });
 
-  console.log(`\n======================================================`);
-  console.log(`🔑 إعادة إرسال رمز تحقق (OTP) للبريد [${user.email}]: [${otpCode}]`);
-  console.log(`======================================================\n`);
+  await deliverOtp(user.email, otpCode, "register");
 
   return { ok: true, message: "تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني" };
 }
@@ -174,9 +209,7 @@ export async function requestPasswordResetAction(_: unknown, form: FormData) {
     update: { code: otpCode, expiresAt, createdAt: new Date() },
   });
 
-  console.log(`\n======================================================`);
-  console.log(`رمز إعادة ضبط كلمة المرور [${email}]: [${otpCode}]`);
-  console.log(`======================================================\n`);
+  await deliverOtp(email, otpCode, "reset");
 
   return {
     ok: true,
@@ -454,7 +487,10 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
   if (!parsed.success) return { ok: false, message: "تعذر إرسال الطلب" };
   
   const [job, seeker, cv] = await Promise.all([
-    prisma.job.findUnique({ where: { id: parsed.data.jobId } }),
+    prisma.job.findUnique({
+      where: { id: parsed.data.jobId },
+      include: { company: true },
+    }),
     prisma.jobSeekerProfile.findUnique({ where: { userId: user.id } }),
     prisma.cVProfile.findUnique({
       where: { userId: user.id },
@@ -486,10 +522,27 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
 
   const match = seeker ? computeMatch(job, { ...seeker, hasCv: !!cv }) : { score: 0 };
   try {
-    await prisma.application.create({
+    const application = await prisma.application.create({
       data: { jobId: job.id, jobSeekerId: user.id, cvId: cv?.id, coverNote: parsed.data.coverNote, matchScore: match.score, appliedVia: "INTERNAL" },
     });
     await prisma.job.update({ where: { id: job.id }, data: { applicationCount: { increment: 1 } } });
+
+    // Send confirmation email to Seeker
+    try {
+      await sendApplicationConfirmation({
+        to: user.email,
+        applicantName: cv?.fullName || user.fullName,
+        jobTitle: job.title,
+        companyName: job.company?.name ?? job.companyNameText ?? "صاحب عمل خاص",
+        city: job.city,
+        jobType: job.jobType,
+        salary: job.salaryText || (job.salaryMin || job.salaryMax ? `${job.salaryMin} - ${job.salaryMax}` : null),
+        applicationId: application.id,
+        appliedAt: application.createdAt,
+      });
+    } catch (err) {
+      console.error("Failed to send seeker confirmation email:", err);
+    }
 
     // Send notification to employer
     let employerEmail = job.contactEmail;
@@ -499,142 +552,17 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
     }
 
     if (employerEmail) {
-      const notifier = getNotifier();
-      const cvLink = `https://jojobs-os.vercel.app/employer`; // Redirect to employer panel to purchase package/log in!
-      
-      let experiencesHtml = "";
-      let educationsHtml = "";
-      let skillsHtml = "";
-      let certsHtml = "";
-
-      if (cv) {
-        experiencesHtml = cv.experiences?.length > 0 
-          ? cv.experiences.map((exp: any) => `
-              <div style="margin-bottom: 12px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; text-align: right;" dir="rtl">
-                <div style="font-weight: bold; color: #0f172a; font-size: 13px;">${exp.position}</div>
-                <div style="font-size: 11px; color: #059669; font-weight: bold; margin-top: 2px;">${exp.company} ${exp.city ? `• ${exp.city}` : ''}</div>
-                <div style="font-size: 10px; color: #64748b; margin-top: 1px;">${exp.startDate} - ${exp.endDate || 'حتى الآن'}</div>
-                ${exp.description ? `<p style="font-size: 11px; color: #475569; margin-top: 5px; line-height: 1.5; white-space: pre-line;">${exp.description}</p>` : ''}
-              </div>
-            `).join('')
-          : '<p style="color: #94a3b8; font-size: 12px; font-style: italic; text-align: right;" dir="rtl">لا توجد خبرات مسجلة.</p>';
-
-        educationsHtml = cv.educations?.length > 0 
-          ? cv.educations.map((edu: any) => `
-              <div style="margin-bottom: 10px; text-align: right;" dir="rtl">
-                <div style="font-weight: bold; color: #0f172a; font-size: 13px;">${edu.degree}</div>
-                <div style="font-size: 11px; color: #475569; margin-top: 2px;">${edu.institution} ${edu.city ? `• ${edu.city}` : ''}</div>
-                <div style="font-size: 10px; color: #64748b; margin-top: 1px;">${edu.startDate} - ${edu.endDate || 'حتى الآن'}</div>
-              </div>
-            `).join('')
-          : '<p style="color: #94a3b8; font-size: 12px; font-style: italic; text-align: right;" dir="rtl">لا توجد مؤهلات علمية مسجلة.</p>';
-
-        skillsHtml = cv.skills?.length > 0 
-          ? cv.skills.map((s: any) => `
-              <span style="display: inline-block; background-color: #ecfdf5; border: 1px solid #d1fae5; color: #065f46; font-size: 10px; font-weight: bold; padding: 4px 8px; border-radius: 9999px; margin-left: 4px; margin-bottom: 4px;">
-                ${s.name} ${'★'.repeat(s.level || 3)}
-              </span>
-            `).join('')
-          : '<p style="color: #94a3b8; font-size: 12px; font-style: italic; text-align: right;" dir="rtl">لا توجد مهارات مسجلة.</p>';
-
-        certsHtml = cv.certifications?.length > 0 
-          ? cv.certifications.map((c: any) => `
-              <div style="font-size: 11px; color: #1e293b; margin-bottom: 5px; background-color: #f8fafc; padding: 5px 8px; border-radius: 4px; border: 1px solid #f1f5f9; text-align: right;" dir="rtl">
-                <strong>${c.name}</strong> • <span style="color: #64748b;">${c.issuer || ''} ${c.year ? `(${c.year})` : ''}</span>
-              </div>
-            `).join('')
-          : '<p style="color: #94a3b8; font-size: 12px; font-style: italic; text-align: right;" dir="rtl">لا توجد شهادات مسجلة.</p>';
+      try {
+        await sendNewApplicationAlert({
+          to: employerEmail,
+          jobTitle: job.title,
+          applicantFirstName: (cv?.fullName || user.fullName).split(" ")[0],
+          appliedAt: application.createdAt,
+          reviewUrl: `${env.SITE_URL}/employer`,
+        });
+      } catch (err) {
+        console.error("Failed to send employer alert email:", err);
       }
-
-      await notifier.send({
-        to: employerEmail,
-        subject: `💼 مرشح جديد مهتم بالتوظيف: ${job.title}`,
-        text: `مرحبا، لقد تقدم مرشح جديد لوظيفة "${job.title}" عبر منصة جوبز الأردن.\n\nالاسم الكامل: ${cv?.fullName || user.fullName}\nنسبة المطابقة: ${match.score}%\n\nالبيانات المباشرة والـ PDF محجوبة لحماية البيانات وتتطلب باقة نشطة.\nعرض بيانات الاتصال وتنزيل السيرة: ${cvLink}`,
-        html: `
-          <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; border: 1px solid #e2e8f0; padding: 0; border-radius: 12px; max-width: 600px; margin: 0 auto; color: #1e293b; overflow: hidden; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: right;">
-            {/* Header banner */}
-            <div style="background-color: #084c41; padding: 24px; text-align: center; color: #ffffff;">
-              <h2 style="margin: 0; font-size: 20px; font-weight: bold; letter-spacing: 0.5px;">منصة جوبز الأردن | JoJobs</h2>
-              <p style="margin: 6px 0 0 0; font-size: 13px; color: #c2a06c; font-weight: bold;">طلب تقديم مرشح جديد لوظيفتك</p>
-            </div>
-            
-            <div style="padding: 24px;">
-              <p style="font-size: 14px; line-height: 1.6;">مرحباً،</p>
-              <p style="font-size: 14px; line-height: 1.6; margin-bottom: 20px;">لقد تقدم مرشح جديد لوظيفتك الشاغرة <strong>"${job.title}"</strong> عبر المنصة. إليك نظرة شاملة على مؤهلاته وسيرته المهنية:</p>
-              
-              {/* Profile Card */}
-              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: right;" dir="rtl">
-                <table style="width: 100%; border-collapse: collapse; text-align: right;">
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; font-size: 13px; color: #64748b; width: 130px;">الاسم الكامل:</td>
-                    <td style="padding: 6px 0; font-weight: bold; font-size: 14px; color: #0f172a;">${cv?.fullName || user.fullName}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; font-size: 13px; color: #64748b;">المسمى الوظيفي:</td>
-                    <td style="padding: 6px 0; font-weight: bold; font-size: 13px; color: #084c41;">${cv?.jobTitle || "باحث عن عمل"}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; font-weight: bold; font-size: 13px; color: #64748b;">نسبة مطابقة الوظيفة:</td>
-                    <td style="padding: 6px 0;"><span style="background-color: #ecfdf5; color: #065f46; padding: 2px 10px; border-radius: 9999px; font-weight: bold; font-size: 12px; border: 1px solid #d1fae5;">${match.score}% مطابقة</span></td>
-                  </tr>
-                </table>
-                ${cv?.summary ? `
-                  <div style="margin-top: 12px; border-top: 1px solid #e2e8f0; padding-top: 12px; text-align: right;">
-                    <div style="font-weight: bold; font-size: 12px; color: #64748b; margin-bottom: 4px;">النبذة التعريفية:</div>
-                    <p style="margin: 0; font-size: 12px; color: #334155; line-height: 1.6; text-align: justify; font-style: italic;">${cv.summary}</p>
-                  </div>
-                ` : ''}
-              </div>
-
-              {/* CV Summary details */}
-              <h3 style="color: #084c41; font-size: 15px; border-bottom: 2px solid #084c41; padding-bottom: 4px; margin-top: 24px; margin-bottom: 12px; text-align: right;">💼 الخبرات المهنية والعملية:</h3>
-              <div style="padding-right: 8px;">${experiencesHtml}</div>
-
-              <h3 style="color: #084c41; font-size: 15px; border-bottom: 2px solid #084c41; padding-bottom: 4px; margin-top: 24px; margin-bottom: 12px; text-align: right;">🎓 المؤهلات والتعليم:</h3>
-              <div style="padding-right: 8px;">${educationsHtml}</div>
-
-              <h3 style="color: #084c41; font-size: 15px; border-bottom: 2px solid #084c41; padding-bottom: 4px; margin-top: 24px; margin-bottom: 12px; text-align: right;">⚡ المهارات الرئيسية:</h3>
-              <div style="padding-right: 8px; margin-bottom: 10px; text-align: right;" dir="rtl">${skillsHtml}</div>
-
-              ${(cv?.certifications?.length ?? 0) > 0 ? `
-                <h3 style="color: #084c41; font-size: 15px; border-bottom: 2px solid #084c41; padding-bottom: 4px; margin-top: 24px; margin-bottom: 12px; text-align: right;">📜 الشهادات والدورات التدريبية:</h3>
-                <div style="padding-right: 8px;">${certsHtml}</div>
-              ` : ''}
-
-              {/* Cover Letter / Note */}
-              <h3 style="color: #084c41; font-size: 15px; border-bottom: 2px solid #084c41; padding-bottom: 4px; margin-top: 24px; margin-bottom: 12px; text-align: right;">✉ رسالة التقديم (Cover Letter):</h3>
-              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; font-style: italic; font-size: 12px; line-height: 1.5; color: #475569; text-align: right;">
-                ${parsed.data.coverNote ? parsed.data.coverNote.replace(/\n/g, "<br>") : "لا توجد رسالة مرفقة من قبل المرشح."}
-              </div>
-
-              {/* Protected Contact details lock screen */}
-              <div style="background-color: #fff9e6; border: 1px solid #ffeeba; border-radius: 8px; padding: 16px; margin-top: 30px; text-align: right;" dir="rtl">
-                <div style="font-weight: bold; color: #856404; font-size: 14px; margin-bottom: 6px;">
-                  🔒 بيانات الاتصال مغلقة ورابط تنزيل الـ PDF الرسمي محجوب
-                </div>
-                <p style="margin: 0; font-size: 12px; color: #664d03; line-height: 1.6;">
-                  لحماية بيانات الباحثين عن عمل، تم إخفاء أرقام الهواتف والبريد الإلكتروني المباشر ورابط الـ PDF الرسمي للمرشح. 
-                  لفتح هذه البيانات للتواصل المباشر والتوظيف الفوري، يرجى تفعيل اشتراك صاحب العمل على المنصة.
-                </p>
-                <div style="margin-top: 10px; font-size: 11px; color: #856404; font-weight: bold;">
-                  • الهاتف: <span style="color: #dc2626; font-style: italic;">[🔒 مخفي - يتطلب باقة نشطة للتواصل]</span><br>
-                  • البريد: <span style="color: #dc2626; font-style: italic;">[🔒 مخفي - يتطلب باقة نشطة للتواصل]</span>
-                </div>
-              </div>
-
-              {/* Visual CTA Button */}
-              <p style="margin-top: 35px; text-align: center;">
-                <a href="${cvLink}" style="background-color: #084c41; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 14px; box-shadow: 0 4px 10px rgba(8,76,65,0.15); border: 1px solid #c2a06c;">🔓 تفعيل الاشتراك وعرض بيانات التواصل</a>
-              </p>
-            </div>
-            
-            <div style="background-color: #f1f5f9; border-top: 1px solid #e2e8f0; padding: 16px; text-align: center;">
-              <p style="font-size: 11px; color: #64748b; margin: 0;">هذا الإشعار مرسل تلقائياً من نظام جوبز الأردن لإدارة طلبات التوظيف.</p>
-              <p style="font-size: 10px; color: #94a3b8; margin: 4px 0 0 0;">جميع الحقوق محفوظة © 2026 منصة جوبز الأردن.</p>
-            </div>
-          </div>
-        `
-      });
     }
   } catch (err) {
     console.error("Apply to job error:", err);

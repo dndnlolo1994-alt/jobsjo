@@ -23,6 +23,8 @@ type Props = {
     companyNameText?: string | null;
     company?: { name: string; logoUrl?: string | null; slug: string } | null;
     sourceType?: string;
+    source?: string | null;
+    isVerified?: boolean;
     noExperienceRequired?: boolean;
     womenFriendly?: boolean;
   };
@@ -62,9 +64,9 @@ export function JobCard({ job, matchScore }: Props) {
         <div className="shrink-0 w-12 h-12 rounded-2xl bg-navy-950 border border-emerald-400/20 grid place-items-center text-white font-extrabold shadow-md shadow-navy-950/10 overflow-hidden transition-transform duration-200 group-hover:scale-[1.03]">
           {job.company?.logoUrl ? (
             <img
-              src={job.company.logoUrl}
-              alt={companyName}
-              className="w-full h-full object-cover"
+               src={job.company.logoUrl}
+               alt={companyName}
+               className="w-full h-full object-cover"
             />
           ) : (
             <Briefcase className="h-6 w-6 text-emerald-400" />
@@ -107,6 +109,15 @@ export function JobCard({ job, matchScore }: Props) {
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">
+            {job.source === "scraped" ? (
+              <span className="inline-flex items-center rounded-lg border border-orange-500/20 bg-orange-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-orange-700">
+                مصدر خارجي
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-emerald-700">
+                ✓ موثقة
+              </span>
+            )}
             <span className="inline-flex items-center rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] sm:text-xs font-bold text-emerald-700">
               {JOB_TYPE_LABEL[job.jobType] ?? job.jobType}
             </span>

@@ -8,10 +8,11 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   let featured: any[] = [];
-  let stats = { jobs: 0, companies: 0, applications: 0 };
+  let stats = { jobs: 0, companies: 0, cities: 0 };
   let cityCounts: Record<string, number> = {};
+  let categoryCounts: Record<string, number> = {};
   try {
-    const [items, j, c, a, cities] = await Promise.all([
+    const [items, j, c, cities, categories] = await Promise.all([
       prisma.job.findMany({
         where: { status: "PUBLISHED" },
         include: { company: { select: { name: true, logoUrl: true, slug: true } } },
@@ -20,18 +21,23 @@ export default async function HomePage() {
       }),
       prisma.job.count({ where: { status: "PUBLISHED" } }),
       prisma.company.count(),
-      prisma.application.count(),
       prisma.job.groupBy({
         by: ["city"],
         where: { status: "PUBLISHED" },
         _count: { _all: true },
       }),
+      prisma.job.groupBy({
+        by: ["jobCategory"],
+        where: { status: "PUBLISHED" },
+        _count: { _all: true },
+      }),
     ]);
     featured = items;
-    stats = { jobs: j, companies: c, applications: a };
+    stats = { jobs: j, companies: c, cities: cities.length };
     cityCounts = Object.fromEntries(cities.map((city) => [city.city, city._count._all]));
-  } catch {
-    // قاعدة البيانات غير جاهزة بعد. نعرض الصفحة بدون أرقام.
+    categoryCounts = Object.fromEntries(categories.map((cat) => [cat.jobCategory, cat._count._all]));
+  } catch (e) {
+    console.error("Failed to load homepage stats:", e);
   }
 
   return (
@@ -66,12 +72,10 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className={`grid ${stats.applications > 0 ? "grid-cols-3" : "grid-cols-2"} gap-2 sm:gap-3 mt-10 max-w-xl`}>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-10 max-w-xl">
               <Stat label="وظائف منشورة" value={stats.jobs.toLocaleString("ar-JO")} />
-              <Stat label="شركات" value={stats.companies.toLocaleString("ar-JO")} />
-              {stats.applications > 0 && (
-                <Stat label="طلبات تقديم" value={stats.applications.toLocaleString("ar-JO")} />
-              )}
+              <Stat label="شركات مسجلة" value={stats.companies.toLocaleString("ar-JO")} />
+              <Stat label="مدن مغطاة" value={stats.cities.toLocaleString("ar-JO")} />
             </div>
             <p className="text-[10px] text-navy-300 mt-4 font-semibold text-center sm:text-right opacity-80">
               ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة
@@ -164,15 +168,18 @@ export default async function HomePage() {
         <h2 className="section-title">تصنيفات الوظائف</h2>
         <p className="section-sub">القطاعات الأكثر طلباً في الأردن</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {JOB_CATEGORIES.map((c) => (
-            <Link
-              key={c}
-              href={`/jobs?category=${encodeURIComponent(c)}`}
-              className="card-pad text-center hover:border-emerald-300 hover:text-emerald-700 font-semibold"
-            >
-              {c}
-            </Link>
-          ))}
+          {JOB_CATEGORIES.map((c) => {
+            const count = categoryCounts[c] ?? 0;
+            return (
+              <Link
+                key={c}
+                href={`/jobs?category=${encodeURIComponent(c)}`}
+                className="card-pad text-center hover:border-emerald-300 hover:text-emerald-700 font-semibold"
+              >
+                {c} ({count.toLocaleString("ar-JO")})
+              </Link>
+            );
+          })}
         </div>
       </section>
 

@@ -1,7 +1,7 @@
 // استعلامات مشتركة للوظائف والشركات
 
 import { prisma } from "./prisma";
-import type { JobType } from "@prisma/client";
+import type { JobType } from "@/generated/client";
 
 export type JobsQueryParams = {
   q?: string;

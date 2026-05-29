@@ -5,6 +5,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client"
 }
 
 datasource db {
@@ -409,6 +410,8 @@ model Job {
   sourceType        JobSourceType @default(EMPLOYER_DIRECT)
   sourceName        String?
   sourceUrl         String?
+  source            String?       @default("manual")
+  isVerified        Boolean       @default(false)
   sourceVerifiedAt  DateTime?
   curatedByAdminId  String?
   originalPostedAt  DateTime?
