@@ -10,6 +10,7 @@ import NextTopLoader from "nextjs-toploader";
 import { WebSiteSchema } from "@/components/seo/WebSiteSchema";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
 import { GoogleAnalytics } from "@/components/seo/GoogleAnalytics";
+import { absoluteUrl, OG_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo/site";
 
 const readexPro = Readex_Pro({
   subsets: ["arabic", "latin"],
@@ -33,22 +34,22 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.jordan-job.shop"),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: "https://www.jordan-job.shop",
+    canonical: absoluteUrl("/"),
   },
   manifest: "/manifest.webmanifest",
-  applicationName: "جوبز الأردن",
+  applicationName: SITE_NAME,
   appleWebApp: {
     capable: true,
-    title: "جوبز الأردن",
+    title: SITE_NAME,
     statusBarStyle: "default",
   },
   title: {
-    default: "جوبز الأردن — وظائف الأردن الشاغرة",
-    template: "%s | جوبز الأردن — وظائف الأردن",
+    default: `${SITE_NAME} — وظائف الأردن الشاغرة`,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: "منصة وظائف أردنية للباحثين عن عمل وأصحاب الشركات، لعرض الوظائف، استقبال الطلبات، وإنشاء السيرة الذاتية.",
+  description: SITE_DESCRIPTION,
   keywords: [
     "وظائف الأردن",
     "عمل في الأردن",
@@ -63,13 +64,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ar_JO",
-    url: "https://www.jordan-job.shop",
-    siteName: "جوبز الأردن",
-    title: "جوبز الأردن — وظائف الأردن الشاغرة",
-    description: "منصة وظائف أردنية للباحثين عن عمل وأصحاب الشركات، لعرض الوظائف، استقبال الطلبات، وإنشاء السيرة الذاتية.",
+    url: absoluteUrl("/"),
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — وظائف الأردن الشاغرة`,
+    description: SITE_DESCRIPTION,
     images: [
       {
-        url: "https://www.jordan-job.shop/images/og-image.png",
+        url: absoluteUrl(OG_IMAGE_PATH),
         width: 1200,
         height: 630,
         alt: "منصة جوبز الأردن للتوظيف",
@@ -78,9 +79,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "جوبز الأردن — وظائف الأردن الشاغرة",
-    description: "منصة وظائف أردنية للباحثين عن عمل وأصحاب الشركات، لعرض الوظائف، استقبال الطلبات، وإنشاء السيرة الذاتية.",
-    images: ["https://www.jordan-job.shop/images/og-image.png"],
+    title: `${SITE_NAME} — وظائف الأردن الشاغرة`,
+    description: SITE_DESCRIPTION,
+    images: [absoluteUrl(OG_IMAGE_PATH)],
   },
   robots: {
     index: true,

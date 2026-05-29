@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import RegisterForm from "@/components/auth/RegisterForm";
+import { privateMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = { title: "إنشاء حساب", robots: { index: false, follow: false } };
+export const metadata: Metadata = privateMetadata("إنشاء حساب", "أنشئ حساب باحث عن عمل أو صاحب عمل على جوبز الأردن.");
 
 export default function RegisterPage() {
   return (
@@ -12,4 +13,3 @@ export default function RegisterPage() {
     </section>
   );
 }
-

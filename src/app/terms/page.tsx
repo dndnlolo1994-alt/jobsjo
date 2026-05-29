@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "الشروط والأحكام | جوبز الأردن",
+export const metadata: Metadata = publicMetadata({
+  title: "الشروط والأحكام",
   description: "شروط استخدام منصة جوبز الأردن للباحثين عن عمل وأصحاب العمل.",
-};
+  path: "/terms",
+});
 
 const terms = [
   {
@@ -44,6 +47,7 @@ const terms = [
 export default function TermsPage() {
   return (
     <section className="container-jo py-10">
+      <BreadcrumbJsonLd items={[{ name: "الشروط والأحكام", path: "/terms" }]} />
       <div className="max-w-3xl">
         <h1 className="section-title">الشروط والأحكام</h1>
         <p className="section-sub mt-3">

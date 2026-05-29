@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { FadeInSection } from "@/components/FadeInSection";
-import { env } from "@/lib/env";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "من نحن | جوبز الأردن",
+export const metadata: Metadata = publicMetadata({
+  title: "عن منصة جوبز الأردن",
   description: "تعرف على منصة جوبز الأردن، أهدافنا، رؤيتنا وقيمنا في ربط الباحثين عن عمل بأصحاب العمل في كافة محافظات المملكة الأردنية الهاشمية.",
+  path: "/about",
   keywords: ["وظائف الأردن", "من نحن جوبز الأردن", "منصة توظيف أردنية", "فرص عمل في الأردن"],
-};
+});
 
 export default async function AboutPage() {
   let stats = { jobs: 0, companies: 0, cities: 12 };
@@ -31,6 +33,7 @@ export default async function AboutPage() {
 
   return (
     <div className="bg-[var(--color-bg)] min-h-screen text-[var(--color-text-main)] py-12">
+      <BreadcrumbJsonLd items={[{ name: "عن المنصة", path: "/about" }]} />
       {/* ── Hero Banner ── */}
       <section className="relative overflow-hidden py-16 md:py-24 mb-16 rounded-3xl container-jo text-white" style={{ background: "var(--gradient-hero)" }}>
         <div className="absolute -left-10 -top-10 w-48 h-48 rounded-full opacity-20 blur-[50px] pointer-events-none" style={{ background: "#4F79FF" }} />

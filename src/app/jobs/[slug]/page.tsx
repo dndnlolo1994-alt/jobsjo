@@ -9,6 +9,8 @@ import { applyToJobAction } from "@/lib/actions/platform";
 import { tplApplyToJob } from "@/lib/whatsapp";
 import { getSession } from "@/lib/session";
 import { SubmitButton } from "@/components/forms/SubmitButton";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
 export const revalidate = 3600;
 
@@ -37,14 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const desc = `${job.title} في ${companyName} — ${job.city} | ${salary}. ${job.description}`.slice(0, 160);
 
   return {
-    title: job.title,
-    description: desc,
-    keywords: ["وظائف", job.title, job.city, job.jobCategory, "جوبز الأردن"].filter(Boolean) as string[],
-    openGraph: {
-      title: `${job.title} - فرصة عمل في ${job.city} | جوبز الأردن`,
+    ...publicMetadata({
+      title: `${job.title} - فرصة عمل في ${job.city}`,
       description: desc,
-      type: "website",
-    },
+      path: `/jobs/${decodedSlug}`,
+      keywords: ["وظائف", job.title, job.city, job.jobCategory, "جوبز الأردن"].filter(Boolean) as string[],
+    }),
     robots: isPublished ? { index: true, follow: true } : { index: false, follow: false },
   };
 }
@@ -92,6 +92,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
 
   return (
     <article className="container-jo py-8">
+      <BreadcrumbJsonLd items={[{ name: "وظائف الأردن", path: "/jobs" }, { name: job.title, path: `/jobs/${job.slug}` }]} />
       <JobPostingSchema job={job} />
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">
         <main className="space-y-5">

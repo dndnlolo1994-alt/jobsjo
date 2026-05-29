@@ -7,6 +7,8 @@ import { JobSearchInput } from "@/components/JobSearchInput";
 import { SaveSearchForm } from "@/components/SaveSearchForm";
 import { parseJobSearchParams, searchJobsAdvanced } from "@/lib/search/jobs";
 import { getSessionUser } from "@/lib/session";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
   const sp = await searchParams;
@@ -14,29 +16,30 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const category = typeof sp.category === "string" ? sp.category : "";
   const type = typeof sp.type === "string" ? sp.type : "";
 
-  let title = "وظائف شاغرة في الأردن | جوبز الأردن";
+  let title = "وظائف شاغرة في الأردن";
   let description = "ابحث عن أحدث وظائف الأردن الشاغرة اليوم. تصفح فرص العمل بالقطاع المحلي في عمان وإربد وسائر المحافظات وقدم مجاناً.";
 
   if (city && category) {
-    title = `وظائف ${category} في ${city} | جوبز الأردن`;
+    title = `وظائف ${category} في ${city}`;
     description = `ابحث عن أحدث وظائف ${category} الشاغرة في مدينة ${city}، الأردن. اعثر على فرص عمل تناسب مهاراتك وقدّم بسيرتك الذاتية فوراً.`;
   } else if (city) {
-    title = `وظائف شاغرة في ${city} | جوبز الأردن`;
+    title = `وظائف شاغرة في ${city}`;
     description = `تصفح أحدث الوظائف وفرص العمل الشاغرة في مدينة ${city}، الأردن. ابحث عن فرص دوام كامل، جزئي وعن بعد وقدم الآن.`;
   } else if (category) {
-    title = `وظائف ${category} شاغرة في الأردن | جوبز الأردن`;
+    title = `وظائف ${category} شاغرة في الأردن`;
     description = `ابحث عن فرص عمل وظائف ${category} في الأردن. تصفح الوظائف المتاحة في مختلف المحافظات الأردنية وقدم سيرتك الذاتية مجاناً.`;
   } else if (type) {
     const typeLabel = type === "FULL_TIME" ? "دوام كامل" : type === "PART_TIME" ? "دوام جزئي" : type === "REMOTE" ? "عمل عن بعد" : type === "HYBRID" ? "عمل هجين" : "شواغر عمل";
-    title = `وظائف ${typeLabel} في الأردن | جوبز الأردن`;
+    title = `وظائف ${typeLabel} في الأردن`;
     description = `تصفح وظائف ${typeLabel} المتاحة في الأردن. اعثر على فرص عمل مرنة وتناسب أوقاتك وقدم طلبك اليوم.`;
   }
 
-  return {
+  return publicMetadata({
     title,
     description,
+    path: "/jobs",
     keywords: ["وظائف الأردن", "شغل في الأردن", "توظيف", city, category].filter(Boolean) as string[],
-  };
+  });
 }
 
 export default async function JobsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -48,9 +51,12 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
 
   return (
     <section className="container-jo py-8">
+      <BreadcrumbJsonLd items={[{ name: "وظائف الأردن", path: "/jobs" }]} />
       <div className="mb-6">
         <h1 className="section-title">وظائف الأردن</h1>
-        <p className="section-sub">فلترة سريعة وروابط قابلة للمشاركة للوظائف المحلية.</p>
+        <p className="section-sub">
+          ابحث بين وظائف الأردن الشاغرة حسب المدينة، المجال، نوع الدوام، والخبرة. هذه الصفحة تعرض فرصاً محلية قابلة للتقديم أو المتابعة من خلال جوبز الأردن.
+        </p>
       </div>
       <div className="grid lg:grid-cols-[300px_1fr] gap-6">
         <aside className="no-print min-w-0"><JobFilters /></aside>
@@ -81,7 +87,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           </div>
           {result.items.length === 0 ? (
             <div className="card p-6 text-center">
-              <EmptyState title="لم نجد وظائف بهذه الفلاتر" description="جرّب إزالة بعض الفلاتر أو البحث في مدينة قريبة." />
+              <EmptyState title="لم نجد وظائف بهذه الفلاتر" description="جرّب إزالة بعض الفلاتر أو البحث في مدينة قريبة. نحدّث الوظائف بشكل مستمر ونضيف فرصاً جديدة عند توفرها من أصحاب العمل والمصادر الموثوقة." />
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 <Link href="/jobs" className="btn-primary text-sm">إزالة الفلاتر</Link>
                 <Link href="/jobs?sort=newest" className="btn-outline text-sm">أحدث الوظائف</Link>

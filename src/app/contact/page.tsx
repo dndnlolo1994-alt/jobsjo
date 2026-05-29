@@ -3,15 +3,20 @@ import Link from "next/link";
 import { env } from "@/lib/env";
 import { FadeInSection } from "@/components/FadeInSection";
 import { ContactForm } from "@/components/ContactForm";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "اتصل بنا | جوبز الأردن",
+export const metadata: Metadata = publicMetadata({
+  title: "اتصل بنا",
   description: "تواصل مع فريق عمل منصة جوبز الأردن. نحن هنا لمساعدتك في أي استفسار، دعم فني، أو للإبلاغ عن أي إعلان وظيفة مشبوهة.",
-};
+  path: "/contact",
+  keywords: ["تواصل جوبز الأردن", "دعم وظائف الأردن", "الإبلاغ عن وظيفة"],
+});
 
 export default function ContactPage() {
   return (
     <div className="bg-[var(--color-bg)] min-h-screen text-[var(--color-text-main)] py-12">
+      <BreadcrumbJsonLd items={[{ name: "اتصل بنا", path: "/contact" }]} />
       {/* ── Hero Section ── */}
       <section className="container-jo text-center mb-16">
         <h1 className="section-title text-3xl md:text-5xl font-extrabold mb-4 text-[var(--color-text-title)]">

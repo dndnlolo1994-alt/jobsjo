@@ -4,11 +4,15 @@ import { CvPreview } from "@/components/cv/CvPreview";
 import { CvPricingFrame } from "@/components/cv/CvPricingFrame";
 import { cvSampleData, cvSampleUserSkills } from "@/lib/cv-sample-data";
 import { env } from "@/lib/env";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicMetadata({
   title: "باقات الاشتراك والأسعار",
-  description: "تعرف على أسعار وخطط الاشتراك للباحثين عن عمل وللشركات في منصة جوبز الأردن.",
-};
+  description: "تعرف على أسعار جوبز الأردن للباحثين عن عمل وأصحاب الشركات، من الحساب المجاني إلى باقة Plus وخدمات نشر الوظائف.",
+  path: "/pricing",
+  keywords: ["أسعار جوبز الأردن", "باقات وظائف الأردن", "نشر وظيفة في الأردن", "Job Seeker Plus"],
+});
 export const revalidate = 3600;
 
 export default async function PricingPage() {
@@ -18,7 +22,7 @@ export default async function PricingPage() {
       price: "0 د.أ",
       originalPrice: null,
       period: "دائمًا",
-      description: "كان 1 د.أ وأصبح مجانياً بالكامل للراغبين بتصفح الوظائف والتقديم بشكل محدود.",
+      description: "عرض عيد الاستقلال: كان 1 د.أ وأصبح 0 د.أ للراغبين بتصفح الوظائف والتقديم بشكل محدود.",
       features: [
         "تصفح جميع الوظائف الشاغرة يومياً",
         "حفظ الوظائف المفضلة للرجوع إليها لاحقاً",
@@ -34,7 +38,7 @@ export default async function PricingPage() {
       price: "2 د.أ",
       originalPrice: "4 د.أ",
       period: "شهرياً",
-      description: "عرض إطلاق للأفراد الباحثين عن عمل: كان 4 د.أ وأصبح 2 د.أ شهرياً.",
+      description: "عرض عيد الاستقلال للأفراد الباحثين عن عمل: كان 4 د.أ وأصبح 2 د.أ شهرياً.",
       features: [
         "التقديم السريع غير المحدود على جميع الوظائف",
         "تنزيل السيرة الذاتية PDF باللغتين العربية والإنجليزية معاً (نسخة عربية كاملة + نسخة إنجليزية كاملة) بعدة قوالب احترافية وألوان متميزة",
@@ -55,7 +59,7 @@ export default async function PricingPage() {
       price: "5 د.أ",
       originalPrice: "8 د.أ",
       period: "لكل وظيفة",
-      description: "عرض إطلاق لأصحاب العمل: كان 8 د.أ وأصبح 5 د.أ لكل إعلان.",
+      description: "عرض عيد الاستقلال لأصحاب العمل: كان 8 د.أ وأصبح 5 د.أ لكل إعلان.",
       features: [
         "إعلان عادي نشط لمدة 30 يوماً متواصلة",
         "تصفية وفرز المتقدمين عبر لوحة التحكم",
@@ -109,6 +113,7 @@ export default async function PricingPage() {
 
   return (
     <section className="container-jo py-8 sm:py-12">
+      <BreadcrumbJsonLd items={[{ name: "الأسعار", path: "/pricing" }]} />
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
@@ -116,6 +121,9 @@ export default async function PricingPage() {
         </h1>
         <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
           سواء كنت تبحث عن وظيفتك القادمة أو ترغب في توظيف أفضل الكفاءات لشركتك، لدينا الباقة المناسبة لاحتياجاتك بأفضل الأسعار.
+        </p>
+        <p className="mt-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-extrabold text-amber-800">
+          عروض ترويجية بمناسبة عيد الاستقلال: المجاني 1 د.أ صار 0، Plus 4 د.أ صار 2، ونشر الوظيفة 8 د.أ صار 5
         </p>
       </div>
 

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { env } from "@/lib/env";
 import { Logo } from "./Logo";
 
+const FOOTER_BRAND_NAME = "وظائف الأردن";
+
 export function Footer() {
   return (
     <footer
@@ -128,7 +130,7 @@ export function Footer() {
         style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.15)" }}
       >
         <div className="container-jo py-5 text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <span>© {new Date().getFullYear()} وظائف الأردن. جميع الحقوق محفوظة.</span>
+          <span>© {new Date().getFullYear()} {FOOTER_BRAND_NAME}. جميع الحقوق محفوظة.</span>
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse" />
             منصة محلية أردنية — صُمّم بحب في الأردن 🇯🇴

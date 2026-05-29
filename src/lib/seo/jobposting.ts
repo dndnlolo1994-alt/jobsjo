@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { absoluteUrl } from "@/lib/seo/site";
 import { JOB_TYPE_LABEL, EDUCATION_LEVEL_LABEL, EXPERIENCE_LEVEL_LABEL } from "@/lib/utils";
 
 export function stripHtml(text: string | null | undefined) {
@@ -57,7 +57,7 @@ export function buildJobPostingJsonLd(job: {
         streetAddress: job.area ?? job.city,
       },
     },
-    url: `${env.SITE_URL}/jobs/${job.slug}`,
+    url: absoluteUrl(`/jobs/${job.slug}`),
     directApply: true,
   };
 

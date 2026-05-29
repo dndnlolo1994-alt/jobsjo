@@ -8,7 +8,8 @@ import { getSessionUser } from "@/lib/session";
 import { CompanyReviewForm } from "@/components/CompanyReviewForm";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { Building2, ExternalLink, Mail, MessageCircle } from "lucide-react";
-import { env } from "@/lib/env";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
 export const revalidate = 3600;
 
@@ -21,21 +22,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
   if (!company) return { title: "شركة غير موجودة | جوبز الأردن" };
 
-  const title = `وظائف شركة ${company.name} في الأردن | جوبز الأردن`;
+  const title = `وظائف شركة ${company.name} في الأردن`;
   const description = company.description
     ? company.description.slice(0, 160)
     : `تصفح الوظائف الشاغرة وفرص العمل المتاحة لدى شركة ${company.name} في ${company.city || "الأردن"} في قطاع ${company.industry || "التشغيل"}.`;
 
   return {
-    title,
-    description,
-    keywords: ["وظائف شركات", company.name, company.city, company.industry].filter(Boolean) as string[],
-    openGraph: {
+    ...publicMetadata({
       title,
       description,
-      type: "website",
-      url: `${env.SITE_URL}/companies/${decodedSlug}`,
-    },
+      path: `/companies/${decodedSlug}`,
+      keywords: ["وظائف شركات", company.name, company.city, company.industry].filter(Boolean) as string[],
+    }),
   };
 }
 
@@ -65,6 +63,7 @@ export default async function CompanyPage({
   const orgLd = company.name && company.city ? { "@context": "https://schema.org", "@type": "Organization", name: company.name, address: { "@type": "PostalAddress", addressCountry: "JO", addressLocality: company.city }, url: company.website ?? undefined } : null;
   return (
     <section className="container-jo py-6 pb-28 md:py-8 md:pb-8">
+      <BreadcrumbJsonLd items={[{ name: "دليل الشركات", path: "/companies" }, { name: company.name, path: `/companies/${company.slug}` }]} />
       {orgLd && <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(orgLd)}} />}
       
       {claimed === "true" && (

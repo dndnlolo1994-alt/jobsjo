@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -6,9 +7,18 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/api", "/me", "/dashboard", "/employer/dashboard"],
+        disallow: [
+          "/admin",
+          "/dashboard",
+          "/account",
+          "/api",
+          "/me",
+          "/employer",
+          "/login?*",
+          "/register?*",
+        ],
       },
     ],
-    sitemap: "https://www.jordan-job.shop/sitemap.xml",
+    sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

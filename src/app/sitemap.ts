@@ -1,52 +1,58 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = "https://www.jordan-job.shop";
+  const now = new Date();
 
-  // 1. Static Pages definitions with priority and changeFrequency
   const staticPages: MetadataRoute.Sitemap = [
     {
-      url: `${base}`,
-      lastModified: new Date(),
+      url: absoluteUrl("/"),
+      lastModified: now,
       changeFrequency: "daily",
       priority: 1.0,
     },
     {
-      url: `${base}/jobs`,
-      lastModified: new Date(),
+      url: absoluteUrl("/jobs"),
+      lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: `${base}/companies`,
-      lastModified: new Date(),
+      url: absoluteUrl("/companies"),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.7,
     },
     {
-      url: `${base}/pricing`,
-      lastModified: new Date(),
+      url: absoluteUrl("/pricing"),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.5,
     },
     {
-      url: `${base}/about`,
-      lastModified: new Date(),
+      url: absoluteUrl("/about"),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.5,
     },
     {
-      url: `${base}/cv-builder`,
-      lastModified: new Date(),
+      url: absoluteUrl("/contact"),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.5,
     },
     {
-      url: `${base}/contact`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.5,
+      url: absoluteUrl("/privacy"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/terms"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
     },
   ];
 
@@ -54,14 +60,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let dynamicCompanies: MetadataRoute.Sitemap = [];
 
   try {
-    // 2. Fetch active jobs from DB via Prisma
     const jobs = await prisma.job.findMany({
       where: { status: "PUBLISHED" },
       select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+      take: 500,
     });
 
     dynamicJobs = jobs.map((job) => ({
-      url: `${base}/jobs/${job.slug}`,
+      url: absoluteUrl(`/jobs/${job.slug}`),
       lastModified: job.updatedAt,
       changeFrequency: "daily",
       priority: 0.9,
@@ -71,14 +78,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   try {
-    // 3. Fetch active companies from DB via Prisma
     const companies = await prisma.company.findMany({
-      where: { publishedAt: { not: null } },
+      where: {
+        OR: [
+          { publishedAt: { not: null } },
+          { verificationStatus: "VERIFIED" },
+          { jobs: { some: { status: "PUBLISHED" } } },
+        ],
+      },
       select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+      take: 300,
     });
 
     dynamicCompanies = companies.map((company) => ({
-      url: `${base}/companies/${company.slug}`,
+      url: absoluteUrl(`/companies/${company.slug}`),
       lastModified: company.updatedAt,
       changeFrequency: "weekly",
       priority: 0.7,

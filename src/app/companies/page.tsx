@@ -3,11 +3,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { Building2, BriefcaseBusiness, Mail, MapPin } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "دليل الشركات",
-  description: "شركات لديها وظائف منشورة على جوبز الأردن.",
-};
+export const metadata: Metadata = publicMetadata({
+  title: "دليل الشركات التي توظف في الأردن",
+  description: "تصفح دليل الشركات وأصحاب العمل الذين ينشرون وظائف على جوبز الأردن، واعرف المدن والقطاعات والفرص المتاحة حالياً.",
+  path: "/companies",
+  keywords: ["شركات توظيف الأردن", "دليل الشركات الأردن", "وظائف الشركات", "أصحاب العمل الأردن"],
+});
 
 export const revalidate = 3600;
 
@@ -25,9 +29,12 @@ export default async function CompaniesPage() {
 
   return (
     <section className="container-jo py-8">
+      <BreadcrumbJsonLd items={[{ name: "دليل الشركات", path: "/companies" }]} />
       <div className="mb-6">
         <h1 className="section-title">دليل الشركات</h1>
-        <p className="section-sub">شركات أردنية وفرص عمل مفتوحة مع بيانات تواصل أوضح.</p>
+        <p className="section-sub">
+          دليل للشركات وأصحاب العمل في الأردن مع الوظائف المفتوحة، بيانات القطاعات، وروابط التواصل عند توفرها. يمكن للشركات نشر الوظائف وإدارة المتقدمين من خلال المنصة.
+        </p>
       </div>
 
       {!hasCompanies ? (
@@ -36,6 +43,9 @@ export default async function CompaniesPage() {
           <h2 className="mt-3 text-lg font-extrabold text-navy-950">دليل الشركات قيد التحديث</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-7 text-navy-500">
             لا توجد شركات منشورة حالياً، ويمكنك تصفح الوظائف المتاحة مباشرة.
+          </p>
+          <p className="mx-auto mt-2 max-w-md text-xs leading-6 text-navy-400">
+            إذا كنت صاحب عمل، يمكنك إنشاء حساب شركة ونشر فرص العمل ليظهر ملف شركتك في الدليل بعد المراجعة.
           </p>
           <Link href="/jobs" className="btn-primary mt-5 text-sm">تصفح الوظائف</Link>
         </div>

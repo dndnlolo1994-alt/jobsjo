@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -5,6 +6,14 @@ import { JobCard } from "@/components/JobCard";
 import { Badge } from "@/components/Badge";
 import { FadeInSection } from "@/components/FadeInSection";
 import { JOB_CATEGORIES, JORDAN_CITIES } from "@/lib/utils";
+import { publicMetadata } from "@/lib/seo/site";
+
+export const metadata: Metadata = publicMetadata({
+  title: "وظائف الأردن الشاغرة للباحثين وأصحاب العمل",
+  description: "جوبز الأردن منصة توظيف محلية تساعد الباحثين عن عمل في الأردن على تصفح الوظائف وإنشاء CV احترافي، وتساعد الشركات على نشر فرص العمل واستقبال الطلبات.",
+  path: "/",
+  keywords: ["وظائف الأردن", "فرص عمل في الأردن", "وظائف عمان", "توظيف الأردن", "سيرة ذاتية"],
+});
 
 export const revalidate = 3600;
 
@@ -342,25 +351,28 @@ export default async function HomePage() {
               >
                 خطط بسيطة وشفافة
               </h2>
-              <p className="text-gray-400 text-sm">ابدأ مجاناً، وترقّى عندما تحتاج</p>
+              <p className="text-gray-400 text-sm">عروض ترويجية بمناسبة عيد الاستقلال — ابدأ مجاناً، وترقّى عندما تحتاج</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               <Plan
                 title="مجاني"
                 price="0 د"
-                features={["تصفّح الوظائف", "حساب باحث عمل", "حفظ وظائف محدود"]}
+                promo="عرض عيد الاستقلال: كان 1 د وأصبح 0 د"
+                features={["كان 1 د والآن 0 د", "تصفّح الوظائف", "حساب باحث عمل", "حفظ وظائف محدود"]}
               />
               <Plan
                 title="Plus للباحث"
                 price="2 د/شهر"
-                features={["بدلاً من 4 د", "CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]}
+                promo="عرض عيد الاستقلال: كان 4 د وأصبح 2 د"
+                features={["كان 4 د والآن 2 د", "CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]}
                 highlight
               />
               <Plan
                 title="نشر وظيفة"
                 price="من 5 د"
-                features={["بدلاً من 8 د", "إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
+                promo="عرض عيد الاستقلال: كان 8 د وأصبح 5 د"
+                features={["كان 8 د والآن 5 د", "إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
               />
             </div>
 
@@ -491,9 +503,9 @@ function Step({ n, title, text }: { n: number; title: string; text: string }) {
 }
 
 function Plan({
-  title, price, features, highlight,
+  title, price, features, promo, highlight,
 }: {
-  title: string; price: string; features: string[]; highlight?: boolean;
+  title: string; price: string; features: string[]; promo?: string; highlight?: boolean;
 }) {
   if (highlight) {
     return (
@@ -514,6 +526,11 @@ function Plan({
         >
           <div className="text-xs font-bold tracking-wider uppercase text-white/60 mb-1">{title}</div>
           <div className="text-4xl font-extrabold text-white mt-2 mb-6">{price}</div>
+          {promo && (
+            <div className="mb-4 rounded-xl border border-accent-400/25 bg-accent-400/10 px-3 py-2 text-[11px] font-extrabold leading-5 text-accent-200">
+              {promo}
+            </div>
+          )}
           <ul className="space-y-3 text-sm flex-1">
             {features.map((f) => (
               <li key={f} className="flex items-center gap-2 text-white/80">
@@ -533,6 +550,11 @@ function Plan({
     >
       <div className="text-xs font-bold tracking-wider uppercase text-gray-400 mb-1">{title}</div>
       <div className="text-4xl font-extrabold text-white mt-2 mb-6">{price}</div>
+      {promo && (
+        <div className="mb-4 rounded-xl border border-accent-400/20 bg-white/5 px-3 py-2 text-[11px] font-extrabold leading-5 text-accent-200">
+          {promo}
+        </div>
+      )}
       <ul className="space-y-3 text-sm flex-1">
         {features.map((f) => (
           <li key={f} className="flex items-center gap-2 text-gray-400">

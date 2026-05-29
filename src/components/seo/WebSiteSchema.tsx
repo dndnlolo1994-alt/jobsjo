@@ -1,14 +1,15 @@
 import React from "react";
+import { absoluteUrl, SITE_NAME } from "@/lib/seo/site";
 
 export function WebSiteSchema() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "جوبز الأردن",
-    "url": "https://www.jordan-job.shop",
+    "name": SITE_NAME,
+    "url": absoluteUrl("/"),
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://www.jordan-job.shop/jobs?q={search_term_string}",
+      "target": `${absoluteUrl("/jobs")}?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };

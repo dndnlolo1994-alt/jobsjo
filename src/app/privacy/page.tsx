@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
+import { publicMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "سياسة الخصوصية | جوبز الأردن",
+export const metadata: Metadata = publicMetadata({
+  title: "سياسة الخصوصية",
   description: "سياسة خصوصية منصة جوبز الأردن وحقوق المستخدمين في إدارة بياناتهم الشخصية.",
-};
+  path: "/privacy",
+});
 
 const sections = [
   {
@@ -44,6 +47,7 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <section className="container-jo py-10">
+      <BreadcrumbJsonLd items={[{ name: "سياسة الخصوصية", path: "/privacy" }]} />
       <div className="max-w-3xl">
         <h1 className="section-title">سياسة الخصوصية</h1>
         <p className="section-sub mt-3">

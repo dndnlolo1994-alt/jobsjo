@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import LoginForm from "@/components/auth/LoginForm";
+import { privateMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = { title: "دخول", robots: { index: false, follow: false } };
+export const metadata: Metadata = privateMetadata("تسجيل الدخول", "ادخل إلى حسابك لمتابعة طلباتك أو إدارة وظائف شركتك على جوبز الأردن.");
 
 export default function LoginPage() {
   return (
@@ -12,4 +13,3 @@ export default function LoginPage() {
     </section>
   );
 }
-

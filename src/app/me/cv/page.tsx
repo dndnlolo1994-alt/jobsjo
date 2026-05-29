@@ -96,7 +96,7 @@ export default async function MyCvPage() {
                   <h3 className="font-bold text-navy-900 text-sm">ترقية إلى باقة Plus</h3>
                 </div>
                 <p className="text-xs text-navy-500 leading-6 mb-3">
-                  أضف صورتك الشخصية للسيرة، نزّلها بدون رسوم، وتقدّم على الوظائف بلا حدود — مقابل 2 دينار/شهرياً.
+                  أضف صورتك الشخصية للسيرة، نزّلها بدون رسوم، وتقدّم على الوظائف بلا حدود — عرض عيد الاستقلال 2 دينار/شهرياً بدل 4.
                 </p>
                 <RequestPlusButton />
               </div>
