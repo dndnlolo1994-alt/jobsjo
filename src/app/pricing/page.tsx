@@ -6,6 +6,7 @@ import { cvSampleData, cvSampleUserSkills } from "@/lib/cv-sample-data";
 import { env } from "@/lib/env";
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { publicMetadata } from "@/lib/seo/site";
+import { WHATSAPP_URL } from "@/lib/constants";
 
 export const metadata: Metadata = publicMetadata({
   title: "باقات الاشتراك والأسعار",
@@ -128,14 +129,14 @@ export default async function PricingPage() {
   ];
 
   return (
-    <section className="container-jo py-8 sm:py-12">
+    <section className="container-jo py-8 sm:py-12 text-[var(--text)]">
       <BreadcrumbJsonLd items={[{ name: "الأسعار", path: "/pricing" }]} />
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
           باقات الاشتراك والأسعار
         </h1>
-        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+        <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
           سواء كنت تبحث عن وظيفتك القادمة أو ترغب في توظيف أفضل الكفاءات لشركتك، لدينا الباقة المناسبة لاحتياجاتك بأفضل الأسعار.
         </p>
         <p className="mt-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-extrabold text-amber-800">
@@ -244,8 +245,8 @@ export default async function PricingPage() {
       {/* Employer Plans Section */}
       <div className="mb-14">
         <div className="border-r-4 border-amber-500 pr-3 mb-6">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">خطط الشركات وأصحاب العمل</h2>
-          <p className="text-xs text-slate-500 mt-1">باقات وخدمات مخصصة لنشر الوظائف واستقطاب المرشحين المناسبين</p>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">خطط الشركات وأصحاب العمل</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">باقات وخدمات مخصصة لنشر الوظائف واستقطاب المرشحين المناسبين</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4 sm:gap-5 items-start">
@@ -255,7 +256,7 @@ export default async function PricingPage() {
               className={`rounded-2xl p-4 sm:p-5 flex flex-col transition-all duration-300 relative ${
                 plan.highlight
                   ? "bg-slate-900 text-white shadow-xl border border-amber-500/20 ring-1 ring-amber-500/15 md:-translate-y-0.5"
-                  : "bg-white border border-slate-200 shadow-sm hover:shadow-md"
+                  : "bg-white dark:bg-navy-900/40 border border-slate-200 dark:border-navy-800/40 shadow-sm hover:shadow-md text-slate-900 dark:text-white"
               }`}
             >
               {plan.highlight && (
@@ -263,41 +264,41 @@ export default async function PricingPage() {
                   الأكثر توفيراً
                 </span>
               )}
-              <h3 className={`text-sm sm:text-base font-bold ${plan.highlight ? "text-amber-400 pt-5" : "text-slate-900"}`}>
+              <h3 className={`text-sm sm:text-base font-bold ${plan.highlight ? "text-amber-400 pt-5" : "text-slate-900 dark:text-white"}`}>
                 {plan.name}
               </h3>
-              <p className={`text-[11px] mt-1 leading-snug ${plan.highlight ? "text-slate-300" : "text-slate-500"}`}>
+              <p className={`text-[11px] mt-1 leading-snug ${plan.highlight ? "text-slate-300" : "text-slate-500 dark:text-slate-400"}`}>
                 {plan.description}
               </p>
 
               <div className="mt-3 mb-3 flex flex-wrap items-baseline gap-2">
                 {plan.originalPrice && (
-                  <span className={`text-xs font-bold line-through decoration-2 ${plan.highlight ? "text-slate-400" : "text-slate-400"}`}>
+                  <span className={`text-xs font-bold line-through decoration-2 ${plan.highlight ? "text-slate-400" : "text-slate-400 dark:text-slate-500"}`}>
                     السعر الأساسي {plan.originalPrice}
                   </span>
                 )}
-                <span className="text-2xl sm:text-3xl font-extrabold">{plan.price}</span>
+                <span className={`text-2xl sm:text-3xl font-extrabold ${plan.highlight ? "text-white" : "text-slate-900 dark:text-white"}`}>{plan.price}</span>
                 {plan.originalPrice && (
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
-                    plan.highlight ? "bg-amber-500/10 text-amber-300" : "bg-amber-50 text-amber-700"
+                    plan.highlight ? "bg-amber-500/10 text-amber-300" : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400"
                   }`}>
                     سعر العرض
                   </span>
                 )}
-                <span className={`text-[11px] ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>/ {plan.period}</span>
+                <span className={`text-[11px] ${plan.highlight ? "text-slate-400" : "text-slate-500 dark:text-slate-400"}`}>/ {plan.period}</span>
               </div>
 
-              <ul className="space-y-2 border-t border-slate-100/10 pt-3">
+              <ul className={`space-y-2 border-t pt-3 ${plan.highlight ? "border-slate-100/10" : "border-slate-100 dark:border-navy-800/40"}`}>
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-2 items-start text-[11px] sm:text-xs leading-snug">
                     <span
                       className={`mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold ${
-                        plan.highlight ? "bg-amber-500/10 text-amber-400" : "bg-amber-50 text-amber-700"
+                        plan.highlight ? "bg-amber-500/10 text-amber-400" : "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400"
                       }`}
                     >
                       ✓
                     </span>
-                    <span className={plan.highlight ? "text-slate-200" : "text-slate-700"}>{feature}</span>
+                    <span className={plan.highlight ? "text-slate-200" : "text-slate-700 dark:text-slate-300"}>{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -307,7 +308,7 @@ export default async function PricingPage() {
                 className={`mt-4 w-full text-center py-2 px-3 rounded-lg text-xs font-bold block transition-all active:scale-[0.98] ${
                   plan.highlight
                     ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+                    : "bg-slate-100 hover:bg-slate-200 dark:bg-navy-800 dark:hover:bg-navy-750 text-slate-800 dark:text-slate-200"
                 }`}
               >
                 {plan.cta}
@@ -320,25 +321,25 @@ export default async function PricingPage() {
       {/* Add-ons and Extras */}
       <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {/* Info card on Manual Payment */}
-        <div className="card-pad bg-emerald-50/30 border border-emerald-100">
-          <h3 className="font-extrabold text-slate-900 text-base mb-3 flex items-center gap-2">
+        <div className="card-pad bg-emerald-50/30 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/30">
+          <h3 className="font-extrabold text-slate-900 dark:text-white text-base mb-3 flex items-center gap-2">
             <span>💳</span> آلية الدفع وتفعيل الخدمات
           </h3>
-          <p className="text-xs text-slate-600 leading-6">
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-6">
             حالياً نقبل وسائل الدفع المحلية يدويًا لضمان السهولة وتجنب تعقيدات البطاقات. بعد تقديم طلب الدفع، يمكنك التحويل عبر:
           </p>
-          <ul className="text-xs text-slate-700 mt-3 space-y-2 font-semibold">
+          <ul className="text-xs text-slate-700 dark:text-slate-200 mt-3 space-y-2 font-semibold">
             <li>• تحويل CliQ فوري وسريع.</li>
             <li>• إرسال حوالة للمحفظة الإلكترونية (Zain Cash, Umniah, Orange).</li>
             <li>• التحويل البنكي المباشر.</li>
           </ul>
-          <p className="text-xs text-slate-500 mt-4 leading-5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-4 leading-5">
             بعد التحويل، قم بمشاركة لقطة الشاشة مع فريق الدعم الفني، وسيتم تفعيل حسابك أو سيرتك الذاتية من قبل الإدارة فوراً.
           </p>
           <a
-            href={`https://wa.me/${env.PLATFORM_WHATSAPP}`}
+            href={WHATSAPP_URL}
             target="_blank"
-            className="btn bg-white hover:bg-slate-50 border border-emerald-200 text-emerald-800 text-xs font-bold mt-4 w-full text-center"
+            className="btn bg-white dark:bg-navy-900 hover:bg-slate-50 dark:hover:bg-navy-800 border border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-400 text-xs font-bold mt-4 w-full text-center"
           >
             💬 استفسر أو أرسل إثبات الدفع عبر واتساب
           </a>
@@ -347,23 +348,23 @@ export default async function PricingPage() {
         {/* List of Add-ons */}
         <div className="card-pad flex flex-col justify-between">
           <div>
-            <h3 className="font-extrabold text-slate-900 text-base mb-3 flex items-center gap-2">
+            <h3 className="font-extrabold text-slate-900 dark:text-white text-base mb-3 flex items-center gap-2">
               <span>⚡</span> الخدمات الفردية الإضافية
             </h3>
-            <p className="text-xs text-slate-500 mb-4">خدمات يمكنك شراؤها لمرة واحدة لتلبية احتياجات سريعة دون اشتراك شهري.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">خدمات يمكنك شراؤها لمرة واحدة لتلبية احتياجات سريعة دون اشتراك شهري.</p>
             
             <div className="space-y-3">
               {addons.map((addon) => (
-                <div key={addon.name} className="flex justify-between items-center text-xs sm:text-sm border-b border-slate-100 pb-2.5">
-                  <span className="font-medium text-slate-700">{addon.name}</span>
-                  <span className="font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100/50">
+                <div key={addon.name} className="flex justify-between items-center text-xs sm:text-sm border-b border-slate-100 dark:border-navy-800/40 pb-2.5">
+                  <span className="font-medium text-slate-700 dark:text-slate-300">{addon.name}</span>
+                  <span className="font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-1 rounded-lg border border-emerald-100/50 dark:border-emerald-900/30">
                     {addon.price}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-          <p className="text-[10px] text-slate-400 mt-4 leading-relaxed">
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-4 leading-relaxed">
             * تنطبق الرسوم الفردية عند رغبتك بالحصول على الخدمة مباشرة دون الاشتراك في باقة الشركات الشهرية.
           </p>
         </div>
