@@ -32,6 +32,56 @@ export function JobFiltersSkeleton() {
   );
 }
 
+export function JobDetailSkeleton() {
+  return (
+    <article className="container-jo py-8">
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <main className="space-y-5">
+          <section className="card-pad">
+            <div className="mb-3 flex flex-wrap gap-2">
+              <div className="h-7 w-16 rounded-full bg-amber-100 shimmer" />
+              <div className="h-7 w-20 rounded-full bg-emerald-100 shimmer" />
+            </div>
+            <div className="h-9 w-4/5 max-w-xl rounded bg-slate-200 shimmer" />
+            <div className="mt-3 h-4 w-72 max-w-full rounded bg-slate-100 shimmer" />
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-xl bg-navy-50 p-3">
+                  <div className="h-3 w-16 rounded bg-slate-200 shimmer" />
+                  <div className="mt-2 h-5 w-24 rounded bg-slate-200 shimmer" />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {Array.from({ length: 3 }).map((_, i) => (
+            <section key={i} className="card-pad">
+              <div className="mb-4 h-6 w-36 rounded bg-slate-200 shimmer" />
+              <div className="space-y-3">
+                <div className="h-4 w-full rounded bg-slate-100 shimmer" />
+                <div className="h-4 w-11/12 rounded bg-slate-100 shimmer" />
+                <div className="h-4 w-3/4 rounded bg-slate-100 shimmer" />
+              </div>
+            </section>
+          ))}
+        </main>
+
+        <aside className="space-y-4">
+          <div className="card-pad sticky top-20">
+            <div className="mb-4 h-6 w-36 rounded bg-slate-200 shimmer" />
+            <div className="h-28 rounded-xl bg-slate-100 shimmer" />
+            <div className="mt-3 h-12 rounded-xl bg-emerald-100 shimmer" />
+            <div className="mt-5 space-y-2 border-t border-navy-50 pt-4">
+              <div className="h-3 w-28 rounded bg-slate-100 shimmer" />
+              <div className="h-3 w-32 rounded bg-slate-100 shimmer" />
+            </div>
+          </div>
+        </aside>
+      </div>
+    </article>
+  );
+}
+
 export function CompanyCardSkeleton() {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">

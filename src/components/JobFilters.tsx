@@ -1,22 +1,21 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useTransition } from "react";
 import { JOB_TYPE_LABEL, JOB_CATEGORIES, JORDAN_CITIES, EXPERIENCE_LEVEL_LABEL, EDUCATION_LEVEL_LABEL } from "@/lib/utils";
 
 export function JobFilters() {
   const router = useRouter();
   const params = useSearchParams();
-  const [pending, setPending] = useState(false);
+  const [pending, startTransition] = useTransition();
 
   function apply(form: FormData) {
     const sp = new URLSearchParams();
     for (const [k, v] of form.entries()) {
       if (typeof v === "string" && v.trim() !== "") sp.set(k, v.toString());
     }
-    setPending(true);
-    router.push(`/jobs?${sp.toString()}`);
-    setPending(false);
+    const next = sp.toString() ? `/jobs?${sp.toString()}` : "/jobs";
+    startTransition(() => router.push(next));
   }
 
   return (
@@ -144,13 +143,15 @@ export function JobFilters() {
         </label>
       </div>
 
-      <button type="submit" disabled={pending} className="btn-primary h-12 w-full">
-        {pending ? "..." : "تطبيق الفلاتر"}
+      <button type="submit" disabled={pending} className="btn-primary h-12 w-full disabled:cursor-not-allowed disabled:opacity-70">
+        {pending && <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />}
+        <span>{pending ? "جاري تطبيق الفلاتر..." : "تطبيق الفلاتر"}</span>
       </button>
       <button
         type="button"
-        onClick={() => router.push("/jobs")}
-        className="h-11 w-full rounded-xl px-4 text-sm font-bold text-slate-200 transition-colors hover:bg-white/10"
+        disabled={pending}
+        onClick={() => startTransition(() => router.push("/jobs"))}
+        className="h-11 w-full rounded-xl px-4 text-sm font-bold text-slate-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
       >
         إعادة تعيين
       </button>
