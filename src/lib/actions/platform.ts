@@ -7,7 +7,7 @@ import { requireAdmin, requireEmployer, requireJobSeeker, requireUser, hashPassw
 import { getSession } from "@/lib/session";
 import { registerSchema, loginSchema, applicationSchema, companyClaimSchema, cvSchema } from "@/lib/validation";
 import { jobCreateSchema } from "@/lib/validation";
-import { uniqueSlug, toCsv } from "@/lib/utils";
+import { uniqueSlug, toCsv, formatDateArabic } from "@/lib/utils";
 import { computeMatch } from "@/lib/matching/job-score";
 import { ensureCvPdfBilling } from "@/lib/billing/cv";
 import { getNotifier } from "@/lib/notifications";
@@ -27,9 +27,7 @@ async function notifyJobSeekerPlanChange(userId: string, plan: "FREE" | "PLUS", 
   if (!user?.email) return;
 
   const isPlus = plan === "PLUS";
-  const expiresText = expiresAt
-    ? new Intl.DateTimeFormat("ar-JO", { year: "numeric", month: "long", day: "numeric" }).format(expiresAt)
-    : "";
+  const expiresText = expiresAt ? formatDateArabic(expiresAt) : "";
   const subject = isPlus
     ? "تم تفعيل باقة Plus في جوبز الأردن"
     : "تم تحديث خطة حسابك في جوبز الأردن";

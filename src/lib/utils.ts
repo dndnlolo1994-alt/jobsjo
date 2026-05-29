@@ -36,12 +36,17 @@ export function formatJod(amount: number | string | null | undefined): string {
   if (amount === null || amount === undefined) return "—";
   const n = typeof amount === "string" ? parseFloat(amount) : amount;
   if (Number.isNaN(n)) return "—";
-  return new Intl.NumberFormat("ar-JO", {
-    style: "currency",
-    currency: "JOD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(n);
+  try {
+    return new Intl.NumberFormat("ar-JO", {
+      style: "currency",
+      currency: "JOD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(n);
+  } catch (e) {
+    console.error("formatJod error:", e);
+    return `${n} د.أ`;
+  }
 }
 
 export function formatRelativeArabic(date: Date | string): string {
@@ -59,11 +64,21 @@ export function formatRelativeArabic(date: Date | string): string {
 export function formatDateArabic(date: Date | string | null | undefined): string {
   if (!date) return "—";
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("ar-JO", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(d);
+  if (Number.isNaN(d.getTime())) return "—";
+  try {
+    return new Intl.DateTimeFormat("ar-JO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(d);
+  } catch (e) {
+    console.error("formatDateArabic error:", e);
+    try {
+      return d.toLocaleDateString("ar") || d.toISOString().split("T")[0];
+    } catch (_) {
+      return d.toISOString().split("T")[0];
+    }
+  }
 }
 
 export const JOB_TYPE_LABEL: Record<string, string> = {
