@@ -15,7 +15,7 @@ export const cvSampleData = {
   website: null,
   photo: "/cv-sample-photo.jpg",
   summary:
-    "أخصائية تسويق رقمي بخبرة 4 سنوات في إدارة الحملات الإعلانية، تحليل الأداء، وإنتاج المحتوى لقطاع التجزئة والخدمات في الأردن. أركز على نتائج قابلة للقياس وتحسين معدلات التحويل عبر منصات التواصل والإعلانات المدفوعة.",
+    "أخصائية تسويق رقمي بخبرة 4 سنوات في إدارة الحملات الإعلانية، تحليل الأداء، وإنتاج المحتوى لقطاع التجزئة والخدمات في الأردن. أركز على نتائج قابلة للقياس، تحسين معدلات التحويل، وإدارة حسابات العلامات التجارية على Meta وGoogle.",
   experiences: [
     {
       id: "exp-1",
@@ -73,8 +73,20 @@ export const cvSampleData = {
       year: "2022",
       order: 1,
     },
+    {
+      id: "cert-3",
+      name: "HubSpot Inbound Marketing",
+      issuer: "HubSpot",
+      year: "2023",
+      order: 2,
+    },
   ],
-  englishVersion: null,
+  englishVersion: JSON.stringify({
+    extras: {
+      languages: "العربية (لغة أم) — تحدث وكتابة\nEnglish — Professional working proficiency",
+      tools: "Meta Ads Manager • Google Ads • GA4 • Canva • Excel",
+    },
+  }),
 };
 
 export const cvSampleUserSkills = ["Excel", "تواصل", "تنظيم"];

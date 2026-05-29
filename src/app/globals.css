@@ -403,3 +403,19 @@ html { scroll-behavior: smooth; }
   .cv-print-gold header { padding: 10mm 15mm !important; box-sizing: border-box !important; }
   .cv-print-gold .p-8   { padding: 10mm 15mm !important; box-sizing: border-box !important; }
 }
+
+/* معاينة الأسعار: خط أوضح داخل الإطار المصغّر */
+.pricing-cv-embed .cv-print h1 { font-size: 1.85rem !important; }
+.pricing-cv-embed .cv-print h2 { font-size: 0.92rem !important; }
+.pricing-cv-embed .cv-print h3 { font-size: 0.78rem !important; }
+.pricing-cv-embed .cv-print p,
+.pricing-cv-embed .cv-print li,
+.pricing-cv-embed .cv-print span { font-size: max(0.68rem, 1em); }
+.pricing-cv-embed .cv-print .text-\[10\.5px\],
+.pricing-cv-embed .cv-print .text-\[11px\],
+.pricing-cv-embed .cv-print .text-\[9\.2px\],
+.pricing-cv-embed .cv-print .text-\[9\.5px\],
+.pricing-cv-embed .cv-print .text-\[10px\] {
+  font-size: 0.72rem !important;
+  line-height: 1.45 !important;
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CvPreview } from "@/components/cv/CvPreview";
+import { CvPricingFrame } from "@/components/cv/CvPricingFrame";
 import { cvSampleData, cvSampleUserSkills } from "@/lib/cv-sample-data";
 import { env } from "@/lib/env";
 
@@ -120,9 +121,9 @@ export default async function PricingPage() {
           <p className="text-xs text-slate-300 mt-1">باقات مخصصة لمساعدتك في بناء سيرتك الذاتية والتقديم على الوظائف</p>
         </div>
         
-        <div className="flex flex-col xl:grid xl:grid-cols-[1fr_minmax(320px,400px)] gap-5 lg:gap-6 items-start max-w-6xl mx-auto">
+        <div className="flex flex-col gap-6 max-w-6xl mx-auto">
           {/* Seeker Plans Cards */}
-          <div className="order-2 xl:order-1 grid md:grid-cols-2 gap-4 sm:gap-5 w-full items-start">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-5 w-full items-start">
             {seekerPlans.map((plan) => (
               <div
                 key={plan.name}
@@ -176,28 +177,28 @@ export default async function PricingPage() {
             ))}
           </div>
 
-          {/* معاينة حية — نفس قالب PDF (Plus + صورة) — قابلة للتمرير على الموبايل */}
-          <div className="order-1 xl:order-2 rounded-2xl p-3 sm:p-4 border border-emerald-500/20 bg-[#07110f] w-full shadow-lg shadow-emerald-950/20 xl:sticky xl:top-24">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2 mb-3">
-              <h4 className="font-extrabold text-white text-sm sm:text-base">
-                هكذا ستبدو سيرتك بعد التفعيل (مثال حقيقي)
+          {/* معاينة كاملة — تظهر صفحة A4 دفعة واحدة بدون سحب أو زوم */}
+          <div className="rounded-2xl p-4 sm:p-5 border border-emerald-500/20 bg-[#07110f] w-full max-w-[560px] mx-auto shadow-lg shadow-emerald-950/20">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3 mb-4">
+              <h4 className="font-extrabold text-white text-base sm:text-lg leading-snug">
+                هكذا ستبدو سيرتك بعد التفعيل
+                <span className="block text-emerald-300/90 text-xs font-bold mt-0.5">مثال حقيقي من باني السيرة — Plus مع صورة</span>
               </h4>
               <Link
                 href="/cv/sample"
-                className="text-[11px] font-bold text-emerald-300 hover:text-emerald-200 underline underline-offset-2"
+                target="_blank"
+                className="text-xs font-bold text-emerald-300 hover:text-white bg-emerald-600/20 hover:bg-emerald-600/35 px-3 py-1.5 rounded-lg border border-emerald-500/30 transition-colors shrink-0"
               >
-                عرض بحجم كامل
+                PDF كامل
               </Link>
             </div>
 
-            {/* معاينة A4 كاملة — تمرير أفقي/عمودي بدون scale (يتجنب قص المحتوى) */}
-            <div className="rounded-lg border border-[#c2a06c]/40 bg-slate-100 shadow-inner overflow-auto max-h-[min(72vh,560px)] overscroll-contain touch-pan-x touch-pan-y">
-              <div className="w-[794px] min-w-[794px] shrink-0 [&_.cv-print]:mb-0 [&_.cv-print]:shadow-none">
-                <CvPreview cv={cvSampleData} userSkills={cvSampleUserSkills} lang="ar" isPlus />
-              </div>
-            </div>
-            <p className="text-[11px] text-emerald-200/90 mt-2 text-center font-medium leading-snug">
-              اسحب داخل الإطار لقراءة كل التفاصيل بوضوح — نفس شكل ملف PDF بعد التفعيل
+            <CvPricingFrame maxHeight={640}>
+              <CvPreview cv={cvSampleData} userSkills={cvSampleUserSkills} lang="ar" isPlus />
+            </CvPricingFrame>
+
+            <p className="text-xs text-slate-300 mt-3 text-center leading-relaxed">
+              الصفحة كاملة في الإطار — رأس أخضر، صورة شخصية، خبرات، مهارات، شهادات، QR موثق. نفس ملف PDF بعد التفعيل.
             </p>
           </div>
         </div>
