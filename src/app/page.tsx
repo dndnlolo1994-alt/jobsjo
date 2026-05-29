@@ -50,52 +50,22 @@ export default async function HomePage() {
           HERO — Full-bleed responsive background
          ══════════════════════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden text-white"
+        className="relative overflow-hidden text-white py-12 sm:py-16 md:py-24"
         style={{ background: "#06091F" }}
       >
-        {/* ── Background image — cover for both mobile and desktop ── */}
-        <div className="relative w-full min-h-[55vh] sm:min-h-[60vh] md:min-h-[70vh] lg:min-h-[75vh]" style={{ maxHeight: "85vh" }}>
-          <Image
-            src="/images/hero-jojobs.png"
-            alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-            style={{ objectPosition: "center 35%" }}
-          />
+        {/* ── Ambient glows for modern premium look ── */}
+        <div className="absolute -left-20 -top-20 w-80 h-80 rounded-full opacity-20 blur-[100px] pointer-events-none"
+             style={{ background: "#1B4FDB" }} />
+        <div className="absolute bottom-0 right-0 translate-x-1/3 translate-y-1/3 w-80 h-80 rounded-full opacity-15 blur-[100px] pointer-events-none"
+             style={{ background: "#7C3AED" }} />
 
-          {/* ── Overlays ── */}
-          {/* Desktop: RTL gradient — dark on right (text side) → fade to left (image side) */}
-          <div
-            className="absolute inset-0 hidden sm:block"
-            style={{
-              background:
-                "linear-gradient(to left, rgba(6,9,31,0.92) 0%, rgba(6,9,31,0.75) 30%, rgba(6,9,31,0.35) 55%, rgba(6,9,31,0.15) 80%, rgba(6,9,31,0.05) 100%)",
-            }}
-          />
-          {/* Mobile: stronger overlay for readability */}
-          <div
-            className="absolute inset-0 sm:hidden"
-            style={{ background: "linear-gradient(to top, rgba(6,9,31,0.95) 0%, rgba(6,9,31,0.75) 40%, rgba(6,9,31,0.55) 100%)" }}
-          />
-
-          {/* Bottom fade to match section bg */}
-          <div
-            className="absolute inset-x-0 bottom-0 h-24 sm:h-32 pointer-events-none"
-            style={{
-              background: "linear-gradient(to top, #06091F 0%, transparent 100%)",
-            }}
-          />
-
-          {/* ── Content — centered on mobile, right-aligned on desktop ─── */}
-          <div className="absolute inset-0 flex items-center sm:items-end">
-            <div className="container-jo w-full py-8 sm:pb-14 sm:pt-0">
-              {/* Text block — full-width centered on mobile, right half on desktop (RTL) */}
-              <div className="max-w-xl w-full sm:w-3/5 lg:w-1/2 text-center sm:text-right mx-auto sm:mx-0">
-
+        {/* ── Content Grid (RTL layout: Text right, Image left) ── */}
+        <div className="container-jo relative z-10 grid lg:grid-cols-2 gap-10 items-center">
+          
+          {/* Right Column: Text & Search CTAs */}
+          <div className="space-y-6 text-center lg:text-right max-w-xl mx-auto lg:mx-0">
             {/* Social proof bar */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 mb-5 sm:mb-7 text-sm">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 text-sm">
               <StatPill value={stats.jobs.toLocaleString("ar-JO")} label="وظيفة منشورة" />
               <Divider />
               <StatPill value={stats.companies.toLocaleString("ar-JO")} label="شركة مسجلة" />
@@ -104,7 +74,7 @@ export default async function HomePage() {
             <h1
               className="font-extrabold leading-[1.15] text-white drop-shadow-md"
               style={{
-                fontSize: "clamp(1.75rem, 5vw, 4.5rem)",
+                fontSize: "clamp(2rem, 4.5vw, 3.75rem)",
                 fontFamily: "var(--font-tajawal), sans-serif",
               }}
             >
@@ -114,13 +84,12 @@ export default async function HomePage() {
               </span>
             </h1>
 
-            <p className="text-white/80 mt-3 sm:mt-5 text-sm sm:text-base md:text-lg max-w-md leading-relaxed drop-shadow-sm mx-auto sm:mx-0">
-              منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF،
-              وتتابع طلباتك من مكان واحد.
+            <p className="text-white/85 text-sm sm:text-base md:text-lg leading-relaxed drop-shadow-sm max-w-md mx-auto lg:mx-0">
+              منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF، وتتابع طلباتك من مكان واحد بكل سهولة وأمان.
             </p>
 
             {/* CTA row — stacked on mobile, inline on desktop */}
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-6 sm:mt-8">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
               <Link href="/jobs" className="btn-primary pulse-glow text-sm sm:text-base">
                 🔍 ابحث عن وظيفة
               </Link>
@@ -138,13 +107,31 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <p className="text-[11px] text-white/40 mt-4 sm:mt-5 font-semibold">
+            <p className="text-[11px] text-white/40 font-semibold">
               ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة
             </p>
-              </div>  {/* max-w-xl text block */}
-            </div>    {/* container-jo */}
-          </div>      {/* absolute inset-0 content */}
-        </div>        {/* min-h wrapper */}
+          </div>
+
+          {/* Left Column: Image (100% visible, no crop, no zoom) */}
+          <div className="flex justify-center items-center w-full">
+            <div 
+              className="relative w-full max-w-[480px] aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/10 transition-transform duration-500 hover:scale-[1.01]"
+              style={{
+                boxShadow: "0 25px 50px -12px rgba(27,79,219,0.25)"
+              }}
+            >
+              <Image
+                src="/images/hero-jojobs.png"
+                alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 480px"
+                className="object-cover"
+              />
+            </div>
+          </div>
+
+        </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════
