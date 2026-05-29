@@ -18,6 +18,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
   // QR points to the real public verification page on the live domain.
   const qrBase = (siteUrl || "").replace(/\/$/, "");
   const qrVerifyId = cv?.userId || cv?.id || "verify";
+  const hasPublicQr = Boolean(cv?.qrEnabled && (isPaid || isPlus || billingStatus === "PAID" || billingStatus === "WAIVED"));
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`${qrBase}/cv/${qrVerifyId}`)}`;
   const qrLabel = `${qrBase.replace(/^https?:\/\//, "")}/cv`;
   const [activeTab, setActiveTab] = useState<"basic" | "experiences" | "educations" | "skills" | "certifications" | "extras" | "translation" | "design">("basic");
@@ -1046,11 +1047,17 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
 
                       {/* QR Code */}
                       <div className="pt-3 border-t border-slate-200 text-center flex flex-col items-center">
-                        <img
-                          src={qrSrc}
-                          alt="QR Verification"
-                          className="w-14 h-14 border border-emerald-100 p-0.5 rounded bg-white shadow-sm shrink-0"
-                        />
+                        {hasPublicQr ? (
+                          <img
+                            src={qrSrc}
+                            alt="QR Verification"
+                            className="w-14 h-14 border border-emerald-100 p-0.5 rounded bg-white shadow-sm shrink-0"
+                          />
+                        ) : (
+                          <div className="w-14 h-14 border border-dashed border-slate-300 rounded bg-slate-50 grid place-items-center text-[8px] text-slate-400 font-bold leading-tight px-1">
+                            بعد التفعيل
+                          </div>
+                        )}
                         <span className="text-[8.5px] text-[#084c41] font-bold block mt-1">
                           {t("سيرة موثقة")}
                         </span>
@@ -1089,7 +1096,13 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                         </div>
                       </div>
                     </div>
-                    <img src={qrSrc} alt="QR" className="w-14 h-14 border border-slate-200 p-0.5 rounded shrink-0 animate-pulse" />
+                    {hasPublicQr ? (
+                      <img src={qrSrc} alt="QR" className="w-14 h-14 border border-slate-200 p-0.5 rounded shrink-0 animate-pulse" />
+                    ) : (
+                      <div className="w-14 h-14 border border-dashed border-slate-300 rounded shrink-0 grid place-items-center text-[8px] text-slate-400 font-bold leading-tight text-center px-1">
+                        QR بعد التفعيل
+                      </div>
+                    )}
                   </div>
 
                   {/* Summary */}

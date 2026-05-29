@@ -10,12 +10,12 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   let featured: any[] = [];
-  let stats = { jobs: 0, companies: 0, cities: 0, users: 0 };
+  let stats = { jobs: 0, companies: 0, cities: 0 };
   let cityCounts: Record<string, number> = {};
   let categoryCounts: Record<string, number> = {};
 
   try {
-    const [items, j, c, cities, categories, userCount] = await Promise.all([
+    const [items, j, c, cities, categories] = await Promise.all([
       prisma.job.findMany({
         where: { status: "PUBLISHED" },
         include: { company: { select: { name: true, logoUrl: true, slug: true } } },
@@ -26,10 +26,9 @@ export default async function HomePage() {
       prisma.company.count(),
       prisma.job.groupBy({ by: ["city"], where: { status: "PUBLISHED" }, _count: { _all: true } }),
       prisma.job.groupBy({ by: ["jobCategory"], where: { status: "PUBLISHED" }, _count: { _all: true } }),
-      prisma.user.count({ where: { isActive: true } }),
     ]);
     featured = items;
-    stats = { jobs: j, companies: c, cities: cities.length, users: userCount };
+    stats = { jobs: j, companies: c, cities: cities.length };
     cityCounts     = Object.fromEntries(cities.map((x) => [x.city, x._count._all]));
     categoryCounts = Object.fromEntries(categories.map((x) => [x.jobCategory, x._count._all]));
   } catch (e) {
@@ -91,8 +90,6 @@ export default async function HomePage() {
               <StatPill value={stats.jobs.toLocaleString("ar-JO")} label="وظيفة منشورة" />
               <Divider />
               <StatPill value={stats.companies.toLocaleString("ar-JO")} label="شركة مسجلة" />
-              <Divider />
-              <StatPill value={stats.users > 0 ? stats.users.toLocaleString("ar-JO") : "250+"} label="مشترك نشط" />
             </div>
 
             <h1
@@ -357,13 +354,13 @@ export default async function HomePage() {
               <Plan
                 title="Plus للباحث"
                 price="2 د/شهر"
-                features={["CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]}
+                features={["بدلاً من 4 د", "CV PDF", "تقديم بدون حدود", "تنبيهات وظائف", "تتبّع الطلبات"]}
                 highlight
               />
               <Plan
                 title="نشر وظيفة"
                 price="من 5 د"
-                features={["إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
+                features={["بدلاً من 8 د", "إعلان عادي 5 د", "مميّز 10 د", "عاجل/مثبّت 15 د"]}
               />
             </div>
 

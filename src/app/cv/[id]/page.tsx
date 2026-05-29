@@ -4,7 +4,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { getSessionUser } from "@/lib/session";
-import { EXPERIENCE_LEVEL_LABEL, EDUCATION_LEVEL_LABEL } from "@/lib/utils";
+import { fromCsv } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "السيرة الذاتية الموثقة | جوبز الأردن",
@@ -19,6 +19,7 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
   const cv = await prisma.cVProfile.findFirst({
     where: { OR: [{ userId: id }, { id }] },
     include: {
+      user: { include: { jobSeekerProfile: true } },
       experiences: { orderBy: { order: "asc" } },
       educations: { orderBy: { order: "asc" } },
       skills: { orderBy: { order: "asc" } },
@@ -48,8 +49,36 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
   // Get current session user to check ownership
   const currentUser = await getSessionUser();
   const isOwner = currentUser && (currentUser.id === cv.userId || currentUser.role === "ADMIN");
+  const seeker = cv.user.jobSeekerProfile;
+  const isVerifiedPublicCv = Boolean(
+    cv.qrEnabled &&
+    (cv.paymentStatus === "PAID" || cv.paymentStatus === "WAIVED" || seeker?.plan === "PLUS")
+  );
 
   const updated = new Intl.DateTimeFormat("ar-JO", { dateStyle: "long" }).format(cv.updatedAt);
+  const seekerSkills = fromCsv(seeker?.skills);
+  const preferredCities = fromCsv(seeker?.preferredCities);
+  const languages = fromCsv(seeker?.languages);
+  const portfolioLinks = fromCsv(seeker?.portfolioLinks);
+
+  if (!isVerifiedPublicCv && !isOwner) {
+    return (
+      <section className="container-jo py-16 max-w-lg">
+        <div className="card card-pad text-center space-y-4 shadow-lg border border-amber-100 bg-white">
+          <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center text-3xl mx-auto border border-amber-100">
+            !
+          </div>
+          <h1 className="text-xl font-extrabold text-[var(--color-text-title)]">صفحة التعريف غير مفعلة بعد</h1>
+          <p className="text-sm text-gray-500 leading-7">
+            هذه السيرة موجودة، لكن رابط QR العام لا يظهر للزوار إلا بعد تفعيل الدفع أو الإعفاء من الإدارة.
+          </p>
+          <Link href="/" className="btn-primary inline-block py-2.5 px-6">
+            العودة للصفحة الرئيسية
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div className="bg-[var(--color-bg)] min-h-screen text-[var(--color-text-main)] py-8 md:py-12">
@@ -75,7 +104,7 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
             <div className="absolute right-6 top-6">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-full shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                سيرة موثّقة ومتحقق منها
+                {isVerifiedPublicCv ? "سيرة موثّقة ومفعلة" : "معاينة خاصة بصاحب الحساب"}
               </span>
             </div>
           </div>
@@ -99,8 +128,24 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
               )}
               <div className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-1 text-xs text-gray-500 mt-3">
                 {cv.city && <span className="flex items-center gap-1">📍 {cv.city}</span>}
+                {cv.country && <span className="flex items-center gap-1">🇯🇴 {cv.country}</span>}
                 <span className="flex items-center gap-1">🗓 آخر تحديث: {updated}</span>
               </div>
+            </div>
+          </div>
+
+          <div className="px-6 md:px-10 pb-5 grid sm:grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-3 text-center">
+              <span className="block text-[11px] text-emerald-700 font-bold">حالة الصفحة</span>
+              <strong className="text-sm text-emerald-900">{isVerifiedPublicCv ? "مفعلة عبر QR" : "معاينة خاصة"}</strong>
+            </div>
+            <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-3 text-center">
+              <span className="block text-[11px] text-blue-700 font-bold">قابلية التحديث</span>
+              <strong className="text-sm text-blue-950">تتحدث من لوحة الباحث</strong>
+            </div>
+            <div className="rounded-2xl border border-slate-150 bg-slate-50 p-3 text-center">
+              <span className="block text-[11px] text-slate-500 font-bold">رقم التحقق</span>
+              <strong className="text-xs text-slate-800 break-all">{cv.id.slice(0, 10)}</strong>
             </div>
           </div>
 
@@ -147,6 +192,21 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
 
         {/* ── Main CV Content ── */}
         <div className="space-y-6">
+          {(seeker?.headline || seeker?.summary || preferredCities.length > 0 || languages.length > 0) && (
+            <div className="card card-pad border border-gray-100 bg-white shadow-sm">
+              <h2 className="text-lg font-bold text-[var(--color-text-title)] mb-4 flex items-center gap-2">
+                <span className="text-xl">👤</span> بطاقة تعريف الباحث
+              </h2>
+              {seeker?.headline && <p className="font-extrabold text-primary-600 mb-2">{seeker.headline}</p>}
+              {seeker?.summary && <p className="text-sm text-gray-600 leading-8 whitespace-pre-wrap mb-4">{seeker.summary}</p>}
+              <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                {seeker?.city && <div className="rounded-xl bg-gray-50 p-3"><span className="text-gray-400 block text-xs">المدينة</span><strong>{seeker.city}</strong></div>}
+                {typeof seeker?.yearsOfExperience === "number" && <div className="rounded-xl bg-gray-50 p-3"><span className="text-gray-400 block text-xs">سنوات الخبرة</span><strong>{seeker.yearsOfExperience.toLocaleString("ar-JO")}</strong></div>}
+                {preferredCities.length > 0 && <div className="rounded-xl bg-gray-50 p-3"><span className="text-gray-400 block text-xs">مدن مفضلة</span><strong>{preferredCities.join("، ")}</strong></div>}
+                {languages.length > 0 && <div className="rounded-xl bg-gray-50 p-3"><span className="text-gray-400 block text-xs">اللغات</span><strong>{languages.join("، ")}</strong></div>}
+              </div>
+            </div>
+          )}
           
           {/* Summary / Noba */}
           {cv.summary && (
@@ -233,12 +293,23 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
               <span className="text-xl">⚡</span> المهارات المهنية
             </h2>
             {cv.skills.length === 0 ? (
-              <p className="text-sm text-gray-400 py-2">لا توجد مهارات مسجلة.</p>
+              seekerSkills.length === 0 ? (
+                <p className="text-sm text-gray-400 py-2">لا توجد مهارات مسجلة.</p>
+              ) : null
             ) : (
               <div className="flex flex-wrap gap-2.5">
                 {cv.skills.map((skill) => (
                   <span key={skill.id} className="bg-primary-50 dark:bg-primary-950/20 text-primary-600 dark:text-primary-400 px-3.5 py-1.5 rounded-xl text-sm font-semibold border border-primary-100 dark:border-primary-900/30">
                     {skill.name}
+                  </span>
+                ))}
+              </div>
+            )}
+            {seekerSkills.length > 0 && (
+              <div className="flex flex-wrap gap-2.5 mt-3">
+                {seekerSkills.map((skill) => (
+                  <span key={skill} className="bg-slate-50 text-slate-700 px-3.5 py-1.5 rounded-xl text-sm font-semibold border border-slate-150">
+                    {skill}
                   </span>
                 ))}
               </div>
@@ -266,6 +337,24 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
               </div>
             )}
           </div>
+
+          {portfolioLinks.length > 0 && (
+            <div className="card card-pad border border-gray-100 bg-white shadow-sm">
+              <h2 className="text-lg font-bold text-[var(--color-text-title)] mb-4 flex items-center gap-2">
+                <span className="text-xl">🔗</span> أعمال وروابط مهنية
+              </h2>
+              <div className="grid gap-2">
+                {portfolioLinks.map((link) => {
+                  const href = link.startsWith("http") ? link : `https://${link}`;
+                  return (
+                    <a key={link} href={href} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-slate-150 bg-slate-50 px-3 py-2 text-sm font-bold text-primary-600 hover:bg-primary-50 break-all" dir="ltr">
+                      {link}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── Verification Stamp Footer ── */}

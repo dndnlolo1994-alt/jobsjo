@@ -55,11 +55,14 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   // Generate QR Code dynamically, pointing to the real public verification page.
   const siteBase = env.SITE_URL.replace(/\/$/, "");
   const verifyId = cv.userId || cv.id;
+  const hasPublicQr = Boolean(cv.qrEnabled && (isPlus || cv.paymentStatus === "PAID" || cv.paymentStatus === "WAIVED"));
   const verifyUrl = `${siteBase}/cv/${verifyId}`;
   const verifyLabel = `${siteBase.replace(/^https?:\/\//, "")}/cv`;
   let qrCodeDataUrl = "";
   try {
-    qrCodeDataUrl = await QRCode.toDataURL(verifyUrl);
+    if (hasPublicQr) {
+      qrCodeDataUrl = await QRCode.toDataURL(verifyUrl);
+    }
   } catch (err) {
     console.error("Error generating QR code:", err);
   }

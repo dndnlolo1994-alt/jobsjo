@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { loginAction } from "@/lib/actions/platform";
 import { PasswordField } from "./PasswordField";
 
 export default function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,13 +21,17 @@ export default function LoginForm() {
     try {
       const res = await loginAction(null, formData);
       if (res && !res.ok) {
-        setError(res.message);
+        setError(res.message ?? "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        return;
+      }
+      if (res?.ok) {
+        const requestedRedirect = searchParams.get("redirect");
+        const safeRedirect = requestedRedirect?.startsWith("/") && !requestedRedirect.startsWith("//")
+          ? requestedRedirect
+          : null;
+        router.push(safeRedirect || res.redirect || "/me");
       }
     } catch (err: any) {
-      // Allow NEXT_REDIRECT to bubble up to Next.js router
-      if (err.digest?.startsWith("NEXT_REDIRECT") || err.message === "NEXT_REDIRECT") {
-        throw err;
-      }
       setError("حدث خطأ غير متوقع أثناء تسجيل الدخول. الرجاء التحقق من البيانات.");
       console.error(err);
     } finally {

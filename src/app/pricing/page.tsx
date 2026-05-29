@@ -16,8 +16,9 @@ export default async function PricingPage() {
     {
       name: "الحساب المجاني",
       price: "0 د.أ",
+      originalPrice: null,
       period: "دائمًا",
-      description: "للراغبين بتصفح الوظائف والتقديم بشكل محدود.",
+      description: "كان 1 د.أ وأصبح مجانياً بالكامل للراغبين بتصفح الوظائف والتقديم بشكل محدود.",
       features: [
         "تصفح جميع الوظائف الشاغرة يومياً",
         "حفظ الوظائف المفضلة للرجوع إليها لاحقاً",
@@ -31,8 +32,9 @@ export default async function PricingPage() {
     {
       name: "الباحث بلس (Job Seeker Plus)",
       price: "2 د.أ",
+      originalPrice: "4 د.أ",
       period: "شهرياً",
-      description: "الخيار الأمثل للباحثين بجدية عن فرص عمل أفضل وأسرع.",
+      description: "عرض إطلاق للأفراد الباحثين عن عمل: كان 4 د.أ وأصبح 2 د.أ شهرياً.",
       features: [
         "التقديم السريع غير المحدود على جميع الوظائف",
         "تنزيل السيرة الذاتية PDF باللغتين العربية والإنجليزية معاً (نسخة عربية كاملة + نسخة إنجليزية كاملة) بعدة قوالب احترافية وألوان متميزة",
@@ -51,8 +53,9 @@ export default async function PricingPage() {
     {
       name: "نشر إعلان فردي",
       price: "5 د.أ",
+      originalPrice: "8 د.أ",
       period: "لكل وظيفة",
-      description: "لأصحاب العمل الذين يرغبون بنشر وظائف بشكل متقطع.",
+      description: "عرض إطلاق لأصحاب العمل: كان 8 د.أ وأصبح 5 د.أ لكل إعلان.",
       features: [
         "إعلان عادي نشط لمدة 30 يوماً متواصلة",
         "تصفية وفرز المتقدمين عبر لوحة التحكم",
@@ -66,6 +69,7 @@ export default async function PricingPage() {
     {
       name: "باقة الشركات الأساسية",
       price: "10 د.أ",
+      originalPrice: null,
       period: "شهرياً",
       description: "للمؤسسات والشركات الصغيرة ذات التوظيف المستمر.",
       features: [
@@ -81,6 +85,7 @@ export default async function PricingPage() {
     {
       name: "الباقة الاحترافية (Employer Pro)",
       price: "25 د.أ",
+      originalPrice: null,
       period: "شهرياً",
       description: "للشركات ومكاتب التوظيف التي تبحث عن أفضل الكفاءات وبسرعة قصوى.",
       features: [
@@ -143,8 +148,11 @@ export default async function PricingPage() {
                 </h3>
                 <p className="text-[11px] mt-1 leading-snug text-slate-300">{plan.description}</p>
 
-                <div className="mt-3 mb-3 flex items-baseline gap-1">
+                <div className="mt-3 mb-3 flex flex-wrap items-baseline gap-2">
                   <span className="text-xl sm:text-2xl font-extrabold">{plan.price}</span>
+                  {plan.originalPrice && (
+                    <span className="text-xs text-slate-400 line-through">{plan.originalPrice}</span>
+                  )}
                   <span className="text-[11px] text-slate-400">/ {plan.period}</span>
                 </div>
 
@@ -233,8 +241,13 @@ export default async function PricingPage() {
                 {plan.description}
               </p>
 
-              <div className="mt-3 mb-3 flex items-baseline gap-1">
+              <div className="mt-3 mb-3 flex flex-wrap items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-extrabold">{plan.price}</span>
+                {plan.originalPrice && (
+                  <span className={`text-xs line-through ${plan.highlight ? "text-slate-400" : "text-slate-400"}`}>
+                    {plan.originalPrice}
+                  </span>
+                )}
                 <span className={`text-[11px] ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>/ {plan.period}</span>
               </div>
 

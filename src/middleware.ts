@@ -3,11 +3,16 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+  const hostname = request.nextUrl.hostname;
+  const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
 
   // 1. Enforce HTTPS in production
+  const forwardedProto = request.headers.get("x-forwarded-proto");
   if (
     process.env.NODE_ENV === "production" &&
-    request.headers.get("x-forwarded-proto") !== "https"
+    !isLocalHost &&
+    forwardedProto &&
+    forwardedProto !== "https"
   ) {
     const secureUrl = new URL(request.url);
     secureUrl.protocol = "https:";

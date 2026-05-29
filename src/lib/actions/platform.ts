@@ -130,7 +130,10 @@ export async function loginAction(_: unknown, form: FormData) {
   session.user = { id: user.id, email: user.email, role: user.role, fullName: user.fullName };
   session.createdAt = Date.now();
   await (session as any).save();
-  redirect(user.role === "EMPLOYER" ? "/employer" : user.role === "ADMIN" ? "/admin" : "/me");
+  return {
+    ok: true,
+    redirect: user.role === "EMPLOYER" ? "/employer" : user.role === "ADMIN" ? "/admin" : "/me",
+  };
 }
 
 export async function verifyOtpAction(email: string, code: string) {
@@ -993,4 +996,3 @@ export async function adminUpdateJobSeekerPlanAction(userId: string, plan: "FREE
   revalidatePath("/admin/job-seekers");
   revalidatePath("/admin");
 }
-

@@ -22,7 +22,7 @@ export default async function BillingPage() {
         <div className="card-pad mb-5 bg-emerald-50/40 border border-emerald-100">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-lg">👑</span>
-            <h2 className="font-bold text-navy-900">ترقية إلى باقة Plus (2 دينار/شهرياً)</h2>
+            <h2 className="font-bold text-navy-900">ترقية إلى باقة Plus (عرض 2 بدل 4 دينار/شهرياً)</h2>
           </div>
           <p className="text-sm text-navy-600 leading-7 mb-3">
             صورة شخصية على سيرتك الذاتية، تنزيل PDF بدون رسوم، نسخة إنجليزية كاملة، وتقديم غير محدود على الوظائف. اضغط لإرسال طلب الترقية ثم أرسل إثبات الدفع ليُفعّل حسابك فوراً.

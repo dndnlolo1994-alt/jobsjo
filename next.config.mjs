@@ -45,15 +45,6 @@ const nextConfig = {
         ],
       },
       {
-        source: "/((?:[^.]+))", // Matches routes without a dot (page routes) to prevent overriding JS/CSS/image Content-Types
-        headers: [
-          {
-            key: "Content-Type",
-            value: "text/html; charset=utf-8",
-          },
-        ],
-      },
-      {
         source: "/icons/:path*",
         headers: [
           {
