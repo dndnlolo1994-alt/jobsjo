@@ -2,6 +2,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export type NotificationProvider = {
   send(opts: { to: string; subject: string; html?: string; text?: string }): Promise<void>;
@@ -65,15 +66,60 @@ class SmtpProvider implements NotificationProvider {
   }
 }
 
-const useSmtp = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-let provider: NotificationProvider = useSmtp ? new SmtpProvider() : new ConsoleProvider();
+class ResendProvider implements NotificationProvider {
+  private client: Resend;
+
+  constructor() {
+    this.client = new Resend(process.env.RESEND_API_KEY);
+  }
+
+  async send(opts: { to: string; subject: string; html?: string; text?: string }) {
+    const from = process.env.RESEND_FROM || `جوبز الأردن <onboarding@resend.dev>`;
+    try {
+      const { data, error } = await this.client.emails.send({
+        from,
+        to: opts.to,
+        subject: opts.subject,
+        html: opts.html || opts.text || "",
+        text: opts.text,
+      });
+      if (error) {
+        console.error(`[Resend] Failed to send to ${opts.to}:`, error);
+        // Fallback so the flow never crashes (no content leaked in prod).
+        await new ConsoleProvider().send(opts);
+        return;
+      }
+      console.log(`[Resend] Email sent to ${opts.to} (id: ${data?.id ?? "n/a"})`);
+    } catch (err) {
+      console.error(`[Resend] Exception sending to ${opts.to}:`, err);
+      await new ConsoleProvider().send(opts);
+    }
+  }
+}
+
+// Provider priority: Resend (transactional) > SMTP > Console fallback.
+type ProviderKind = "resend" | "smtp" | "console";
+
+function desiredKind(): ProviderKind {
+  if (process.env.RESEND_API_KEY) return "resend";
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) return "smtp";
+  return "console";
+}
+
+function makeProvider(kind: ProviderKind): NotificationProvider {
+  if (kind === "resend") return new ResendProvider();
+  if (kind === "smtp") return new SmtpProvider();
+  return new ConsoleProvider();
+}
+
+let currentKind: ProviderKind = desiredKind();
+let provider: NotificationProvider = makeProvider(currentKind);
 
 export function getNotifier(): NotificationProvider {
-  const dynamicUseSmtp = !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-  if (dynamicUseSmtp && !(provider instanceof SmtpProvider)) {
-    provider = new SmtpProvider();
-  } else if (!dynamicUseSmtp && (provider instanceof SmtpProvider)) {
-    provider = new ConsoleProvider();
+  const kind = desiredKind();
+  if (kind !== currentKind) {
+    currentKind = kind;
+    provider = makeProvider(kind);
   }
   return provider;
 }

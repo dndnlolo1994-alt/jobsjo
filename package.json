@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "prisma migrate deploy || echo '[WARN] prisma migrate deploy did not complete — continuing build; verify DB schema/migrations manually'; next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -15,6 +16,7 @@
     "prisma:push": "prisma db push",
     "seed": "tsx prisma/seed.ts",
     "test": "tsx tests/run.ts",
+    "test:email": "tsx scripts/send-test-email.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -31,6 +33,7 @@
     "qrcode": "^1.5.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "resend": "^6.12.4",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8"
   },
