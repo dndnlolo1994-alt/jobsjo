@@ -86,31 +86,31 @@ export default async function AboutPage() {
           
           <div className="lg:col-span-5 relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/10 to-accent-500/10 rounded-3xl transform rotate-3 scale-102 blur-sm"></div>
-            <div className="card card-pad relative bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-blue-100 p-8 rounded-3xl space-y-6 shadow-lg">
-              <div className="text-center pb-4 border-b border-gray-100">
+            <div className="card card-pad relative bg-white/80 dark:bg-slate-900/80 backdrop-blur border border-blue-100 dark:border-slate-800/60 p-8 rounded-3xl space-y-6 shadow-lg">
+              <div className="text-center pb-4 border-b border-gray-100 dark:border-slate-800">
                 <span className="text-4xl">🚀</span>
-                <h3 className="font-bold text-xl mt-3 text-primary-600">تطور جوبز الأردن</h3>
+                <h3 className="font-bold text-xl mt-3 text-primary-600 dark:text-primary-400">تطور جوبز الأردن</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-sm shrink-0">1</div>
+                  <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm shrink-0">1</div>
                   <div>
-                    <h4 className="font-bold text-sm text-[var(--color-text)]">الفكرة (ألمانيا)</h4>
-                    <p className="text-xs text-gray-500">ملاحظة الفجوة في سوق التوظيف وتصميم نموذج أولي يركز على الشفافية.</p>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">الفكرة (ألمانيا)</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">ملاحظة الفجوة في سوق التوظيف وتصميم نموذج أولي يركز على الشفافية.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-sm shrink-0">2</div>
+                  <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm shrink-0">2</div>
                   <div>
-                    <h4 className="font-bold text-sm text-[var(--color-text)]">بناء النظام</h4>
-                    <p className="text-xs text-gray-500">تطوير المنصة بأحدث التقنيات SSR و SEO لضمان أقصى انتشار للوظائف مجاناً.</p>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">بناء النظام</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">تطوير المنصة بأحدث التقنيات SSR و SEO لضمان أقصى انتشار للوظائف مجاناً.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-sm shrink-0">3</div>
+                  <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm shrink-0">3</div>
                   <div>
-                    <h4 className="font-bold text-sm text-[var(--color-text)]">الإطلاق في الأردن</h4>
-                    <p className="text-xs text-gray-500">تقديم خدمات التوظيف وباني السيرة الذاتية الاحترافية للآلاف في المملكة.</p>
+                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">الإطلاق في الأردن</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">تقديم خدمات التوظيف وباني السيرة الذاتية الاحترافية للآلاف في المملكة.</p>
                   </div>
                 </div>
               </div>
