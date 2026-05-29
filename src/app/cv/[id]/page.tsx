@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { getSessionUser } from "@/lib/session";
-import { fromCsv } from "@/lib/utils";
+import { fromCsv, formatDateArabic } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "السيرة الذاتية الموثقة | جوبز الأردن",
@@ -55,7 +54,7 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
     (cv.paymentStatus === "PAID" || cv.paymentStatus === "WAIVED" || seeker?.plan === "PLUS")
   );
 
-  const updated = new Intl.DateTimeFormat("ar-JO", { dateStyle: "long" }).format(cv.updatedAt);
+  const updated = formatDateArabic(cv.updatedAt);
   const seekerSkills = fromCsv(seeker?.skills);
   const preferredCities = fromCsv(seeker?.preferredCities);
   const languages = fromCsv(seeker?.languages);
@@ -114,7 +113,8 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
             {/* Photo Avatar */}
             <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl border-4 border-white dark:border-gray-900 bg-gray-100 dark:bg-gray-800 shadow-md overflow-hidden shrink-0 relative flex items-center justify-center text-5xl">
               {cv.photo ? (
-                <Image src={cv.photo} alt={cv.fullName} fill className="object-cover" />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={cv.photo} alt={cv.fullName} className="w-full h-full object-cover rounded-xl" />
               ) : (
                 <span>🧑</span>
               )}

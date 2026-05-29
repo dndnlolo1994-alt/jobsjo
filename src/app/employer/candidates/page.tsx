@@ -226,7 +226,7 @@ export default async function EmployerCandidatesSearchPage({
 
                   {/* Actions */}
                   <div className="pt-3 border-t border-slate-50 flex justify-between items-center mt-2">
-                    <span className="text-[10px] text-gray-400">آخر تحديث: {new Intl.DateTimeFormat("ar-JO", { dateStyle: "short" }).format(c.updatedAt)}</span>
+                    <span className="text-[10px] text-gray-400">آخر تحديث: {new Intl.DateTimeFormat("ar-JO", { year: "numeric", month: "numeric", day: "numeric" }).format(c.updatedAt)}</span>
                     <Link
                       href={`/cv/${c.userId}`}
                       className="btn-primary text-xs py-2 px-4 rounded-xl font-bold flex items-center gap-1 hover:scale-[1.01] active:scale-[0.99] transition-transform"

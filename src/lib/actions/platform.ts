@@ -28,7 +28,7 @@ async function notifyJobSeekerPlanChange(userId: string, plan: "FREE" | "PLUS", 
 
   const isPlus = plan === "PLUS";
   const expiresText = expiresAt
-    ? new Intl.DateTimeFormat("ar-JO", { dateStyle: "long" }).format(expiresAt)
+    ? new Intl.DateTimeFormat("ar-JO", { year: "numeric", month: "long", day: "numeric" }).format(expiresAt)
     : "";
   const subject = isPlus
     ? "تم تفعيل باقة Plus في جوبز الأردن"
