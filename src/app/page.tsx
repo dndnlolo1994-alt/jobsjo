@@ -38,42 +38,56 @@ export default async function HomePage() {
   return (
     <>
       {/* ══════════════════════════════════════════════════════════
-          HERO
+          HERO — Full-bleed background image
          ══════════════════════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden flex items-center"
-        style={{ background: "var(--gradient-hero)", minHeight: "clamp(560px, 88vh, 800px)" }}
+        className="relative overflow-hidden text-white"
+        style={{ minHeight: "clamp(580px, 90vh, 820px)" }}
       >
-        {/* Dot-grid texture */}
+        {/* ── Background image (fills entire section) ─────────── */}
+        <Image
+          src="/images/hero-jojobs.png"
+          alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+
+        {/* ── Overlay: dark right (text) → transparent left (image) ── */}
+        {/* Desktop: directional fade for RTL */}
         <div
-          className="absolute inset-0 opacity-[0.12]"
+          className="absolute inset-0 hidden sm:block"
           style={{
-            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
+            background:
+              "linear-gradient(to left, rgba(5,8,28,0.93) 0%, rgba(5,8,28,0.82) 30%, rgba(5,8,28,0.50) 58%, rgba(5,8,28,0.08) 100%)",
+          }}
+        />
+        {/* Mobile: uniform dark overlay */}
+        <div
+          className="absolute inset-0 sm:hidden"
+          style={{ background: "rgba(5,8,28,0.78)" }}
+        />
+
+        {/* Subtle blue brand tint at bottom */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(27,79,219,0.28) 0%, transparent 100%)",
           }}
         />
 
-        {/* Animated blobs */}
+        {/* ── Content ─────────────────────────────────────────── */}
         <div
-          className="animate-float absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full opacity-20 blur-[90px] pointer-events-none"
-          style={{ background: "#7C3AED" }}
-        />
-        <div
-          className="animate-float-delay absolute -bottom-20 left-10 w-80 h-80 rounded-full opacity-20 blur-[80px] pointer-events-none"
-          style={{ background: "#4F79FF" }}
-        />
-        <div
-          className="animate-float-slow absolute top-1/3 -left-10 w-64 h-64 rounded-full opacity-15 blur-3xl pointer-events-none"
-          style={{ background: "#FF6B35" }}
-        />
-
-        <div className="container-jo relative z-10 grid gap-10 py-20 sm:py-16 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14 lg:items-center">
-
-          {/* ── Text column ─────────────────────────────────────── */}
-          <div className="text-white flex flex-col justify-center order-2 lg:order-1">
+          className="container-jo relative z-10 flex items-center"
+          style={{ minHeight: "clamp(580px, 90vh, 820px)" }}
+        >
+          {/* Text block — max half-width so image shows on left */}
+          <div className="flex flex-col justify-center max-w-xl py-20 sm:py-24 w-full sm:w-1/2">
 
             {/* Social proof bar */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-7 text-sm">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-7 text-sm">
               <StatPill value={stats.jobs.toLocaleString("ar-JO")} label="وظيفة منشورة" />
               <Divider />
               <StatPill value={stats.companies.toLocaleString("ar-JO")} label="شركة مسجلة" />
@@ -82,9 +96,9 @@ export default async function HomePage() {
             </div>
 
             <h1
-              className="font-extrabold leading-[1.15] text-white"
+              className="font-extrabold leading-[1.15] text-white drop-shadow-md"
               style={{
-                fontSize: "clamp(2.4rem, 5vw, 4.5rem)",
+                fontSize: "clamp(2.4rem, 4.5vw, 4.5rem)",
                 fontFamily: "var(--font-tajawal), sans-serif",
               }}
             >
@@ -94,8 +108,9 @@ export default async function HomePage() {
               </span>
             </h1>
 
-            <p className="text-white/75 mt-5 text-base sm:text-lg max-w-lg leading-relaxed">
-              منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF، وتتابع طلباتك من مكان واحد.
+            <p className="text-white/80 mt-5 text-base sm:text-lg max-w-md leading-relaxed drop-shadow-sm">
+              منصة تجمع الوظائف المحلية، تساعدك تعمل CV احترافي PDF،
+              وتتابع طلباتك من مكان واحد.
             </p>
 
             {/* CTA row */}
@@ -105,7 +120,7 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/cv-builder"
-                className="btn border-2 border-white/50 text-white hover:bg-white/10 rounded-full"
+                className="btn border-2 border-white/50 text-white hover:bg-white/15 rounded-full"
               >
                 📄 اعمل CV الآن
               </Link>
@@ -120,21 +135,6 @@ export default async function HomePage() {
             <p className="text-[11px] text-white/40 mt-5 font-semibold">
               ⚡ وظائف أردنية موثوقة ومحدثة على مدار الساعة
             </p>
-          </div>
-
-          {/* ── Image column ────────────────────────────────────── */}
-          <div className="order-1 lg:order-2 w-full">
-            <div className="group relative mx-auto aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-2xl shadow-primary-950/50 sm:rounded-[28px] lg:min-h-[420px]">
-              <Image
-                src="/images/hero-jojobs.png"
-                alt="مكتب حديث في الأردن لاستخدام منصة جوبز الأردن"
-                fill
-                priority
-                sizes="(min-width: 1024px) 54vw, 100vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary-900/25 via-transparent to-white/5" />
-            </div>
           </div>
         </div>
       </section>
