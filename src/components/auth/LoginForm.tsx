@@ -42,7 +42,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="card-pad space-y-4 shadow-xl">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 text-sm p-4 rounded-xl flex items-start gap-2 animate-shake">
+        <div className="bg-red-50 border border-red-200 text-red-800 dark:bg-red-950/35 dark:border-red-800/60 dark:text-red-100 text-sm p-4 rounded-xl flex items-start gap-2 animate-shake">
           <svg className="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
@@ -54,15 +54,15 @@ export default function LoginForm() {
       )}
       
       <div>
-        <label className="label text-navy-800 font-semibold mb-1">البريد الإلكتروني</label>
+        <label className="label font-semibold mb-1">البريد الإلكتروني</label>
         <div className="relative">
-          <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-navy-400">
+          <span className="absolute inset-y-0 right-0 pr-3 flex items-center text-[color:var(--muted)]">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
             </svg>
           </span>
           <input 
-            className="input pr-10 border-navy-150 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 w-full" 
+            className="input pr-10 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 w-full" 
             name="email" 
             type="email" 
             placeholder="info@jordan-job.shop" 
@@ -70,15 +70,15 @@ export default function LoginForm() {
             disabled={loading}
           />
         </div>
-        <p className="mt-1.5 text-[11px] font-semibold text-navy-500">
+        <p className="mt-1.5 text-[11px] font-semibold text-[color:var(--muted)]">
           للدخول إلى لوحة التحكم استخدم بريد الأدمن الكامل، وليس كلمة admin فقط.
         </p>
       </div>
       
       <div>
         <div className="flex items-center justify-between gap-3 mb-1">
-          <label className="label text-navy-800 font-semibold mb-0">كلمة المرور</label>
-          <Link href="/forgot-password" className="text-xs font-bold text-emerald-700 hover:text-emerald-600">
+          <label className="label font-semibold mb-0">كلمة المرور</label>
+          <Link href="/forgot-password" className="text-xs font-bold text-emerald-700 hover:text-emerald-600 dark:text-emerald-300 dark:hover:text-emerald-200">
             نسيت كلمة المرور؟
           </Link>
         </div>

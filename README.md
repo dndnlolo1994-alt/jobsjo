@@ -39,8 +39,8 @@
 ### إعداد محلي (خطوة بخطوة)
 
 ```bash
-git clone https://github.com/dndnlolo1994-alt/jobsjo.git
-cd jobsjo
+git clone https://github.com/dndnlolo1994-alt/jobsjo.git jojobs-os
+cd jojobs-os
 npm install
 cp .env.example .env.local
 ```
@@ -69,6 +69,7 @@ cp .env.example .env.local
 
 ```bash
 npm run prisma:generate
+npm run prisma:validate
 npm run prisma:push    # أو: npm run prisma:migrate
 npm run seed           # اختياري — بيانات تجريبية
 npm run dev
@@ -136,6 +137,9 @@ npx tsx scripts/bootstrap-admin.ts info@jordan-job.shop "YourPassword"
 ### 7. Prisma لا يرى قاعدة البيانات
 **الحل:** تأكد `DATABASE_URL` في `.env.local` واستخدم أوامر npm (`npm run prisma:push`) — لا تشغّل `prisma` مباشرة بدون `load-env`.
 
+### 8. نشر Vercel نجح لكن قاعدة البيانات غير محدثة
+سكريبت `vercel-build` يكمل بناء Next.js حتى لو فشل `prisma migrate deploy` مؤقتاً. بعد كل نشر راجع Build Logs في Vercel وتأكد أن migrations اكتملت، أو شغّل `npm run prisma:validate` محلياً قبل النشر.
+
 ---
 
 ## 💳 المدفوعات اليدوية
@@ -174,9 +178,22 @@ docs/             # توثيق التشغيل، النشر، DNS
 
 ---
 
-## 🌐 مزامنة RSS (Cron)
+## 🌐 مهام Cron بعد النشر
 
-`GET /api/cron/sync-jobs?secret=YOUR_CRON_SECRET`
+اضبط `CRON_SECRET` في Vercel Production، ثم شغّل المهام من Vercel Cron أو أي مزود خارجي:
+
+```bash
+GET /api/cron/sync-jobs?secret=YOUR_CRON_SECRET
+GET /api/cron/scrape-jobs?secret=YOUR_CRON_SECRET
+GET /api/cron/job-alerts
+Authorization: Bearer YOUR_CRON_SECRET
+```
+
+> في الإنتاج، غياب `CRON_SECRET` يوقف مهام الكرون المحمية. محلياً استخدم القيمة الموجودة في `.env.local`.
+
+### عند طلب النشر
+
+عند قول "انشر"، المقصود تنفيذ المسار الكامل: فحص سريع (`lint`/`typecheck` عند الحاجة)، ثم `git commit` للتغييرات المطلوبة، ثم `git push` إلى الفرع المرتبط بـ Vercel، وبعدها متابعة نشر Vercel Production والتأكد من نجاحه.
 
 ---
 

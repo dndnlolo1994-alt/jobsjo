@@ -28,13 +28,13 @@ export default function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="card-pad max-w-md mx-auto space-y-4 shadow-xl">
-      {error && <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800">{error}</div>}
-      {message && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800">{message}</div>}
+      {error && <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-rose-800 dark:bg-rose-950/35 dark:border-rose-800/60 dark:text-rose-100">{error}</div>}
+      {message && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800 dark:bg-emerald-950/35 dark:border-emerald-800/60 dark:text-emerald-100">{message}</div>}
 
       <div>
-        <label className="label text-navy-800 font-semibold mb-1">البريد الإلكتروني</label>
+        <label className="label font-semibold mb-1">البريد الإلكتروني</label>
         <input
-          className="input w-full border-navy-150 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
+          className="input w-full focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10"
           name="email"
           type="email"
           placeholder="example@jojobs.local"
