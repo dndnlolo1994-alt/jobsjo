@@ -22,8 +22,8 @@ export default async function Page() {
     <section className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-950 tracking-tight">إدارة أصحاب العمل</h1>
-          <p className="text-sm text-slate-500 mt-1 font-medium">التحكم بصلاحيات الشركات، تفعيل الاشتراكات وإيقاف الحسابات.</p>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">إدارة أصحاب العمل</h1>
+          <p className="text-sm text-slate-300 mt-1 font-medium">التحكم بصلاحيات الشركات، تفعيل الاشتراكات وإيقاف الحسابات.</p>
         </div>
         <div className="bg-slate-100 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
           عدد الشركات الكلي: {items.length}
