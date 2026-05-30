@@ -13,17 +13,11 @@ import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { publicMetadata } from "@/lib/seo/site";
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const jobs = await prisma.job.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true },
-    orderBy: { publishedAt: "desc" },
-    take: 100,
-  });
-  return jobs.map((job) => ({
-    slug: job.slug,
-  }));
+  // Avoid opening many Prisma connections during Vercel builds; pages are cached on first request.
+  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
