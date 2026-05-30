@@ -1401,7 +1401,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               </div>
               <div>
                 <label className="label">المسمى المهني</label>
-                <input className="input" name="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="مثال: محاسب قانوني / مهندس برمجيات" required />
+                <input className="input" name="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="مثال: محاسب قانوني / مهندس برمجيات" />
               </div>
               <div>
                 <label className="label">البريد الإلكتروني</label>
@@ -1409,11 +1409,11 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               </div>
               <div>
                 <label className="label">الهاتف</label>
-                <input className="input" name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required placeholder="07XXXXXXXX" />
+                <input className="input" name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" />
               </div>
               <div>
                 <label className="label">المدينة</label>
-                <input className="input" name="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="مثال: عمان، إربد، الزرقاء" required />
+                <input className="input" name="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="مثال: عمان، إربد، الزرقاء" />
               </div>
               <div className="sm:col-span-2">
                 <label className="label">رابط معرض الأعمال / صفحة أعمالي (Portfolio)</label>
