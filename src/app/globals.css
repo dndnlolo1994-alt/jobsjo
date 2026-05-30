@@ -433,6 +433,10 @@ h1, h2, h3, h4, h5, h6 {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+  /* لا تكسر العناوين عن محتواها، وحافظ على وحدة كل مدخل عند الطباعة */
+  .cv-print h1, .cv-print h2, .cv-print h3 { break-after: avoid; page-break-after: avoid; }
+  .cv-print .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+  .cv-print img { image-rendering: auto; }
   .cv-print-padded { padding: 15mm 20mm !important; }
   .cv-print-sidebar {
     display: flex !important;
