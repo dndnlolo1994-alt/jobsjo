@@ -41,10 +41,10 @@ export default async function CvDownloadPage({ searchParams }: { searchParams: P
     <section className="container-jo py-8">
       <div className="no-print card-pad mb-5 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-navy-900">جاهز للطباعة كـ PDF</h1>
-          <p className="text-sm text-navy-600">من نافذة الطباعة اختر: حفظ كملف PDF. اسم الملف المقترح: {fileName}. تاريخ اليوم: {formatDateArabic(new Date())}</p>
+          <h1 className="text-xl font-extrabold text-navy-900">تنزيل السيرة PDF</h1>
+          <p className="text-sm text-navy-600">سيتم إنشاء ملف PDF صفحة واحدة مباشرة بدون نافذة طباعة الموبايل. اسم الملف: {fileName}. تاريخ اليوم: {formatDateArabic(new Date())}</p>
         </div>
-        <PrintButton />
+        <PrintButton fileName={fileName} />
       </div>
       <div className="overflow-x-auto pb-4">
         <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} isPlus={seeker?.plan === "PLUS"} />
