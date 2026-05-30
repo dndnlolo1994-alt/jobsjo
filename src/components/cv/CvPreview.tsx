@@ -717,16 +717,6 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                         </div>
                       )}
                     </dl>
-                    {qrCodeDataUrl && (
-                      <div className="mt-3 flex items-center gap-2 rounded-md border border-[#efeee8] bg-white p-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={qrCodeDataUrl} alt="QR Verification" className="h-11 w-11 rounded border border-[#eeede7] bg-white p-0.5" />
-                        <div className="min-w-0">
-                          <p className="flex items-center gap-1 text-[8.5px] font-extrabold text-[#a07f4e]"><span>✓</span> {t("سيرة موثقة")}</p>
-                          <p className="truncate text-[7.5px] font-bold text-slate-400" dir="ltr">{verifyLabel}</p>
-                        </div>
-                      </div>
-                    )}
                   </section>
                 )}
 
@@ -785,7 +775,17 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                 ))}
               </div>
 
-              <div className="mt-4 border-t border-[#edece6] pt-3">
+              <div className="mt-4 space-y-2 border-t border-[#edece6] pt-3">
+                {pageNum === 1 && qrCodeDataUrl && (
+                  <div className="flex items-center gap-2 rounded-lg border border-[#efeee8] bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,0.035)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={qrCodeDataUrl} alt="QR Verification" className="h-12 w-12 rounded-md border border-[#eeede7] bg-white p-0.5" />
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-1 text-[8.5px] font-extrabold text-[#a07f4e]"><span>✓</span> {t("سيرة موثقة")}</p>
+                      <p className="truncate text-[7.5px] font-bold text-slate-400" dir="ltr">{verifyLabel}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="text-[9px] font-bold text-slate-400">{pageLabel}</div>
               </div>
             </aside>
