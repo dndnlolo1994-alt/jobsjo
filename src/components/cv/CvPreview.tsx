@@ -576,7 +576,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
     return (
       <div
-        className="cv-print mx-auto mb-8 flex min-h-[1123px] w-[794px] max-w-none flex-col border border-[#eeede7] bg-[#fdfcfa] text-slate-700 shadow-card"
+        className="cv-print relative mx-auto mb-8 flex min-h-[1123px] w-[794px] max-w-none flex-col border border-[#eeede7] bg-[#fdfcfa] text-slate-700 shadow-card"
         dir={isEn ? "ltr" : "rtl"}
         key={pageNum}
       >
@@ -776,16 +776,6 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               </div>
 
               <div className="mt-4 space-y-2 border-t border-[#edece6] pt-3">
-                {pageNum === 1 && qrCodeDataUrl && (
-                  <div className="flex items-center gap-2 rounded-lg border border-[#efeee8] bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,0.035)]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrCodeDataUrl} alt="QR Verification" className="h-12 w-12 rounded-md border border-[#eeede7] bg-white p-0.5" />
-                    <div className="min-w-0">
-                      <p className="flex items-center gap-1 text-[8.5px] font-extrabold text-[#a07f4e]"><span>✓</span> {t("سيرة موثقة")}</p>
-                      <p className="truncate text-[7.5px] font-bold text-slate-400" dir="ltr">{verifyLabel}</p>
-                    </div>
-                  </div>
-                )}
                 <div className="text-[9px] font-bold text-slate-400">{pageLabel}</div>
               </div>
             </aside>
@@ -798,6 +788,16 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
             </div>
           )}
         </div>
+        {pageNum === 1 && qrCodeDataUrl && (
+          <div className="cv-qr-badge absolute bottom-8 left-9 flex w-[190px] items-center gap-2 rounded-xl border border-[#e7e1d2] bg-white/95 p-2.5 shadow-[0_10px_30px_rgba(15,23,42,0.07)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={qrCodeDataUrl} alt="QR Verification" className="h-14 w-14 rounded-md border border-[#e7e1d2] bg-white p-0.5" />
+            <div className="min-w-0">
+              <p className="flex items-center gap-1 text-[9px] font-extrabold text-[#9b7b45]"><span>✓</span> {t("سيرة موثقة")}</p>
+              <p className="truncate text-[7.5px] font-bold text-slate-400" dir="ltr">{verifyLabel}</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   };

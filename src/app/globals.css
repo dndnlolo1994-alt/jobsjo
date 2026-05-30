@@ -405,8 +405,12 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 !important;
     padding: 0 !important;
     width: 210mm !important;
-    min-height: 297mm !important;
+    height: 297mm !important;
+    min-height: 0 !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
   }
+  body * { visibility: hidden !important; }
   .container-jo,
   .overflow-x-auto {
     margin: 0 !important;
@@ -420,13 +424,19 @@ h1, h2, h3, h4, h5, h6 {
     display: none !important;
   }
   .cv-print {
-    margin: 0 auto !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    transform-origin: top center !important;
+    margin: 0 !important;
     box-shadow: none !important;
     border: none !important;
     width: 176mm !important;
-    height: 235mm !important;
-    min-height: 235mm !important;
-    max-height: 235mm !important;
+    height: 250mm !important;
+    min-height: 250mm !important;
+    max-height: 250mm !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
     position: relative !important;
@@ -445,8 +455,19 @@ h1, h2, h3, h4, h5, h6 {
     page-break-after: auto !important;
   }
   .cv-print * {
+    visibility: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+  .cv-print .p-9 { padding: 8mm 9mm !important; }
+  .cv-print .cv-header { margin-bottom: 4mm !important; padding-bottom: 4mm !important; }
+  .cv-print .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 3mm !important; }
+  .cv-print .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 2.4mm !important; }
+  .cv-print .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 2.2mm !important; }
+  .cv-print .cv-qr-badge {
+    visibility: visible !important;
+    bottom: 8mm !important;
+    left: 9mm !important;
   }
   /* لا تكسر العناوين عن محتواها، وحافظ على وحدة كل مدخل عند الطباعة */
   .cv-print h1, .cv-print h2, .cv-print h3 { break-after: avoid; page-break-after: avoid; }
