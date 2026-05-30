@@ -939,6 +939,18 @@ export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAI
     }
 
     if (record.type === "CV_PDF" && record.userId) {
+      await prisma.cVProfile.updateMany({
+        where: {
+          OR: [
+            ...(record.relatedCvId ? [{ id: record.relatedCvId }] : []),
+            { userId: record.userId },
+          ],
+        },
+        data: {
+          paymentStatus: status === "PAID" ? "PAID" : "WAIVED",
+          paidAt: new Date(),
+        },
+      });
       await notifyServiceActivation(record.userId, record.type, null);
     }
 
@@ -965,6 +977,17 @@ export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAI
     }
     if (EMPLOYER_PLAN_FOR_TYPE[record.type] && record.userId) {
       await prisma.employerProfile.updateMany({ where: { userId: record.userId }, data: { plan: "FREE", planExpiresAt: null } });
+    }
+    if (record.type === "CV_PDF" && record.userId) {
+      await prisma.cVProfile.updateMany({
+        where: {
+          OR: [
+            ...(record.relatedCvId ? [{ id: record.relatedCvId }] : []),
+            { userId: record.userId },
+          ],
+        },
+        data: { paymentStatus: "UNPAID", paidAt: null },
+      });
     }
   }
 
@@ -1012,6 +1035,27 @@ export async function adminDeletePaymentAction(id: string) {
       await prisma.employerProfile.updateMany({
         where: { userId: record.userId },
         data: { plan: "FREE", planExpiresAt: null },
+      });
+    }
+  }
+
+  if (record.type === "CV_PDF" && record.userId) {
+    const stillActive = await prisma.billingRecord.findFirst({
+      where: {
+        userId: record.userId,
+        type: "CV_PDF",
+        status: { in: ["PAID", "WAIVED"] },
+      },
+    });
+    if (!stillActive) {
+      await prisma.cVProfile.updateMany({
+        where: {
+          OR: [
+            ...(record.relatedCvId ? [{ id: record.relatedCvId }] : []),
+            { userId: record.userId },
+          ],
+        },
+        data: { paymentStatus: "UNPAID", paidAt: null },
       });
     }
   }
