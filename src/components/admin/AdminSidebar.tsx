@@ -122,14 +122,14 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
                     className={`
                       flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors
                       ${isActive
-                        ? "bg-white text-slate-950 shadow-sm"
+                        ? "bg-[#c0a368] text-slate-950 shadow-sm shadow-[#c0a368]/20"
                         : "text-slate-300 hover:bg-slate-900 hover:text-white"}
                     `}
                   >
                     <span
                       className={`
                         grid h-8 w-8 place-items-center rounded-md border
-                        ${isActive ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-800 bg-slate-950 text-slate-400"}
+                        ${isActive ? "border-[#f0dcaa] bg-[#f8f5ec] text-[#8b7340]" : "border-slate-800 bg-slate-950 text-slate-400"}
                       `}
                     >
                       <Icon className="h-4 w-4" aria-hidden="true" />

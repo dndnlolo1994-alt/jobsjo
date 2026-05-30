@@ -70,8 +70,8 @@ export default function LoginForm() {
             disabled={loading}
           />
         </div>
-        <p className="mt-1.5 text-[11px] font-semibold text-[color:var(--muted)]">
-          للدخول إلى لوحة التحكم استخدم بريد الأدمن الكامل، وليس كلمة admin فقط.
+        <p className="mt-1.5 text-xs font-semibold text-[color:var(--muted)]">
+          للأدمن: اكتب البريد الكامل <span dir="ltr" className="font-extrabold text-[color:var(--text)]">info@jordan-job.shop</span>، وليس كلمة admin فقط.
         </p>
       </div>
       

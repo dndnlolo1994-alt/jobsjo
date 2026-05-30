@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { saveCvAction } from "@/lib/actions/platform";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
@@ -26,6 +26,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`${qrBase}/cv/${qrVerifyId}`)}`;
   const qrLabel = `${qrBase.replace(/^https?:\/\//, "")}/cv`;
   const [activeTab, setActiveTab] = useState<"basic" | "experiences" | "educations" | "skills" | "certifications" | "extras" | "translation" | "design">("basic");
+  const [isTabPending, startTabTransition] = useTransition();
   
   // Premium Pre-populated Defaults
   const DEFAULT_EXPERIENCES = [
@@ -361,6 +362,10 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
     { id: "design", name: "تصميم السيرة", icon: "🎨" },
   ];
 
+  const switchTab = (tabId: typeof activeTab) => {
+    startTabTransition(() => setActiveTab(tabId));
+  };
+
   if (editorMode === "visual") {
     const isEn = lang === "en";
     const t = (label: string) => {
@@ -402,7 +407,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <span className="text-2xl">✨</span>
             <div className="text-right">
               <h3 className="font-extrabold text-sm text-[#c9a84c]">المحرر البصري التفاعلي (Word Mode)</h3>
-              <p className="text-[10px] text-navy-400">اضغط على أي نص مباشرة داخل القالب في الأسفل للكتابة والتعديل!</p>
+              <p className="text-xs text-slate-300">اضغط على أي نص مباشرة داخل القالب في الأسفل للكتابة والتعديل!</p>
             </div>
           </div>
           
@@ -420,7 +425,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <button
               type="submit"
               disabled={isPending}
-              className="px-4 py-2 bg-[#c0a368] hover:bg-[#b5953f] text-white rounded-lg text-xs font-bold transition-all shadow active:scale-[0.98]"
+              className="px-4 py-2 bg-[#c0a368] hover:bg-[#b5953f] text-white rounded-lg text-xs font-bold transition-colors shadow active:scale-[0.98]"
             >
               {isPending ? "جاري الحفظ..." : "💾 حفظ التعديلات"}
             </button>
@@ -435,7 +440,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                   window.location.href = `/me/cv/download?lang=${lang}`;
                 }
               }}
-              className="px-4 py-2 bg-[#c9a84c] hover:bg-[#b5953f] text-navy-955 rounded-lg text-xs font-bold transition-all shadow active:scale-[0.98]"
+              className="px-4 py-2 bg-[#c9a84c] hover:bg-[#b5953f] text-navy-955 rounded-lg text-xs font-bold transition-colors shadow active:scale-[0.98]"
             >
               📥 فتح نسخة PDF
             </button>
@@ -444,7 +449,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <button
               type="button"
               onClick={() => setLang(lang === "ar" ? "en" : "ar")}
-              className="px-3 py-2 bg-navy-800 hover:bg-navy-700 text-slate-300 rounded-lg text-xs font-bold transition-all"
+              className="px-3 py-2 bg-navy-800 hover:bg-navy-700 text-slate-200 rounded-lg text-xs font-bold transition-colors"
             >
               🌐 النسخة: {lang === "ar" ? "العربية" : "English"}
             </button>
@@ -465,7 +470,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <button
               type="button"
               onClick={() => setEditorMode("classic")}
-              className="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-slate-400 hover:text-white rounded-lg text-xs font-bold transition-all border border-navy-800"
+              className="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-slate-300 hover:text-white rounded-lg text-xs font-bold transition-colors border border-navy-800"
             >
               📝 استمارات الحقول
             </button>
@@ -1268,18 +1273,19 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
   }
 
   return (
-    <div className="bg-white rounded-xl border border-navy-100 shadow-md overflow-hidden">
+    <div className="rounded-xl border border-navy-100 bg-white text-[color:var(--text)] shadow-md overflow-hidden dark:border-slate-800 dark:bg-[#111524]">
       {/* Tabs list */}
-      <div className="flex overflow-x-auto whitespace-nowrap border-b border-navy-100 bg-navy-50 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex overflow-x-auto whitespace-nowrap border-b border-navy-100 bg-navy-50 [-ms-overflow-style:none] [scrollbar-width:none] dark:border-slate-800 dark:bg-slate-950/60 [&::-webkit-scrollbar]:hidden">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 px-5 py-4 text-sm font-bold border-b-2 transition-all shrink-0 ${
+            onClick={() => switchTab(tab.id as typeof activeTab)}
+            disabled={isTabPending}
+            className={`flex items-center gap-2 px-5 py-4 text-sm font-bold border-b-2 transition-colors shrink-0 disabled:opacity-70 ${
               activeTab === tab.id
-                ? "border-[#c0a368] bg-white text-[#8b7340]"
-                : "border-transparent text-navy-600 hover:bg-navy-100/50 hover:text-navy-900"
+                ? "border-[#c0a368] bg-white text-[#8b7340] dark:bg-[#111524] dark:text-[#e8d39c]"
+                : "border-transparent text-navy-700 hover:bg-navy-100/50 hover:text-navy-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
             }`}
           >
             <span>{tab.icon}</span>
@@ -1292,7 +1298,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
         {/* Status Messages */}
         {message && (
           <div className={`p-4 rounded-lg text-sm font-bold flex items-center gap-2 ${
-            isSuccess ? "bg-[#f8f5ec] text-[#8b7340] border border-[#e0d9c5]" : "bg-red-100 text-red-800 border border-red-200"
+            isSuccess ? "bg-[#f8f5ec] text-[#8b7340] border border-[#e0d9c5] dark:bg-[#2a2214] dark:text-[#e8d39c] dark:border-[#c0a368]/40" : "bg-red-100 text-red-800 border border-red-200 dark:bg-red-950/35 dark:text-red-100 dark:border-red-800/60"
           }`}>
             <span>{isSuccess ? "✓" : "⚠"}</span>
             <span>{message}</span>
@@ -1311,7 +1317,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
           <button
             type="button"
             onClick={() => setEditorMode("visual")}
-            className="px-5 py-2 bg-[#c2a06c] hover:bg-[#b0905c] text-navy-955 rounded-lg text-xs font-bold transition-all shadow shrink-0 active:scale-[0.98] cursor-pointer"
+            className="px-5 py-2 bg-[#c2a06c] hover:bg-[#b0905c] text-navy-955 rounded-lg text-xs font-bold transition-colors shadow shrink-0 active:scale-[0.98] cursor-pointer"
           >
             تفعيل التعديل المباشر داخل القالب
           </button>
@@ -1338,7 +1344,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                   </div>
                   <div>
                     <h3 className="font-bold text-navy-900">الصورة الشخصية</h3>
-                    <p className="text-xs text-navy-500 mt-1 max-w-sm">
+                    <p className="text-sm text-[color:var(--muted)] mt-1 max-w-sm leading-6">
                       اختر صورة مهنية واضحة بخلفية محايدة. الصيغ المدعومة: JPG, PNG. الحد الأقصى للحجم: 3 ميغابايت.
                     </p>
                     {photo && (
@@ -1359,10 +1365,10 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                   </div>
                   <div>
                     <h3 className="font-bold text-navy-900">الصورة الشخصية — ميزة باقة Plus</h3>
-                    <p className="text-xs text-navy-500 mt-1 max-w-sm leading-6">
+                    <p className="text-sm text-[color:var(--muted)] mt-1 max-w-sm leading-6">
                       السيرة الذاتية المجانية تُنشأ باحترافية وبدون صورة شخصية (تماماً كالقوالب العالمية). لإضافة صورتك الشخصية، قم بالترقية إلى باقة Plus.
                     </p>
-                    <a href="/pricing" className="inline-block text-xs font-bold text-[#8b7340] bg-[#f8f5ec] border border-[#e0d9c5] hover:bg-[#f0ece0] px-3 py-1.5 rounded-lg mt-2 transition-all">
+                    <a href="/pricing" className="inline-block text-xs font-bold text-[#8b7340] bg-[#f8f5ec] border border-[#e0d9c5] hover:bg-[#f0ece0] px-3 py-1.5 rounded-lg mt-2 transition-colors dark:bg-[#2a2214] dark:text-[#e8d39c] dark:border-[#c0a368]/40">
                       الترقية إلى Plus ⚡
                     </a>
                   </div>
@@ -1477,7 +1483,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={handleAddExperience}
-                className="mt-4 px-4 py-2 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-xs font-bold transition-all"
+                className="mt-4 px-4 py-2 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-xs font-bold transition-colors"
               >
                 إضافة الخبرة للملف
               </button>
@@ -1487,17 +1493,17 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <div className="space-y-4">
               <h3 className="font-bold text-navy-900 border-b border-navy-50 pb-2">الخبرات الحالية ({experiences.length})</h3>
               {experiences.length === 0 ? (
-                <p className="text-sm text-navy-400 py-4 text-center">لا توجد خبرات مضافة بعد.</p>
+                <p className="text-sm text-[color:var(--muted)] py-4 text-center">لا توجد خبرات مضافة بعد.</p>
               ) : (
                 <div className="space-y-3">
                   {experiences.map((exp, idx) => (
-                    <div key={exp.id || idx} className="p-4 border border-navy-100 rounded-lg flex justify-between items-start bg-white hover:border-[#e0d9c5] transition-all">
+                    <div key={exp.id || idx} className="p-4 border border-navy-100 rounded-lg flex justify-between items-start bg-white hover:border-[#e0d9c5] transition-colors dark:border-slate-800 dark:bg-slate-950/30 dark:hover:border-[#c0a368]/40">
                       <div>
                         <h4 className="font-bold text-navy-900">{exp.position}</h4>
                         <div className="text-xs text-[#8b7340] font-semibold mt-1">
                           {exp.company} {exp.city ? `• ${exp.city}` : ""}
                         </div>
-                        <div className="text-xs text-navy-400 mt-1">{exp.startDate} - {exp.endDate || "حتى الآن"}</div>
+                        <div className="text-xs text-[color:var(--muted)] mt-1">{exp.startDate} - {exp.endDate || "حتى الآن"}</div>
                         {exp.description && <p className="text-xs text-navy-600 mt-2 whitespace-pre-line leading-5">{exp.description}</p>}
                       </div>
                       <button
@@ -1583,7 +1589,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={handleAddEducation}
-                className="mt-4 px-4 py-2 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-xs font-bold transition-all"
+                className="mt-4 px-4 py-2 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-xs font-bold transition-colors"
               >
                 إضافة التعليم للملف
               </button>
@@ -1593,17 +1599,17 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <div className="space-y-4">
               <h3 className="font-bold text-navy-900 border-b border-navy-50 pb-2">التعليم الحالي ({educations.length})</h3>
               {educations.length === 0 ? (
-                <p className="text-sm text-navy-400 py-4 text-center">لا توجد مؤهلات علمية مضافة بعد.</p>
+                <p className="text-sm text-[color:var(--muted)] py-4 text-center">لا توجد مؤهلات علمية مضافة بعد.</p>
               ) : (
                 <div className="space-y-3">
                   {educations.map((edu, idx) => (
-                    <div key={edu.id || idx} className="p-4 border border-navy-100 rounded-lg flex justify-between items-start bg-white hover:border-[#e0d9c5] transition-all">
+                    <div key={edu.id || idx} className="p-4 border border-navy-100 rounded-lg flex justify-between items-start bg-white hover:border-[#e0d9c5] transition-colors dark:border-slate-800 dark:bg-slate-950/30 dark:hover:border-[#c0a368]/40">
                       <div>
                         <h4 className="font-bold text-navy-900">{edu.degree}</h4>
                         <div className="text-xs text-[#8b7340] font-semibold mt-1">
                           {edu.institution} {edu.city ? `• ${edu.city}` : ""}
                         </div>
-                        <div className="text-xs text-navy-400 mt-1">{edu.startDate} - {edu.endDate || "حتى الآن"}</div>
+                        <div className="text-xs text-[color:var(--muted)] mt-1">{edu.startDate} - {edu.endDate || "حتى الآن"}</div>
                         {edu.description && <p className="text-xs text-navy-600 mt-2 whitespace-pre-line leading-5">{edu.description}</p>}
                       </div>
                       <button
@@ -1651,7 +1657,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={handleAddSkill}
-                className="px-6 py-2.5 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-sm font-bold transition-all w-full sm:w-auto"
+                className="px-6 py-2.5 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-sm font-bold transition-colors w-full sm:w-auto"
               >
                 إضافة
               </button>
@@ -1661,7 +1667,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <div className="space-y-4">
               <h3 className="font-bold text-navy-900 border-b border-navy-50 pb-2">المهارات الحالية ({skills.length})</h3>
               {skills.length === 0 ? (
-                <p className="text-sm text-navy-400 py-4 text-center">لا توجد مهارات مضافة بعد.</p>
+                <p className="text-sm text-[color:var(--muted)] py-4 text-center">لا توجد مهارات مضافة بعد.</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {skills.map((s, idx) => (
@@ -1725,7 +1731,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={handleAddCert}
-                className="mt-4 px-4 py-2 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-xs font-bold transition-all"
+                className="mt-4 px-4 py-2 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg text-xs font-bold transition-colors"
               >
                 إضافة الشهادة للملف
               </button>
@@ -1735,7 +1741,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
             <div className="space-y-4">
               <h3 className="font-bold text-navy-900 border-b border-navy-50 pb-2">الشهادات المضافة ({certifications.length})</h3>
               {certifications.length === 0 ? (
-                <p className="text-sm text-navy-400 py-4 text-center">لا توجد شهادات مضافة بعد.</p>
+                <p className="text-sm text-[color:var(--muted)] py-4 text-center">لا توجد شهادات مضافة بعد.</p>
               ) : (
                 <div className="space-y-3">
                   {certifications.map((cert, idx) => (
@@ -1851,7 +1857,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={handleAutoTranslate}
-                className="px-4 py-2 bg-navy-800 hover:bg-navy-900 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+                className="px-4 py-2 bg-navy-800 hover:bg-navy-900 text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
               >
                 🌐 توليد ترجمة تلقائية ذكية
               </button>
@@ -1901,7 +1907,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                         </div>
                         <div className="grid sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="label text-[10px] text-slate-500">المسمى بالإنجليزية (Position)</label>
+                            <label className="label text-xs text-[color:var(--muted)]">المسمى بالإنجليزية (Position)</label>
                             <input
                               className="input text-xs"
                               value={engExp.position || ""}
@@ -1914,7 +1920,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                             />
                           </div>
                           <div>
-                            <label className="label text-[10px] text-slate-500">الشركة بالإنجليزية (Company)</label>
+                            <label className="label text-xs text-[color:var(--muted)]">الشركة بالإنجليزية (Company)</label>
                             <input
                               className="input text-xs"
                               value={engExp.company || ""}
@@ -1927,7 +1933,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                             />
                           </div>
                           <div className="sm:col-span-2">
-                            <label className="label text-[10px] text-slate-500">المهام بالإنجليزية (Description)</label>
+                            <label className="label text-xs text-[color:var(--muted)]">المهام بالإنجليزية (Description)</label>
                             <textarea
                               className="input text-xs min-h-16"
                               value={engExp.description || ""}
@@ -1961,7 +1967,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                         </div>
                         <div className="grid sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="label text-[10px] text-slate-500">الشهادة بالإنجليزية (Degree/Major)</label>
+                            <label className="label text-xs text-[color:var(--muted)]">الشهادة بالإنجليزية (Degree/Major)</label>
                             <input
                               className="input text-xs"
                               value={engEdu.degree || ""}
@@ -1974,7 +1980,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                             />
                           </div>
                           <div>
-                            <label className="label text-[10px] text-slate-500">الجهة بالإنجليزية (Institution)</label>
+                            <label className="label text-xs text-[color:var(--muted)]">الجهة بالإنجليزية (Institution)</label>
                             <input
                               className="input text-xs"
                               value={engEdu.institution || ""}
@@ -2002,7 +2008,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     const engSkill = englishVersion.skills?.[idx] || { name: "", level: skill.level };
                     return (
                       <div key={idx} className="p-3 border border-navy-100 rounded-lg bg-navy-50/30">
-                        <label className="label text-[10px] text-slate-500">{skill.name}</label>
+                        <label className="label text-xs text-[color:var(--muted)]">{skill.name}</label>
                         <input
                           className="input text-xs"
                           value={engSkill.name || ""}
@@ -2066,7 +2072,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
         {activeTab === "design" && (
           <div className="space-y-6">
             <h3 className="font-bold text-navy-900 border-b border-navy-50 pb-2">اختر قالب السيرة الذاتية</h3>
-            <p className="text-xs text-navy-500 leading-5">
+            <p className="text-sm text-[color:var(--muted)] leading-6">
               توفر المنصة قوالب متعددة بألوان وتوزيعات مختلفة تمنح سيرتك الذاتية رونقاً متميزاً ومظهرًا احترافيًا عند الطباعة أو التصدير لملف PDF.
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
@@ -2074,7 +2080,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={() => setTemplate("modern-emerald")}
-                className={`p-5 rounded-xl border text-right transition-all flex flex-col justify-between h-40 ${
+                className={`p-5 rounded-xl border text-right transition-colors flex flex-col justify-between h-40 ${
                   template === "modern-emerald"
                     ? "border-[#c0a368] ring-2 ring-[#c0a368] bg-[#f8f5ec]/20"
                     : "border-navy-100 hover:border-navy-200"
@@ -2085,11 +2091,11 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     <span className="font-extrabold text-navy-900">الزمردي الحديث (Modern Emerald)</span>
                     <span className="w-4 h-4 rounded-full bg-[#c0a368] block"></span>
                   </div>
-                  <p className="text-xs text-navy-500 mt-2 leading-5">
+                  <p className="text-sm text-[color:var(--muted)] mt-2 leading-6">
                     تصميم عصري ونظيف بخطوط عربية جذابة ولمسات بلون الزمرد. يدعم الصورة والنبذة بشكل رائع.
                   </p>
                 </div>
-                <span className={`text-xs font-bold ${template === "modern-emerald" ? "text-[#8b7340]" : "text-navy-400"}`}>
+                <span className={`text-xs font-bold ${template === "modern-emerald" ? "text-[#8b7340] dark:text-[#e8d39c]" : "text-[color:var(--muted)]"}`}>
                   {template === "modern-emerald" ? "✓ القالب النشط حالياً" : "تحديد هذا القالب"}
                 </span>
               </button>
@@ -2098,7 +2104,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={() => setTemplate("classic-navy")}
-                className={`p-5 rounded-xl border text-right transition-all flex flex-col justify-between h-40 ${
+                className={`p-5 rounded-xl border text-right transition-colors flex flex-col justify-between h-40 ${
                   template === "classic-navy"
                     ? "border-blue-800 ring-2 ring-blue-600 bg-blue-50/20"
                     : "border-navy-100 hover:border-navy-200"
@@ -2109,11 +2115,11 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     <span className="font-extrabold text-navy-900">الكحلي الكلاسيكي (Classic Navy)</span>
                     <span className="w-4 h-4 rounded-full bg-navy-800 block"></span>
                   </div>
-                  <p className="text-xs text-navy-500 mt-2 leading-5">
+                  <p className="text-sm text-[color:var(--muted)] mt-2 leading-6">
                     تقسيم ذو عمودين كلاسيكي للمظهر الرسمي والشركات الكبرى. الهيدر باللون الكحلي الفاخر.
                   </p>
                 </div>
-                <span className={`text-xs font-bold ${template === "classic-navy" ? "text-blue-700" : "text-navy-400"}`}>
+                <span className={`text-xs font-bold ${template === "classic-navy" ? "text-blue-700 dark:text-blue-300" : "text-[color:var(--muted)]"}`}>
                   {template === "classic-navy" ? "✓ القالب النشط حالياً" : "تحديد هذا القالب"}
                 </span>
               </button>
@@ -2122,7 +2128,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={() => setTemplate("executive-gold")}
-                className={`p-5 rounded-xl border text-right transition-all flex flex-col justify-between h-40 ${
+                className={`p-5 rounded-xl border text-right transition-colors flex flex-col justify-between h-40 ${
                   template === "executive-gold"
                     ? "border-amber-600 ring-2 ring-amber-500 bg-amber-50/20"
                     : "border-navy-100 hover:border-navy-200"
@@ -2133,11 +2139,11 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     <span className="font-extrabold text-navy-900">الذهبي الفاخر (Executive Gold)</span>
                     <span className="w-4 h-4 rounded-full bg-amber-600 block"></span>
                   </div>
-                  <p className="text-xs text-navy-500 mt-2 leading-5">
+                  <p className="text-sm text-[color:var(--muted)] mt-2 leading-6">
                     تصميم فخم برأس داكن ولمسات باللون الذهبي الداكن ليعبر عن روح القيادة والإبداع.
                   </p>
                 </div>
-                <span className={`text-xs font-bold ${template === "executive-gold" ? "text-amber-700" : "text-navy-400"}`}>
+                <span className={`text-xs font-bold ${template === "executive-gold" ? "text-amber-700 dark:text-amber-300" : "text-[color:var(--muted)]"}`}>
                   {template === "executive-gold" ? "✓ القالب النشط حالياً" : "تحديد هذا القالب"}
                 </span>
               </button>
@@ -2146,7 +2152,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={() => setTemplate("minimalist")}
-                className={`p-5 rounded-xl border text-right transition-all flex flex-col justify-between h-40 ${
+                className={`p-5 rounded-xl border text-right transition-colors flex flex-col justify-between h-40 ${
                   template === "minimalist"
                     ? "border-gray-800 ring-2 ring-gray-800 bg-gray-50/25"
                     : "border-navy-100 hover:border-navy-200"
@@ -2157,11 +2163,11 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     <span className="font-extrabold text-navy-900">بسيط وأنيق (Minimalist)</span>
                     <span className="w-4 h-4 rounded-full bg-gray-200 border border-gray-400 block"></span>
                   </div>
-                  <p className="text-xs text-navy-500 mt-2 leading-5">
+                  <p className="text-sm text-[color:var(--muted)] mt-2 leading-6">
                     تركيز كامل على النص والمحتوى دون حقول ملونة أو بهرجة. خطوط رفيعة وتنسيق احترافي رصين.
                   </p>
                 </div>
-                <span className={`text-xs font-bold ${template === "minimalist" ? "text-gray-800" : "text-navy-400"}`}>
+                <span className={`text-xs font-bold ${template === "minimalist" ? "text-gray-800 dark:text-gray-200" : "text-[color:var(--muted)]"}`}>
                   {template === "minimalist" ? "✓ القالب النشط حالياً" : "تحديد هذا القالب"}
                 </span>
               </button>
@@ -2171,13 +2177,13 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
 
         {/* Submit action */}
         <div className="border-t border-navy-100 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-navy-500">
+          <p className="text-sm text-[color:var(--muted)]">
             تذكر حفظ التعديلات بعد إكمال إضافة الخبرات والمهارات لتظهر في ملف المعاينة.
           </p>
           <button
             type="submit"
             disabled={isPending}
-            className="w-full sm:w-auto px-8 py-3 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-3 bg-[#c0a368] hover:bg-[#a08a50] text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-colors flex items-center justify-center gap-2"
           >
             {isPending ? (
               <>

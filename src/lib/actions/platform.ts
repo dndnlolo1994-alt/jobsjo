@@ -12,6 +12,7 @@ import { computeMatch } from "@/lib/matching/job-score";
 import { ensureCvPdfBilling } from "@/lib/billing/cv";
 import { getNotifier } from "@/lib/notifications";
 import { sendApplicationConfirmation, sendNewApplicationAlert } from "@/lib/emails/applicationConfirmation";
+import { brandedEmailLayout } from "@/lib/emails/layout";
 import { env } from "@/lib/env";
 
 function str(form: FormData, key: string) {
@@ -34,26 +35,66 @@ async function notifyJobSeekerPlanChange(userId: string, plan: "FREE" | "PLUS", 
   const text = isPlus
     ? `مرحباً ${user.fullName}، تم تفعيل باقة Plus لحسابك في جوبز الأردن. يمكنك الآن استخدام مزايا Plus حتى ${expiresText}.`
     : `مرحباً ${user.fullName}، تم تحديث خطة حسابك إلى الخطة المجانية في جوبز الأردن.`;
-  const html = `
-    <div dir="rtl" style="font-family:'Cairo',Arial,sans-serif;max-width:560px;margin:0 auto;background:#ffffff;color:#1e293b;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;text-align:right;">
-      <div style="background:#064e3b;color:#ffffff;padding:22px;text-align:center;">
-        <h1 style="margin:0;font-size:20px;">جوبز الأردن</h1>
-        <p style="margin:6px 0 0;color:#bbf7d0;font-size:13px;">إشعار تفعيل الخطة</p>
+  const html = brandedEmailLayout({
+    title: isPlus ? "تم تفعيل باقة Plus" : "تم تحديث خطة حسابك",
+    subtitle: "أهلاً بك في تجربة وظائف الأردن الاحترافية للباحثين عن عمل.",
+    preheader: text,
+    ctaLabel: isPlus ? "افتح محرر السيرة الآن" : "افتح حسابي",
+    ctaHref: `${env.SITE_URL}/me/cv`,
+    bodyHtml: `
+      <p style="margin:0 0 12px;">مرحباً <strong>${user.fullName}</strong>،</p>
+      ${
+        isPlus
+          ? `<p style="margin:0 0 12px;">تم تفعيل <strong>باقة Plus</strong> لحسابك بنجاح. الخدمة الآن جاهزة للاستخدام.</p>
+             <div style="background:#fffbeb;border:1px solid #f5d987;border-radius:14px;padding:16px;margin:18px 0;color:#624b12;">
+               <strong>ماذا حصلت الآن؟</strong><br/>
+               تقديم غير محدود على الوظائف، مزايا CV المتقدمة، صفحة QR عامة، وتنزيل السيرة بدون رسوم إضافية.
+               ${expiresText ? `<br/>تاريخ انتهاء التفعيل الحالي: <strong>${expiresText}</strong>.` : ""}
+             </div>`
+          : `<p style="margin:0 0 12px;">تم تحديث حسابك إلى الخطة المجانية. يمكنك الاستمرار باستخدام مزايا الحساب المجاني.</p>`
+      }
+      <p style="margin:16px 0 0;color:#64748b;font-size:13px;">إذا احتجت أي مساعدة، فريق وظائف الأردن جاهز لخدمتك.</p>
+    `,
+  });
+
+  await getNotifier().send({ to: user.email, subject, text, html });
+}
+
+async function notifyServiceActivation(userId: string | null, type: string, expiresAt?: Date | null) {
+  if (!userId) return;
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, fullName: true } });
+  if (!user?.email) return;
+
+  const typeLabel: Record<string, string> = {
+    CV_PDF: "خدمة تنزيل السيرة الذاتية PDF",
+    EMPLOYER_BASIC: "باقة أصحاب العمل Basic",
+    EMPLOYER_PRO: "باقة أصحاب العمل Pro",
+    EMPLOYER_BUSINESS: "باقة أصحاب العمل Business",
+    JOB_POST_STANDARD: "نشر وظيفة",
+    JOB_POST_FEATURED: "تمييز وظيفة",
+    JOB_POST_URGENT: "وظيفة عاجلة",
+  };
+  const label = typeLabel[type] || "الخدمة";
+  const dashboardUrl = type.startsWith("EMPLOYER") || type.startsWith("JOB_POST") ? `${env.SITE_URL}/employer` : `${env.SITE_URL}/me/cv`;
+  const expiresText = expiresAt ? formatDateArabic(expiresAt) : "";
+  const subject = `تم تفعيل ${label} — وظائف الأردن`;
+  const text = `مرحباً ${user.fullName}، تم تفعيل ${label} على حسابك في وظائف الأردن.${expiresText ? ` صالحة حتى ${expiresText}.` : ""}`;
+  const html = brandedEmailLayout({
+    title: `تم تفعيل ${label}`,
+    subtitle: "الخدمة أصبحت جاهزة الآن، ويمكنك استخدامها مباشرة من حسابك.",
+    preheader: text,
+    ctaLabel: "افتح لوحة التحكم",
+    ctaHref: dashboardUrl,
+    bodyHtml: `
+      <p style="margin:0 0 12px;">مرحباً <strong>${user.fullName}</strong>،</p>
+      <p style="margin:0 0 12px;">يسعدنا إبلاغك بأنه تم تفعيل <strong>${label}</strong> على حسابك.</p>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:16px;margin:18px 0;color:#1e3a8a;">
+        الخدمة متاحة الآن من لوحة التحكم الخاصة بك.
+        ${expiresText ? `<br/>تاريخ انتهاء التفعيل الحالي: <strong>${expiresText}</strong>.` : ""}
       </div>
-      <div style="padding:24px;line-height:1.8;">
-        <p style="margin:0 0 12px;">مرحباً <strong>${user.fullName}</strong>،</p>
-        ${
-          isPlus
-            ? `<p style="margin:0 0 12px;">تم تفعيل <strong>باقة Plus</strong> لحسابك من قبل إدارة المنصة.</p>
-               <div style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:12px;padding:14px;margin:16px 0;">
-                 يمكنك الآن استخدام مزايا Plus: التقديم غير المحدود، مزايا السيرة الذاتية، صفحة QR التعريفية، وتتبع الطلبات.
-                 ${expiresText ? `<br/>تاريخ انتهاء التفعيل الحالي: <strong>${expiresText}</strong>.` : ""}
-               </div>`
-            : `<p style="margin:0 0 12px;">تم تحديث حسابك إلى الخطة المجانية. يمكنك الاستمرار باستخدام مزايا الحساب المجاني.</p>`
-        }
-        <p style="margin:16px 0 0;color:#64748b;font-size:13px;">إذا كان لديك أي استفسار، تواصل معنا عبر صفحة التواصل في المنصة.</p>
-      </div>
-    </div>`;
+      <p style="margin:16px 0 0;color:#64748b;font-size:13px;">شكراً لاستخدامك وظائف الأردن. نحرص أن تكون تجربتك سهلة، واضحة، واحترافية.</p>
+    `,
+  });
 
   await getNotifier().send({ to: user.email, subject, text, html });
 }
@@ -72,18 +113,16 @@ async function deliverOtp(email: string, code: string, purpose: "register" | "lo
   const title = titles[purpose];
   const subject = `${title} — رمز التحقق ${code}`;
   const text = `رمز التحقق الخاص بك هو: ${code}\nالرمز صالح لمدة 10 دقائق.\nإذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة.`;
-  const html = `
-    <div dir="rtl" style="font-family:'Cairo',Arial,sans-serif;max-width:480px;margin:0 auto;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#ffffff;color:#1e293b;text-align:right;">
-      <div style="background:#084c41;padding:20px;text-align:center;color:#ffffff;">
-        <h2 style="margin:0;font-size:18px;font-weight:bold;">منصة جوبز الأردن | JoJobs</h2>
-        <p style="margin:6px 0 0 0;font-size:12px;color:#c2a06c;font-weight:bold;">${title}</p>
-      </div>
-      <div style="padding:24px;">
-        <p style="margin:0 0 12px 0;font-size:14px;">استخدم الرمز التالي لإتمام العملية:</p>
-        <div style="text-align:center;font-size:30px;font-weight:bold;letter-spacing:8px;color:#084c41;background:#ecfdf5;border:1px dashed #84cc16;border-radius:10px;padding:14px;margin:0 0 14px 0;">${code}</div>
-        <p style="margin:0;font-size:12px;color:#64748b;">الرمز صالح لمدة 10 دقائق. إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة بأمان.</p>
-      </div>
-    </div>`;
+  const html = brandedEmailLayout({
+    title,
+    subtitle: "رمز آمن لإكمال العملية على منصة وظائف الأردن.",
+    preheader: text,
+    bodyHtml: `
+      <p style="margin:0 0 12px 0;">استخدم الرمز التالي لإتمام العملية:</p>
+      <div style="text-align:center;font-size:34px;font-weight:900;letter-spacing:8px;color:#0f172a;background:#f8f5ec;border:1px dashed #c0a368;border-radius:14px;padding:16px;margin:0 0 14px 0;" dir="ltr">${code}</div>
+      <p style="margin:0;font-size:12px;color:#64748b;">الرمز صالح لمدة 10 دقائق. إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة بأمان.</p>
+    `,
+  });
   try {
     await getNotifier().send({ to: email, subject, text, html });
   } catch (err) {
@@ -142,6 +181,11 @@ export async function registerAction(_: unknown, form: FormData) {
 
 
 export async function loginAction(_: unknown, form: FormData) {
+  const rawEmail = str(form, "email")?.toLowerCase();
+  if (rawEmail === "admin" || rawEmail === "ادمن") {
+    return { ok: false, message: "للدخول إلى لوحة الأدمن استخدم البريد الكامل: info@jordan-job.shop" };
+  }
+
   const parsed = loginSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "بيانات الدخول غير صحيحة" };
   const user = await prisma.user.findUnique({ where: { email: parsed.data.email.toLowerCase() } });
@@ -640,7 +684,7 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
           coverNote: parsed.data.coverNote || null,
           cvId: cv?.id || null,
           appliedAt: application.createdAt,
-          reviewUrl: `${env.SITE_URL}/employer`,
+          reviewUrl: `${env.SITE_URL}/employer/jobs/${job.id}/applications`,
         });
       } catch (err) {
         console.error("Failed to send employer alert email:", err);
@@ -837,6 +881,11 @@ export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAI
         where: { userId: record.userId },
         data: { plan: employerPlan, planExpiresAt: monthAhead },
       });
+      await notifyServiceActivation(record.userId, record.type, monthAhead);
+    }
+
+    if (record.type === "CV_PDF" && record.userId) {
+      await notifyServiceActivation(record.userId, record.type, null);
     }
 
     // 3) Job post upgrades / publishing

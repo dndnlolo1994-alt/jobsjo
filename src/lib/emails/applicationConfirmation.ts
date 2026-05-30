@@ -1,6 +1,7 @@
 import { getNotifier } from "@/lib/notifications";
 import { env } from "@/lib/env";
 import { formatDateArabic } from "@/lib/utils";
+import { emailSignature } from "./layout";
 
 // Job Type Arabic labels helper
 const JOB_TYPE_LABEL: Record<string, string> = {
@@ -94,9 +95,10 @@ export async function sendApplicationConfirmation(opts: SeekerEmailOptions) {
         </div>
 
         <!-- Footer -->
-        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-t: 1px solid #e2e8f0; font-size: 11px; color: #64748b; line-height: 1.6;">
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-t: 1px solid #e2e8f0; font-size: 11px; color: #64748b; line-height: 1.7;">
           <p style="margin: 0;">هذا إشعار تلقائي لتأكيد استلام طلبك. الرجاء عدم الرد على هذه الرسالة.</p>
           <p style="margin: 4px 0 0 0;">جوبز الأردن — منصة التوظيف المحلية الموثوقة وباني السيرة الذاتية مجاناً.</p>
+          <p style="margin: 8px 0 0 0; color:#334155;">${emailSignature.name} — ${emailSignature.title}</p>
           <p style="margin: 4px 0 0 0;"><a href="${env.SITE_URL}" style="color: #059669; text-decoration: none; font-weight: bold;">www.jordan-job.shop</a></p>
         </div>
       </div>
@@ -263,16 +265,17 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
           🔍 مراجعة الطلب كاملاً
         </a>
         ${cvLink ? `<a href="${cvLink}" style="display:inline-block;background:linear-gradient(135deg,#059669,#10B981);color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:12px;font-weight:900;font-size:14px;box-shadow:0 6px 20px rgba(5,150,105,0.25);margin:0 6px 10px;">
-          📄 عرض السيرة الذاتية
+          📄 عرض السيرة الذاتية / PDF
         </a>` : ""}
+        ${cvLink ? `<div style="font-size:11px;color:#64748b;margin-top:4px;">يمكن لصاحب العمل فتح السيرة وطباعتها أو حفظها PDF مباشرة من المتصفح.</div>` : ""}
       </div>
     </div>
 
     <!-- FOOTER -->
     <div style="background:linear-gradient(135deg,#1A1D2E,#0F1120);border-radius:0 0 20px 20px;padding:20px 28px;text-align:center;">
-      <div style="font-size:16px;font-weight:900;color:#ffffff;margin-bottom:6px;">جوبز الأردن 🇯🇴</div>
+      <div style="font-size:16px;font-weight:900;color:#ffffff;margin-bottom:6px;">جوبز الأردن</div>
       <div style="font-size:11px;color:#64748b;line-height:1.7;">
-        هذا إشعار تلقائي أُرسل من منصة جوبز الأردن. للتواصل أو الاستفسار:
+        هذا إشعار تلقائي أُرسل من منصة جوبز الأردن بإشراف ${emailSignature.name} — ${emailSignature.title}. للتواصل أو الاستفسار:
         <a href="mailto:info@jordan-job.shop" style="color:#4F79FF;text-decoration:none;">info@jordan-job.shop</a>
         <br/>
         <a href="${siteUrl}" style="color:#4F79FF;text-decoration:none;font-weight:bold;">www.jordan-job.shop</a>

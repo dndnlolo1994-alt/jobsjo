@@ -4,12 +4,26 @@ import path from "path";
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
+export type NotificationAttachment = {
+  filename: string;
+  content: Buffer | string;
+  contentType?: string;
+};
+
+export type NotificationMessage = {
+  to: string;
+  subject: string;
+  html?: string;
+  text?: string;
+  attachments?: NotificationAttachment[];
+};
+
 export type NotificationProvider = {
-  send(opts: { to: string; subject: string; html?: string; text?: string }): Promise<void>;
+  send(opts: NotificationMessage): Promise<void>;
 };
 
 class ConsoleProvider implements NotificationProvider {
-  async send(opts: { to: string; subject: string; html?: string; text?: string }) {
+  async send(opts: NotificationMessage) {
     // In production no email transport is configured here; warn without
     // leaking message contents (e.g. OTP codes) into the logs.
     if (process.env.NODE_ENV === "production") {
@@ -47,7 +61,7 @@ class SmtpProvider implements NotificationProvider {
     });
   }
 
-  async send(opts: { to: string; subject: string; html?: string; text?: string }) {
+  async send(opts: NotificationMessage) {
     const fromAddress = process.env.SMTP_FROM || `"جوبز الأردن" <noreply@jojobs.jo>`;
     try {
       await this.transporter.sendMail({
@@ -56,6 +70,7 @@ class SmtpProvider implements NotificationProvider {
         subject: opts.subject,
         text: opts.text,
         html: opts.html,
+        attachments: opts.attachments,
       });
       console.log(`[SMTP] Email sent successfully to ${opts.to}`);
     } catch (err) {
@@ -73,7 +88,7 @@ class ResendProvider implements NotificationProvider {
     this.client = new Resend(process.env.RESEND_API_KEY);
   }
 
-  async send(opts: { to: string; subject: string; html?: string; text?: string }) {
+  async send(opts: NotificationMessage) {
     const from = process.env.RESEND_FROM || `جوبز الأردن <onboarding@resend.dev>`;
     try {
       const { data, error } = await this.client.emails.send({
@@ -82,6 +97,11 @@ class ResendProvider implements NotificationProvider {
         subject: opts.subject,
         html: opts.html || opts.text || "",
         text: opts.text,
+        attachments: opts.attachments?.map((attachment) => ({
+          filename: attachment.filename,
+          content: Buffer.isBuffer(attachment.content) ? attachment.content.toString("base64") : attachment.content,
+          contentType: attachment.contentType,
+        })),
       });
       if (error) {
         console.error(`[Resend] Failed to send to ${opts.to}:`, error);
