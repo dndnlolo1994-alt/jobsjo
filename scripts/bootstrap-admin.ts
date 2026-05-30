@@ -8,7 +8,8 @@
  *   set ADMIN_BOOTSTRAP_PASSWORD=YourStrongPassword
  *   npx tsx scripts/bootstrap-admin.ts info@jordan-job.shop
  */
-import "dotenv/config";
+import { createRequire } from "node:module";
+createRequire(import.meta.url)("./load-env.cjs");
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 

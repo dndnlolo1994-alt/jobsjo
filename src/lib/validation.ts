@@ -50,7 +50,7 @@ export const registerSchema = z
   });
 
 export const loginSchema = z.object({
-  email: z.string().email("بريد إلكتروني غير صحيح"),
+  email: z.string().email("اكتب البريد الإلكتروني الكامل، مثال: info@jordan-job.shop"),
   password: z.string().min(1, "أدخل كلمة المرور"),
 });
 

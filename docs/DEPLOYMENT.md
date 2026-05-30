@@ -58,6 +58,8 @@ NEXT_PUBLIC_SITE_URL=https://www.jordan-job.shop
 
 انسخ من [`.env.example`](../.env.example) واضبط القيم الحساسة في **Vercel Dashboard** فقط (لا تضع كلمات مرور في Git).
 
+**محلياً:** `cp .env.example .env.local` — كل الأسرار في `.env.local` فقط.
+
 ```env
 # Site
 NEXT_PUBLIC_SITE_URL=https://www.jordan-job.shop
@@ -102,13 +104,15 @@ npm run test:email -- info@jordan-job.shop
 
 ```bash
 npm install
-cp .env.example .env
-# عدّل DATABASE_URL و SESSION_* و NEXT_PUBLIC_SITE_URL=http://localhost:3000
+cp .env.example .env.local
+# عدّل .env.local: DATABASE_URL, SESSION_*, SMTP_*, NEXT_PUBLIC_SITE_URL=http://localhost:3000
 npm run prisma:generate
 npm run prisma:validate
-npm run seed
+npm run seed          # اختياري
 npm run dev
 ```
+
+> Prisma والسكربتات تقرأ `.env.local` عبر `scripts/load-env.cjs`. لا تضع أسراراً في `.env`.
 
 ---
 

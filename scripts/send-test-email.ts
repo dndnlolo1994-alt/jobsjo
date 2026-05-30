@@ -2,13 +2,14 @@
  * Pre-deploy email delivery test.
  *
  * Usage:
- *   1. Add RESEND_API_KEY (and optionally RESEND_FROM) to .env
+ *   1. Add SMTP_* or RESEND_API_KEY to .env.local
  *   2. npm run test:email -- you@example.com
  *
  * It uses the SAME getNotifier() the app uses, so a successful send here
  * proves production email will work once the same env vars are set on Vercel.
  */
-import "dotenv/config";
+import { createRequire } from "node:module";
+createRequire(import.meta.url)("./load-env.cjs");
 import { getNotifier } from "../src/lib/notifications";
 
 async function main() {
@@ -30,7 +31,7 @@ async function main() {
 
   if (kind.startsWith("Console")) {
     console.warn(
-      "[test:email] No RESEND_API_KEY / SMTP_* found in .env — this will NOT send a real email. Add credentials and retry."
+      "[test:email] No RESEND_API_KEY / SMTP_* found in .env.local — this will NOT send a real email. Add credentials and retry."
     );
   }
 

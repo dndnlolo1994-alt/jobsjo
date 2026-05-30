@@ -796,13 +796,13 @@ const EMPLOYER_PLAN_FOR_TYPE: Record<string, "BASIC" | "PRO" | "BUSINESS"> = {
   EMPLOYER_BUSINESS: "BUSINESS",
 };
 
-export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAIVED" | "UNPAID") {
+export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAIVED" | "UNPAID" | "CANCELLED") {
   await requireAdmin();
   const isActivating = status === "PAID" || status === "WAIVED";
 
   const record = await prisma.billingRecord.update({
     where: { id },
-    data: { status, paidAt: status === "PAID" ? new Date() : null },
+    data: { status, paidAt: status === "PAID" || status === "WAIVED" ? new Date() : null },
   });
 
   // Apply the real-world effect of the payment so activation is instant and connected.
@@ -811,9 +811,21 @@ export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAI
   if (isActivating) {
     // 1) Job Seeker Plus upgrade
     if (record.type === "JOB_SEEKER_PLUS" && record.userId) {
-      await prisma.jobSeekerProfile.updateMany({
+      const planUser = await prisma.user.findUnique({
+        where: { id: record.userId },
+        select: { fullName: true, phone: true, email: true },
+      });
+      await prisma.jobSeekerProfile.upsert({
         where: { userId: record.userId },
-        data: { plan: "PLUS", planExpiresAt: monthAhead },
+        create: {
+          userId: record.userId,
+          fullName: planUser?.fullName || "باحث عن عمل",
+          phone: planUser?.phone || null,
+          email: planUser?.email || null,
+          plan: "PLUS",
+          planExpiresAt: monthAhead,
+        },
+        update: { plan: "PLUS", planExpiresAt: monthAhead },
       });
       await notifyJobSeekerPlanChange(record.userId, "PLUS", monthAhead);
     }
@@ -859,6 +871,55 @@ export async function adminUpdatePaymentAction(id: string, status: "PAID" | "WAI
   revalidatePath("/me/billing");
   revalidatePath("/me/cv");
   revalidatePath("/");
+}
+
+export async function adminDeletePaymentAction(id: string) {
+  await requireAdmin();
+  const record = await prisma.billingRecord.findUnique({ where: { id } });
+  if (!record) return;
+
+  await prisma.billingRecord.delete({ where: { id } });
+
+  if (record.type === "JOB_SEEKER_PLUS" && record.userId) {
+    const stillActive = await prisma.billingRecord.findFirst({
+      where: {
+        userId: record.userId,
+        type: "JOB_SEEKER_PLUS",
+        status: { in: ["PAID", "WAIVED"] },
+      },
+    });
+    if (!stillActive) {
+      await prisma.jobSeekerProfile.updateMany({
+        where: { userId: record.userId },
+        data: { plan: "FREE", planExpiresAt: null },
+      });
+    }
+  }
+
+  const employerPlan = EMPLOYER_PLAN_FOR_TYPE[record.type];
+  if (employerPlan && record.userId) {
+    const stillActive = await prisma.billingRecord.findFirst({
+      where: {
+        userId: record.userId,
+        type: record.type,
+        status: { in: ["PAID", "WAIVED"] },
+      },
+    });
+    if (!stillActive) {
+      await prisma.employerProfile.updateMany({
+        where: { userId: record.userId },
+        data: { plan: "FREE", planExpiresAt: null },
+      });
+    }
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/payments");
+  revalidatePath("/admin/job-seekers");
+  revalidatePath("/admin/employers");
+  revalidatePath("/me");
+  revalidatePath("/me/billing");
+  revalidatePath("/me/cv");
 }
 
 export async function adminUpdateApplicationStatus(id: string, status: string) {
@@ -1062,13 +1123,19 @@ export async function adminUpdateJobSeekerPlanAction(userId: string, plan: "FREE
   await requireAdmin();
   const monthAhead = new Date(Date.now() + 30 * 86400000);
   const planExpiresAt = plan === "FREE" ? null : monthAhead;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { fullName: true, phone: true, email: true },
+  });
   await prisma.jobSeekerProfile.upsert({
     where: { userId },
     create: {
       userId,
       plan,
       planExpiresAt,
-      fullName: "باحث عن عمل",
+      fullName: user?.fullName || "باحث عن عمل",
+      phone: user?.phone || null,
+      email: user?.email || null,
     },
     update: {
       plan,
@@ -1077,5 +1144,8 @@ export async function adminUpdateJobSeekerPlanAction(userId: string, plan: "FREE
   });
   await notifyJobSeekerPlanChange(userId, plan, planExpiresAt);
   revalidatePath("/admin/job-seekers");
+  revalidatePath("/admin/payments");
   revalidatePath("/admin");
+  revalidatePath("/me");
+  revalidatePath("/me/cv");
 }

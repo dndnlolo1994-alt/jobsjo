@@ -17,6 +17,11 @@ next-env.d.ts
 *.node
 *.dll.node
 scratch/
-.env.*.pull
-.env.production.pull
+.env.vercel
 .env.vercel.pull
+.env*.pull
+.admin-login-temp.txt
+# Prisma query-engine temp artifacts (Windows) + build logs
+src/generated/client/*.tmp*
+*.node.tmp*
+build-output.log

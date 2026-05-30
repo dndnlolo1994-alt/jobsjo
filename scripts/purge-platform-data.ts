@@ -4,7 +4,8 @@
  *   npx tsx scripts/purge-platform-data.ts demo
  *   npx tsx scripts/purge-platform-data.ts full
  */
-import "dotenv/config";
+import { createRequire } from "node:module";
+createRequire(import.meta.url)("./load-env.cjs");
 import {
   getPlatformDataCounts,
   purgeDemoSeedData,

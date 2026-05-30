@@ -2,21 +2,12 @@ import { NextResponse } from "next/server";
 import { scrapeAllSources } from "@/lib/scrapers/jobScraper";
 import { prisma } from "@/lib/prisma";
 import { uniqueSlug } from "@/lib/utils";
+import { isAuthorizedCronRequest } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secretParam = searchParams.get("secret");
-
-  // Get authorization header
-  const authHeader = request.headers.get("authorization");
-  const secretHeader = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null;
-
-  const expectedSecret = process.env.CRON_SECRET || "dev_secret_key_123";
-  const providedSecret = secretParam || secretHeader;
-
-  if (providedSecret !== expectedSecret) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json(
       { success: false, error: "Unauthorized. Invalid secret." },
       { status: 401 }
@@ -80,14 +71,15 @@ export async function GET(request: Request) {
           contactMethod: "EXTERNAL_LINK",
           externalUrl: job.sourceUrl,
           source: "scraped",
-          sourceType: "COMPANY_CAREERS_PAGE",
+          sourceType: job.sourceName === "UNChannel" ? "PUBLIC_NGO_SOURCE" : "COMPANY_CAREERS_PAGE",
           sourceName: job.sourceName,
           sourceUrl: job.sourceUrl,
           sourceTrustLevel: "MEDIUM",
           isVerified: false,
+          originalPostedAt: job.postedAt,
           status: "PUBLISHED",
           publishedAt: new Date(),
-          expiresAt: new Date(Date.now() + 30 * 86400000)
+          expiresAt: job.expiresAt ?? new Date(Date.now() + 30 * 86400000)
         }
       });
 

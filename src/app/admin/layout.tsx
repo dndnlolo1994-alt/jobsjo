@@ -16,13 +16,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = await getSessionUser();
 
   return (
-    <div className="min-h-screen bg-slate-50/50 flex flex-col md:flex-row">
-      {/* Premium Right-Aligned Sidebar */}
+    <div className="min-h-screen bg-[#f4f7fb] text-slate-950 md:flex" dir="rtl">
       <AdminSidebar user={user ? { fullName: user.fullName, email: user.email } : null} />
-      
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+
+      <div className="min-w-0 flex-1">
+        <main className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
           {children}
         </main>
       </div>

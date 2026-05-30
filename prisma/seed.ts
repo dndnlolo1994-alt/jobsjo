@@ -1,4 +1,5 @@
-import "dotenv/config";
+import { createRequire } from "node:module";
+createRequire(import.meta.url)("../scripts/load-env.cjs");
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { uniqueSlug, JOB_CATEGORIES, JORDAN_CITIES, toCsv } from "../src/lib/utils";

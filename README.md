@@ -19,68 +19,122 @@
 | **الجذر (redirect)** | `https://jordan-job.shop` → يُحوَّل إلى `https://www.jordan-job.shop` |
 | **Vercel (احتياطي / داخلي)** | `https://jojobs-os.vercel.app` — للاختبار والنشر فقط، **ليس** الدومين العام للمستخدمين |
 
-> **SEO و canonical و sitemap و Open Graph:** تُبنى من `NEXT_PUBLIC_SITE_URL` في الإنتاج. يجب أن تكون القيمة `https://www.jordan-job.shop` — لا تستخدم `*.vercel.app` في الإنتاج.
+> **SEO و canonical و sitemap و Open Graph:** تُبنى من `NEXT_PUBLIC_SITE_URL`. في الإنتاج يجب أن تكون `https://www.jordan-job.shop` — لا تستخدم `*.vercel.app`.
 
 تفاصيل DNS والبريد وVercel: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ---
 
-## 🚀 التشغيل المحلي (Local Setup)
+## 🔐 متغيرات البيئة (مهم — اقرأ قبل التشغيل)
 
-### 1. استنساخ المشروع وتثبيت الاعتماديات
+### القاعدة الذهبية
+
+| الملف | الغرض | Git |
+|-------|--------|-----|
+| **`.env.local`** | **كل** متغيرات التطوير المحلي (أسرار + DB + SMTP) | ❌ لا يُرفع |
+| **`.env.example`** | قالب آمن بقيم وهمية — انسخه للبدء | ✅ يُرفع |
+| **`.env`** | ملف فارغ/توجيهي فقط — **لا تضع أسرار فيه** | ❌ لا يُرفع |
+| **Vercel Dashboard** | متغيرات الإنتاج الحقيقية | — |
+
+### إعداد محلي (خطوة بخطوة)
 
 ```bash
 git clone https://github.com/dndnlolo1994-alt/jobsjo.git
 cd jobsjo
 npm install
+cp .env.example .env.local
 ```
 
-### 2. إعداد ملف البيئة
+عدّل **`.env.local` فقط** — املأ على الأقل:
+
+| المتغير | ملاحظة |
+|---------|--------|
+| `DATABASE_URL` / `DIRECT_URL` | من Supabase (Pooler 6543 + Direct 5432) |
+| `SESSION_SECRET` / `SESSION_PASSWORD` | 32 حرفاً على الأقل — **نفس القيمتين** |
+| `NEXT_PUBLIC_SITE_URL` | محلياً: `http://localhost:3000` |
+| `SMTP_*` | Hostinger — مطلوب لـ OTP والبريد |
+| `ADMIN_EMAILS` | بريدك كأدمن، مثل `info@jordan-job.shop` |
+| `CRON_SECRET` | أي سر قوي (محلي يمكن `dev_secret_key_123`) |
+
+> Next.js يقرأ `.env.local` تلقائياً.  
+> Prisma والسكربتات (`seed`, `test:email`, …) تقرأه عبر `scripts/load-env.cjs`.
+
+### قائمة المتغيرات الكاملة
+
+انظر [`.env.example`](.env.example) — يحتوي **كل** المفاتيح المستخدمة في المشروع.
+
+---
+
+## 🚀 التشغيل المحلي
 
 ```bash
-cp .env.example .env
-```
-
-**محلياً** استخدم `NEXT_PUBLIC_SITE_URL=http://localhost:3000`.  
-**على Vercel (إنتاج)** استخدم `NEXT_PUBLIC_SITE_URL=https://www.jordan-job.shop` — انظر [`.env.example`](.env.example) و[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
-
-أهم المتغيرات:
-
-- `DATABASE_URL` / `DIRECT_URL` — PostgreSQL (Supabase).
-- `SESSION_SECRET` / `SESSION_PASSWORD` — بحد أدنى 32 حرفاً.
-- `NEXT_PUBLIC_SITE_URL` — عنوان الموقع حسب البيئة (محلي vs إنتاج).
-- `SMTP_*` — إرسال OTP والبريد (Hostinger SMTP في الإنتاج).
-
-### 3. قاعدة البيانات و Prisma
-
-```bash
-npx prisma generate
-npx prisma db push
-```
-
-### 4. بذور البيانات (تجنب 404)
-
-```bash
-npx prisma db seed
-```
-
-### 5. تشغيل التطوير
-
-```bash
+npm run prisma:generate
+npm run prisma:push    # أو: npm run prisma:migrate
+npm run seed           # اختياري — بيانات تجريبية
 npm run dev
 ```
 
 محلياً: [http://localhost:3000](http://localhost:3000)
 
+### اختبار البريد
+
+```bash
+npm run test:email -- info@jordan-job.shop
+```
+
 ---
 
-## 🔑 بيانات الدخول التجريبية (Seed)
+## 🔑 بيانات الدخول التجريبية (بعد seed)
 
 | نوع الحساب | البريد | كلمة المرور |
 |------------|--------|-------------|
-| أدمن | `admin@jojobs.local` | `Password123!` |
+| أدمن (seed) | `admin@jojobs.local` | `Password123!` |
+| أدمن (إنتاج) | `info@jordan-job.shop` | يُضبط عبر `scripts/bootstrap-admin.ts` |
 | صاحب عمل | `employer1@jojobs.local` | `Password123!` |
 | باحث | `seeker1@jojobs.local` | `Password123!` |
+
+> **بعد seed** تظهر أرقام وهمية في الأدمن (مثل 60 باحث). امسحها من `/admin/settings` → «حذف البيانات التجريبية».
+
+---
+
+## ⚠️ مشاكل شائعة (لا تتكرر)
+
+### 1. وضعت المتغيرات في `.env` بدل `.env.local`
+**الحل:** كل الأسرار في `.env.local` فقط. انسخ من `.env.example`.
+
+### 2. OTP / البريد لا يصل
+**السبب:** `SMTP_*` ناقصة أو خاطئة.  
+**الحل:** املأ `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` في `.env.local` ثم `npm run test:email`.
+
+### 3. `NEXT_PUBLIC_SITE_URL` خاطئ
+| البيئة | القيمة الصحيحة |
+|--------|----------------|
+| محلي | `http://localhost:3000` |
+| Vercel إنتاج | `https://www.jordan-job.shop` |
+
+❌ لا تستخدم `jojobs-os.vercel.app` في الإنتاج — يكسر SEO وروابط QR والبريد.
+
+### 4. BOM يكسر `DATABASE_URL` على Windows/Vercel
+**السبب:** `echo "..." | vercel env add` من PowerShell يضيف BOM.  
+**الحل:** لوحة Vercel، أو `vercel env pull .env.vercel.pull` ثم انسخ يدوياً إلى `.env.local`.
+
+### 5. أرقام وهمية في لوحة الأدمن (61 باحث، إلخ)
+**السبب:** `npm run seed` ينشئ 60 باحثاً + 10 أصحاب عمل + وظائف.  
+**الحل:** `/admin/settings` → اكتب `حذف-التجريبي` أو من الطرفية:
+```bash
+npx tsx scripts/purge-platform-data.ts demo
+```
+
+### 6. لا أستطيع الدخول كأدمن
+**الحل:**
+- تأكد `ADMIN_EMAILS` في `.env.local` يحتوي بريدك.
+- أو أنشئ/حدّث الأدمن:
+```bash
+npx tsx scripts/bootstrap-admin.ts info@jordan-job.shop "YourPassword"
+```
+
+### 7. Prisma لا يرى قاعدة البيانات
+**الحل:** تأكد `DATABASE_URL` في `.env.local` واستخدم أوامر npm (`npm run prisma:push`) — لا تشغّل `prisma` مباشرة بدون `load-env`.
 
 ---
 
@@ -92,13 +146,6 @@ npm run dev
 
 ---
 
-## ⚠️ BOM على Vercel (Windows)
-
-عند إضافة متغيرات عبر PowerShell `echo ... | vercel env add` قد يُضاف BOM ويكسر `DATABASE_URL`.  
-**الأفضل:** لوحة Vercel، أو `vercel env pull`، أو سكربت UTF-8.
-
----
-
 ## 📁 هيكل المجلدات
 
 ```
@@ -107,7 +154,11 @@ src/
 ├── components/
 ├── lib/
 └── prisma/
-docs/             # توثيق التشغيل، النشر، DNS، السياسات
+scripts/
+├── load-env.cjs  # يحمّل .env.local لـ Prisma والسكربتات
+docs/             # توثيق التشغيل، النشر، DNS
+.env.example      # قالب — انسخ إلى .env.local
+.env.local        # أسرارك المحلية (لا يُرفع)
 ```
 
 ---

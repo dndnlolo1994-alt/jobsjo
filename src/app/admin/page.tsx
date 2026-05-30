@@ -1,257 +1,346 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import {
+  Ban,
+  Briefcase,
+  Building2,
+  CheckCircle,
+  CreditCard,
+  Eye,
+  FileCheck2,
+  PlusCircle,
+  ShieldCheck,
+  Trash2,
+  UserPlus,
+  Users,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { StatCard } from "@/components/StatCard";
-import { adminUpdatePaymentAction, adminReviewClaimAction, adminApproveJobAction, adminRejectJobAction } from "@/lib/actions/platform";
-import { BILLING_STATUS_LABEL, BILLING_TYPE_LABEL, formatJod, formatDateArabic } from "@/lib/utils";
+import {
+  adminApproveJobAction,
+  adminDeletePaymentAction,
+  adminRejectJobAction,
+  adminReviewClaimAction,
+  adminUpdateJobSeekerPlanAction,
+  adminUpdatePaymentAction,
+} from "@/lib/actions/platform";
+import { BILLING_TYPE_LABEL, formatDateArabic, formatJod } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "لوحة الأدمن | جوبز الأردن", robots: { index: false, follow: false } };
 
+const actionBase =
+  "inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-[11px] font-extrabold transition-colors active:scale-[0.98]";
+const actionPrimary = `${actionBase} bg-emerald-600 text-white hover:bg-emerald-500`;
+const actionBlue = `${actionBase} bg-primary-600 text-white hover:bg-primary-500`;
+const actionNeutral = `${actionBase} border border-slate-200 bg-white text-slate-800 hover:bg-slate-50`;
+const actionDanger = `${actionBase} border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100`;
+
+function MetricCard({
+  label,
+  value,
+  tone,
+  icon: Icon,
+}: {
+  label: string;
+  value: string | number;
+  tone: "blue" | "emerald" | "amber" | "rose" | "slate";
+  icon: LucideIcon;
+}) {
+  const tones = {
+    blue: "border-primary-100 bg-primary-50/70 text-primary-700",
+    emerald: "border-emerald-100 bg-emerald-50/70 text-emerald-700",
+    amber: "border-amber-100 bg-amber-50/70 text-amber-700",
+    rose: "border-rose-100 bg-rose-50/70 text-rose-700",
+    slate: "border-slate-200 bg-white text-slate-700",
+  }[tone];
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-xs font-bold text-slate-500">{label}</span>
+        <span className={`grid h-9 w-9 place-items-center rounded-lg border ${tones}`}>
+          <Icon className="h-4 w-4" aria-hidden="true" />
+        </span>
+      </div>
+      <div className="text-3xl font-extrabold leading-none text-slate-950">{value}</div>
+    </div>
+  );
+}
+
 export default async function AdminPage() {
   await requireAdmin();
-  
-  // Fetch metrics and recent items concurrently
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
   const [
-    published, 
-    pendingJobsCount, 
-    expired, 
-    seekers, 
-    employers, 
-    appsToday, 
-    unpaidCount, 
-    paidCount, 
-    claimsCount, 
-    reportsCount, 
+    published,
+    pendingJobsCount,
+    seekers,
+    employers,
+    appsToday,
+    unpaidCount,
+    claimsCount,
+    reportsCount,
     revenueRecords,
     pendingPayments,
     pendingClaims,
-    pendingJobs
+    pendingJobs,
+    recentFreeSeekers,
   ] = await Promise.all([
     prisma.job.count({ where: { status: "PUBLISHED" } }),
     prisma.job.count({ where: { status: "PENDING_REVIEW" } }),
-    prisma.job.count({ where: { status: "EXPIRED" } }),
     prisma.user.count({ where: { role: "JOB_SEEKER" } }),
     prisma.user.count({ where: { role: "EMPLOYER" } }),
-    prisma.application.count({ where: { createdAt: { gte: new Date(new Date().toDateString()) } } }),
+    prisma.application.count({ where: { createdAt: { gte: todayStart } } }),
     prisma.billingRecord.count({ where: { status: "UNPAID" } }),
-    prisma.billingRecord.count({ where: { status: "PAID" } }),
     prisma.companyClaim.count({ where: { status: "PENDING" } }),
     prisma.reportedJob.count({ where: { resolved: false } }),
     prisma.billingRecord.findMany({ where: { status: "PAID" }, select: { amountJod: true } }),
-    // Pending items for immediate dashboard activation
-    prisma.billingRecord.findMany({ 
-      where: { status: "UNPAID" }, 
-      include: { user: true }, 
+    prisma.billingRecord.findMany({
+      where: { status: "UNPAID" },
+      include: { user: true },
       orderBy: { createdAt: "desc" },
-      take: 4 
+      take: 5,
     }),
-    prisma.companyClaim.findMany({ 
-      where: { status: "PENDING" }, 
+    prisma.companyClaim.findMany({
+      where: { status: "PENDING" },
       include: { company: true },
       orderBy: { createdAt: "desc" },
-      take: 4 
+      take: 4,
     }),
-    prisma.job.findMany({ 
-      where: { status: "PENDING_REVIEW" }, 
+    prisma.job.findMany({
+      where: { status: "PENDING_REVIEW" },
       include: { company: true },
       orderBy: { createdAt: "desc" },
-      take: 4 
+      take: 4,
+    }),
+    prisma.user.findMany({
+      where: {
+        role: "JOB_SEEKER",
+        OR: [{ jobSeekerProfile: { is: null } }, { jobSeekerProfile: { is: { plan: "FREE" } } }],
+      },
+      include: { jobSeekerProfile: true, cvProfile: true },
+      orderBy: { createdAt: "desc" },
+      take: 4,
     }),
   ]);
 
   const totalRevenue = revenueRecords.reduce((sum, r) => sum + Number(r.amountJod), 0);
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-6">
+      <header className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-950 tracking-tight">نظرة عامة على النظام</h1>
-          <p className="text-sm text-navy-400 mt-1 font-medium">متابعة إحصائيات المنصة، المدفوعات اليدوية، والوظائف المعلقة.</p>
+          <p className="mb-1 text-xs font-extrabold text-emerald-700">مركز تشغيل جوبز الأردن</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">لوحة إدارة المنصة</h1>
+          <p className="mt-1 text-sm font-medium text-slate-500">
+            مراجعة الطلبات، تفعيل المدفوعات، ترقية الباحثين، ونشر الوظائف من مكان واحد.
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Link href="/admin/jobs/new" className="btn-primary text-xs py-2 px-4 rounded-xl shadow-sm shadow-emerald-500/10">
-            ➕ إضافة وظيفة يدوية
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/jobs/new" className={actionPrimary}>
+            <PlusCircle className="h-4 w-4" aria-hidden="true" />
+            إضافة وظيفة
           </Link>
-          <a href="/" target="_blank" className="btn-outline text-xs py-2 px-4 rounded-xl">
-            👁️ عرض الموقع
+          <a href="/" target="_blank" className={actionNeutral}>
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            عرض الموقع
           </a>
         </div>
-      </div>
+      </header>
 
-      {/* Stats Dashboard Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="وظائف منشورة" value={published} />
-        <StatCard label="بانتظار المراجعة" value={pendingJobsCount} tone={pendingJobsCount > 0 ? "warning" : "default"} />
-        <StatCard label="طلبات اليوم" value={appsToday} />
-        <StatCard label="الباحثون عن عمل" value={seekers} />
-        <StatCard label="أصحاب العمل" value={employers} />
-        <StatCard label="مدفوعات معلقة" value={unpaidCount} tone={unpaidCount > 0 ? "danger" : "default"} />
-        <StatCard label="إجمالي الإيرادات" value={`${totalRevenue} د.أ`} tone="success" />
-        <StatCard label="مطالبات معلقة" value={claimsCount} tone={claimsCount > 0 ? "warning" : "default"} />
-      </div>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <MetricCard label="وظائف منشورة" value={published} tone="blue" icon={Briefcase} />
+        <MetricCard label="بانتظار المراجعة" value={pendingJobsCount} tone={pendingJobsCount > 0 ? "amber" : "slate"} icon={FileCheck2} />
+        <MetricCard label="طلبات اليوم" value={appsToday} tone="emerald" icon={CheckCircle} />
+        <MetricCard label="الباحثون عن عمل" value={seekers} tone="slate" icon={Users} />
+        <MetricCard label="أصحاب العمل" value={employers} tone="slate" icon={Building2} />
+        <MetricCard label="مدفوعات معلقة" value={unpaidCount} tone={unpaidCount > 0 ? "rose" : "slate"} icon={CreditCard} />
+        <MetricCard label="الإيرادات المؤكدة" value={`${totalRevenue} د.أ`} tone="emerald" icon={CreditCard} />
+        <MetricCard label="بلاغات مفتوحة" value={reportsCount} tone={reportsCount > 0 ? "rose" : "slate"} icon={Ban} />
+      </section>
 
-      {/* Critical Action Items Grid */}
-      <div className="grid lg:grid-cols-2 gap-6 mt-8">
-        
-        {/* Unpaid / Pending Payments Activation Widget */}
-        <div className="card bg-white p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-              <h2 className="font-extrabold text-navy-950 text-base flex items-center gap-2">
-                <span>💳</span> طلبات المدفوعات بانتظار التفعيل
-              </h2>
-              <span className="bg-rose-50 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-100">
-                {unpaidCount} طلب معلق
-              </span>
+      <section className="grid gap-4 xl:grid-cols-2">
+        <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+            <div>
+              <h2 className="font-extrabold text-slate-950">طلبات المدفوعات</h2>
+              <p className="text-xs font-medium text-slate-500">تفعيل، إعفاء، إلغاء، أو حذف الطلب نهائياً.</p>
             </div>
+            <span className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-extrabold text-rose-700">
+              {unpaidCount} معلق
+            </span>
+          </div>
 
+          <div className="divide-y divide-slate-100">
             {pendingPayments.length === 0 ? (
-              <div className="text-center py-10 text-navy-400 text-xs font-semibold">
-                🎉 لا توجد طلبات مدفوعات معلقة حالياً. كل شيء مفعل!
-              </div>
+              <p className="px-5 py-10 text-center text-sm font-bold text-slate-400">لا توجد مدفوعات معلقة حالياً.</p>
             ) : (
-              <div className="space-y-3.5">
-                {pendingPayments.map((record) => (
-                  <div key={record.id} className="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-extrabold text-navy-900">{BILLING_TYPE_LABEL[record.type]}</p>
-                      <p className="text-[11px] text-navy-500 mt-1">
-                        المستخدم: <strong className="text-navy-700">{record.user?.fullName}</strong> · المبلغ: <strong className="text-emerald-700">{formatJod(String(record.amountJod))}</strong>
-                      </p>
-                      {record.createdAt && (
-                        <p className="text-[9px] text-navy-400 mt-0.5">التاريخ: {formatDateArabic(record.createdAt)}</p>
-                      )}
-                    </div>
-                    
-                    {/* Quick Activation Buttons */}
-                    <div className="flex gap-1.5 w-full sm:w-auto self-end sm:self-center">
-                      <form action={adminUpdatePaymentAction.bind(null, record.id, "PAID")} className="flex-1 sm:flex-none">
-                        <button type="submit" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-[0.98]">
-                          ✅ تفعيل
-                        </button>
-                      </form>
-                      <form action={adminUpdatePaymentAction.bind(null, record.id, "WAIVED")} className="flex-1 sm:flex-none">
-                        <button type="submit" className="w-full sm:w-auto bg-slate-200 hover:bg-slate-300 text-slate-800 text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all active:scale-[0.98]">
-                          إعفاء
-                        </button>
-                      </form>
-                    </div>
+              pendingPayments.map((record) => (
+                <div key={record.id} className="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-sm font-extrabold text-slate-950">{BILLING_TYPE_LABEL[record.type]}</p>
+                    <p className="mt-1 text-xs font-medium text-slate-500">
+                      {record.user?.fullName ?? "بدون مستخدم"} · {record.user?.email ?? "لا يوجد بريد"} · {formatJod(String(record.amountJod))}
+                    </p>
+                    <p className="mt-1 text-[11px] font-bold text-slate-400">{formatDateArabic(record.createdAt)}</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 text-center">
-            <Link href="/admin/payments" className="text-xs font-bold text-emerald-700 hover:text-emerald-600 transition-colors">
-              عرض جميع سجلات المدفوعات والاشتراكات ←
-            </Link>
-          </div>
-        </div>
 
-        {/* Company Claim Approval Widget */}
-        <div className="card bg-white p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-              <h2 className="font-extrabold text-navy-950 text-base flex items-center gap-2">
-                <span>🛡️</span> مطالبات ملكية الشركات المعلقة
-              </h2>
-              <span className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-100">
-                {claimsCount} مطالبة معلقة
-              </span>
-            </div>
-
-            {pendingClaims.length === 0 ? (
-              <div className="text-center py-10 text-navy-400 text-xs font-semibold">
-                🛡️ لا توجد طلبات مطالبة ملكية معلقة حالياً.
-              </div>
-            ) : (
-              <div className="space-y-3.5">
-                {pendingClaims.map((claim) => (
-                  <div key={claim.id} className="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-extrabold text-navy-900">مطالبة لشركة: {claim.company.name}</p>
-                      <p className="text-[11px] text-navy-500 mt-1">
-                        بواسطة: <strong className="text-navy-700">{claim.claimantName}</strong> · الدور: <strong className="text-navy-600">{claim.companyRole}</strong>
-                      </p>
-                      <p className="text-[9px] text-navy-400 mt-0.5">الهاتف: {claim.phone} · البريد: {claim.email}</p>
-                    </div>
-                    
-                    {/* Approve / Reject Actions */}
-                    <div className="flex gap-1.5 w-full sm:w-auto self-end sm:self-center">
-                      <form action={adminReviewClaimAction.bind(null, claim.id, "APPROVED")} className="flex-1 sm:flex-none">
-                        <button type="submit" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-[0.98]">
-                          ✔️ قبول
-                        </button>
-                      </form>
-                      <form action={adminReviewClaimAction.bind(null, claim.id, "REJECTED")} className="flex-1 sm:flex-none">
-                        <button type="submit" className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-[0.98]">
-                          رفض
-                        </button>
-                      </form>
-                    </div>
+                  <div className="flex flex-wrap gap-2">
+                    <form action={adminUpdatePaymentAction.bind(null, record.id, "PAID")}>
+                      <button type="submit" className={actionPrimary}>
+                        <CheckCircle className="h-4 w-4" aria-hidden="true" />
+                        تفعيل
+                      </button>
+                    </form>
+                    <form action={adminUpdatePaymentAction.bind(null, record.id, "WAIVED")}>
+                      <button type="submit" className={actionBlue}>إعفاء</button>
+                    </form>
+                    <form action={adminUpdatePaymentAction.bind(null, record.id, "CANCELLED")}>
+                      <button type="submit" className={actionNeutral}>
+                        <XCircle className="h-4 w-4" aria-hidden="true" />
+                        إلغاء
+                      </button>
+                    </form>
+                    <form action={adminDeletePaymentAction.bind(null, record.id)}>
+                      <button type="submit" className={actionDanger}>
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        حذف
+                      </button>
+                    </form>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 text-center">
-            <Link href="/admin/claims" className="text-xs font-bold text-emerald-700 hover:text-emerald-600 transition-colors">
-              عرض جميع مطالبات الشركات وتعيين الملاك ←
-            </Link>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Jobs Pending Review Section */}
-      <div className="card bg-white p-6 shadow-sm border border-slate-100 mt-6">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-          <h2 className="font-extrabold text-navy-950 text-base flex items-center gap-2">
-            <span>💼</span> وظائف جديدة بانتظار المراجعة والنشر
-          </h2>
-          <span className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-100">
-            {pendingJobsCount} وظيفة معلقة
-          </span>
-        </div>
-
-        {pendingJobs.length === 0 ? (
-          <div className="text-center py-8 text-navy-400 text-xs font-semibold">
-            ✨ جميع الوظائف تمت مراجعتها ونشرها. لا توجد وظائف معلقة مراجعة!
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
-            {pendingJobs.map((job) => (
-              <div key={job.id} className="p-4 rounded-2xl border border-slate-150/60 bg-slate-50/50 hover:bg-slate-50 hover:border-emerald-500/20 transition-all flex flex-col justify-between">
-                <div>
-                  <h3 className="font-bold text-navy-900 text-sm leading-snug">{job.title}</h3>
-                  <p className="text-xs text-navy-500 mt-1">{job.company?.name ?? job.companyNameText} · {job.city}</p>
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3 border-t border-slate-100/50">
-                  <span className="text-[10px] text-navy-400">ينتهي في: {formatDateArabic(job.expiresAt)}</span>
-                  <div className="flex items-center gap-1.5">
+              ))
+            )}
+          </div>
+
+          <div className="border-t border-slate-100 px-5 py-3">
+            <Link href="/admin/payments" className="text-xs font-extrabold text-primary-700 hover:text-primary-600">
+              عرض كل المدفوعات والاشتراكات ←
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+            <div>
+              <h2 className="font-extrabold text-slate-950">ترقية الباحثين إلى Plus</h2>
+              <p className="text-xs font-medium text-slate-500">أحدث الحسابات المجانية مع زر تفعيل مباشر.</p>
+            </div>
+            <UserPlus className="h-5 w-5 text-emerald-700" aria-hidden="true" />
+          </div>
+          <div className="divide-y divide-slate-100">
+            {recentFreeSeekers.length === 0 ? (
+              <p className="px-5 py-10 text-center text-sm font-bold text-slate-400">لا يوجد باحثون مجانيون بحاجة لترقية.</p>
+            ) : (
+              recentFreeSeekers.map((user) => (
+                <div key={user.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-extrabold text-slate-950">{user.fullName || "باحث بدون اسم"}</p>
+                    <p className="truncate text-xs font-medium text-slate-500">{user.email}</p>
+                    <p className="mt-1 text-[11px] font-bold text-slate-400">{user.cvProfile ? "لديه CV" : "لم ينشئ CV بعد"}</p>
+                  </div>
+                  <form action={adminUpdateJobSeekerPlanAction.bind(null, user.id, "PLUS")}>
+                    <button type="submit" className={actionPrimary}>
+                      <UserPlus className="h-4 w-4" aria-hidden="true" />
+                      تفعيل Plus
+                    </button>
+                  </form>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="border-t border-slate-100 px-5 py-3">
+            <Link href="/admin/job-seekers" className="text-xs font-extrabold text-primary-700 hover:text-primary-600">
+              إدارة كل الباحثين ←
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-2">
+        <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+            <div>
+              <h2 className="font-extrabold text-slate-950">مطالبات ملكية الشركات</h2>
+              <p className="text-xs font-medium text-slate-500">قبول المطالبة يربط صاحب الطلب بالشركة ويوثقها.</p>
+            </div>
+            <span className="rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
+              {claimsCount} معلقة
+            </span>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {pendingClaims.length === 0 ? (
+              <p className="px-5 py-10 text-center text-sm font-bold text-slate-400">لا توجد مطالبات معلقة حالياً.</p>
+            ) : (
+              pendingClaims.map((claim) => (
+                <div key={claim.id} className="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <p className="text-sm font-extrabold text-slate-950">{claim.company.name}</p>
+                    <p className="mt-1 text-xs font-medium text-slate-500">
+                      {claim.claimantName} · {claim.companyRole} · {claim.phone}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <form action={adminReviewClaimAction.bind(null, claim.id, "APPROVED")}>
+                      <button type="submit" className={actionPrimary}>
+                        <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                        قبول
+                      </button>
+                    </form>
+                    <form action={adminReviewClaimAction.bind(null, claim.id, "REJECTED")}>
+                      <button type="submit" className={actionDanger}>رفض</button>
+                    </form>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+            <div>
+              <h2 className="font-extrabold text-slate-950">وظائف بانتظار النشر</h2>
+              <p className="text-xs font-medium text-slate-500">مراجعة سريعة قبل ظهور الوظيفة للباحثين.</p>
+            </div>
+            <span className="rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-xs font-extrabold text-amber-700">
+              {pendingJobsCount} وظيفة
+            </span>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {pendingJobs.length === 0 ? (
+              <p className="px-5 py-10 text-center text-sm font-bold text-slate-400">لا توجد وظائف معلقة مراجعة.</p>
+            ) : (
+              pendingJobs.map((job) => (
+                <div key={job.id} className="flex flex-col gap-3 px-5 py-4">
+                  <div>
+                    <p className="text-sm font-extrabold text-slate-950">{job.title}</p>
+                    <p className="mt-1 text-xs font-medium text-slate-500">
+                      {job.company?.name ?? job.companyNameText ?? "شركة غير محددة"} · {job.city} · ينتهي {formatDateArabic(job.expiresAt)}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
                     <form action={adminApproveJobAction.bind(null, job.id)}>
-                      <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
-                        ✅ موافقة
+                      <button type="submit" className={actionPrimary}>
+                        <CheckCircle className="h-4 w-4" aria-hidden="true" />
+                        نشر
                       </button>
                     </form>
                     <form action={adminRejectJobAction.bind(null, job.id)}>
-                      <button type="submit" className="bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition-all shadow-sm active:scale-[0.98] whitespace-nowrap">
-                        رفض
-                      </button>
+                      <button type="submit" className={actionDanger}>رفض</button>
                     </form>
-                    <Link href={`/admin/jobs/${job.id}/edit`} className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-extrabold px-3 py-1.5 rounded-xl transition-all whitespace-nowrap">
-                      ✍️ تعديل
-                    </Link>
+                    <Link href={`/admin/jobs/${job.id}/edit`} className={actionNeutral}>تعديل</Link>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-        )}
-      </div>
-
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,20 +1,11 @@
 import { NextResponse } from "next/server";
 import { syncAllJobSources } from "@/lib/tasks/sync-jobs";
+import { isAuthorizedCronRequest } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secretParam = searchParams.get("secret");
-
-  // Get authorization header
-  const authHeader = request.headers.get("authorization");
-  const secretHeader = authHeader?.startsWith("Bearer ") ? authHeader.substring(7) : null;
-
-  const expectedSecret = process.env.CRON_SECRET || "dev_secret_key_123";
-  const providedSecret = secretParam || secretHeader;
-
-  if (providedSecret !== expectedSecret) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json(
       { success: false, error: "Unauthorized. Invalid secret." },
       { status: 401 }

@@ -65,11 +65,14 @@ export default function LoginForm() {
             className="input pr-10 border-navy-150 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 w-full" 
             name="email" 
             type="email" 
-            placeholder="example@jojobs.local" 
+            placeholder="info@jordan-job.shop" 
             required 
             disabled={loading}
           />
         </div>
+        <p className="mt-1.5 text-[11px] font-semibold text-navy-500">
+          للدخول إلى لوحة التحكم استخدم بريد الأدمن الكامل، وليس كلمة admin فقط.
+        </p>
       </div>
       
       <div>

@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { searchJobsAdvanced } from "@/lib/search/jobs";
+import { isAuthorizedCronRequest } from "@/lib/cron-auth";
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (process.env.NODE_ENV === "production" && !isAuthorizedCronRequest(request)) {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
   try {
     const totalJobs = await prisma.job.count();
     const publishedJobs = await prisma.job.count({ where: { status: "PUBLISHED" } });
