@@ -58,7 +58,9 @@ export default async function CvVerifyPage({ params, searchParams }: { params: P
     (cv.paymentStatus === "PAID" || cv.paymentStatus === "WAIVED" || seeker?.plan === "PLUS")
   );
 
-  const updated = formatDateArabic(cv.updatedAt);
+  const updated = isEn
+    ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(cv.updatedAt)
+    : formatDateArabic(cv.updatedAt);
   const englishVersion = parseCvEnglishVersion(cv.englishVersion);
   const englishReady = isCvEnglishReady(englishVersion, cv);
   const englishMissing = getCvEnglishMissing(englishVersion, cv);
