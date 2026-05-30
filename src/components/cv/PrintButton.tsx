@@ -20,23 +20,30 @@ export function PrintButton({ fileName = "cv.pdf" }: PrintButtonProps) {
     setIsGenerating(true);
     setMessage("");
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
+      await document.fonts?.ready;
+      const [{ toPng }, { jsPDF }] = await Promise.all([
+        import("html-to-image"),
         import("jspdf"),
       ]);
-      const canvas = await html2canvas(cv, {
+      const width = cv.scrollWidth;
+      const height = cv.scrollHeight;
+      const image = await toPng(cv, {
+        cacheBust: true,
+        pixelRatio: Math.min(2, window.devicePixelRatio || 1.5),
         backgroundColor: "#ffffff",
-        scale: Math.min(2, window.devicePixelRatio || 1.5),
-        useCORS: true,
-        logging: false,
-        windowWidth: cv.scrollWidth,
-        windowHeight: cv.scrollHeight,
+        width,
+        height,
+        style: {
+          width: `${width}px`,
+          height: `${height}px`,
+          transform: "none",
+          margin: "0",
+        },
       });
-      const image = canvas.toDataURL("image/jpeg", 0.98);
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const imageRatio = canvas.width / canvas.height;
+      const imageRatio = width / height;
       let renderWidth = pageWidth;
       let renderHeight = renderWidth / imageRatio;
       if (renderHeight > pageHeight) {
@@ -45,7 +52,7 @@ export function PrintButton({ fileName = "cv.pdf" }: PrintButtonProps) {
       }
       const x = (pageWidth - renderWidth) / 2;
       const y = (pageHeight - renderHeight) / 2;
-      pdf.addImage(image, "JPEG", x, y, renderWidth, renderHeight);
+      pdf.addImage(image, "PNG", x, y, renderWidth, renderHeight);
       pdf.save(fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`);
       setMessage("تم إنشاء ملف PDF صفحة واحدة.");
     } catch (error) {

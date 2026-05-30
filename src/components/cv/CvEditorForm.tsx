@@ -21,6 +21,7 @@ interface CvEditorFormProps {
 
 export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false, billingStatus = "UNPAID", isPlus = false, siteUrl = "" }: CvEditorFormProps) {
   const router = useRouter();
+  const canUsePhoto = isPlus || isPaid || billingStatus === "PAID" || billingStatus === "WAIVED";
   // QR points to the real public verification page on the live domain.
   const qrBase = (siteUrl || "").replace(/\/$/, "");
   const qrVerifyId = cv?.userId || cv?.id || "verify";
@@ -501,7 +502,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
           <div className="w-full flex flex-col items-center gap-6">
               {/* Profile Photo selector in visual workspace (Plus-only) */}
               <div className="flex gap-4 items-center bg-navy-950 p-4 rounded-xl border border-navy-800 w-full max-w-[794px] justify-between text-white text-xs">
-                {isPlus ? (
+                {canUsePhoto ? (
                   <>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full border border-[#c2a06c] overflow-hidden bg-navy-900 flex items-center justify-center relative group">
@@ -531,10 +532,10 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full border border-[#c2a06c]/40 bg-navy-900 flex items-center justify-center text-xl shrink-0">🔒</div>
                     <div className="text-right">
-                      <p className="font-bold text-slate-200">الصورة الشخصية ميزة في باقة Plus</p>
+                      <p className="font-bold text-slate-200">الصورة الشخصية للمشتركين المدفوعين</p>
                       <p className="text-[10px] text-slate-400">
                         السيرة المجانية تُنشأ بدون صورة شخصية.{" "}
-                        <a href="/pricing" className="text-[#c9a84c] font-bold underline">الترقية إلى Plus ⚡</a>
+                        <a href="/pricing" className="text-[#c9a84c] font-bold underline">تفعيل الاشتراك ⚡</a>
                       </p>
                     </div>
                   </div>
@@ -577,7 +578,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                       </div>
                       
                       {/* Photo Frame (Plus-only) */}
-                      {isPlus && (
+                      {canUsePhoto && (
                         <div className="relative shrink-0">
                           <div className="w-[102px] h-[102px] rounded-full border-2 border-[#c2a06c] flex items-center justify-center p-[2px] bg-transparent">
                             {photo ? (
@@ -1345,7 +1346,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
         {activeTab === "basic" && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-6 items-center border-b border-navy-50 pb-6">
-              {isPlus ? (
+              {canUsePhoto ? (
                 <>
                   {/* Photo Upload Frame */}
                   <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-[#c0a368] bg-navy-50 flex items-center justify-center shadow-inner group">
@@ -1382,9 +1383,9 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     <span className="text-navy-300 text-4xl">🔒</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-navy-900">الصورة الشخصية — ميزة باقة Plus</h3>
+                    <h3 className="font-bold text-navy-900">الصورة الشخصية — للمشتركين المدفوعين</h3>
                     <p className="text-sm text-[color:var(--muted)] mt-1 max-w-sm leading-6">
-                      السيرة الذاتية المجانية تُنشأ باحترافية وبدون صورة شخصية (تماماً كالقوالب العالمية). لإضافة صورتك الشخصية، قم بالترقية إلى باقة Plus.
+                      السيرة الذاتية المجانية تُنشأ باحترافية وبدون صورة شخصية. لإضافة صورتك الشخصية، فعّل الاشتراك المدفوع.
                     </p>
                     <a href="/pricing" className="inline-block text-xs font-bold text-[#8b7340] bg-[#f8f5ec] border border-[#e0d9c5] hover:bg-[#f0ece0] px-3 py-1.5 rounded-lg mt-2 transition-colors dark:bg-[#2a2214] dark:text-[#e8d39c] dark:border-[#c0a368]/40">
                       الترقية إلى Plus ⚡

@@ -23,6 +23,7 @@ export default async function CvDownloadPage({ searchParams }: { searchParams: P
   if (!cv) return <section className="container-jo py-10"><div className="card-pad">لا توجد سيرة محفوظة بعد. <Link className="link" href="/me/cv">أنشئ سيرتك الآن</Link></div></section>;
   const billing = await ensureCvPdfBilling(user.id, cv.id);
   const allowed = await canDownloadCvPdf(user.id);
+  const showPaidPhoto = seeker?.plan === "PLUS" || allowed || billing.status === "PAID" || billing.status === "WAIVED";
   const fileName = `CV-${cv.fullName}-${new Date().toISOString().slice(0, 10)}.pdf`;
 
   if (!allowed) {
@@ -47,7 +48,7 @@ export default async function CvDownloadPage({ searchParams }: { searchParams: P
         <PrintButton fileName={fileName} />
       </div>
       <div className="overflow-x-auto pb-4">
-        <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} isPlus={seeker?.plan === "PLUS"} />
+        <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} isPlus={showPaidPhoto} />
       </div>
     </section>
   );
