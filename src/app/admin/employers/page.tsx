@@ -22,17 +22,17 @@ export default async function Page() {
     <section className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-navy-950 tracking-tight">إدارة أصحاب العمل</h1>
-          <p className="text-sm text-navy-400 mt-1 font-medium">التحكم بصلاحيات الشركات، تفعيل الاشتراكات وإيقاف الحسابات.</p>
+          <h1 className="text-2xl font-extrabold text-slate-950 tracking-tight">إدارة أصحاب العمل</h1>
+          <p className="text-sm text-slate-500 mt-1 font-medium">التحكم بصلاحيات الشركات، تفعيل الاشتراكات وإيقاف الحسابات.</p>
         </div>
-        <div className="bg-slate-100 text-navy-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+        <div className="bg-slate-100 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
           عدد الشركات الكلي: {items.length}
         </div>
       </div>
 
       <div className="grid gap-4">
         {items.length === 0 ? (
-          <div className="card bg-white p-8 text-center text-navy-400 text-sm font-semibold border border-slate-100">
+          <div className="card bg-white p-8 text-center text-slate-500 text-sm font-semibold border border-slate-100">
             🏢 لا يوجد أصحاب عمل مسجلين حالياً في المنصة.
           </div>
         ) : (
@@ -42,10 +42,10 @@ export default async function Page() {
             const companyName = profile?.company?.name ?? "لم يتم ربط شركة بعد";
 
             return (
-              <div key={user.id} className="card bg-white p-6 shadow-sm border border-slate-150 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:border-emerald-500/20 transition-all">
+              <div key={user.id} className="card bg-white p-6 text-slate-900 shadow-sm border border-slate-200 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:border-emerald-500/30 transition-all">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <h3 className="font-bold text-navy-900 text-base">{user.fullName || "مستخدم بدون اسم"}</h3>
+                    <h3 className="font-bold text-slate-950 text-base">{user.fullName || "مستخدم بدون اسم"}</h3>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                       user.isSuspended 
                         ? "bg-rose-50 text-rose-700 border-rose-100" 
@@ -63,8 +63,8 @@ export default async function Page() {
                     </span>
                   </div>
                   
-                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs text-navy-500 font-medium">
-                    <p>📧 {user.email}</p>
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 text-xs text-slate-600 font-medium">
+                    <p className="break-all">📧 {user.email}</p>
                     {user.phone && <p>📞 {user.phone}</p>}
                     <p>🏢 {companyName}</p>
                   </div>
@@ -72,7 +72,7 @@ export default async function Page() {
 
                 <div className="flex flex-wrap items-center gap-2">
                   {/* Plan Activation Quick Buttons */}
-                  <div className="flex items-center bg-slate-50 border border-slate-150 rounded-xl p-1 gap-1">
+                  <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl p-1 gap-1">
                     {(["FREE", "BASIC", "PRO", "BUSINESS"] as const).map((plan) => (
                       <form key={plan} action={adminUpdateEmployerPlanAction.bind(null, user.id, plan)}>
                         <button
@@ -80,7 +80,7 @@ export default async function Page() {
                           className={`text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg transition-all ${
                             currentPlan === plan
                               ? "bg-emerald-600 text-white shadow-sm"
-                              : "text-navy-600 hover:bg-slate-200/60"
+                              : "text-slate-700 hover:bg-slate-200/70"
                           }`}
                         >
                           {plan === "FREE" ? "مجاني" : plan === "BASIC" ? "أساسي" : plan === "PRO" ? "برو" : "أعمال"}
