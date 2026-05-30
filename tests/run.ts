@@ -3,6 +3,7 @@ import { normalizeJordanPhone } from "../src/lib/phone";
 import { computeMatch } from "../src/lib/matching/job-score";
 import { buildJobPostingJsonLd } from "../src/lib/seo/jobposting";
 import { jobQualityChecklist } from "../src/lib/search/jobs";
+import { createApplicationReviewToken, verifyApplicationReviewToken } from "../src/lib/application-review-token";
 
 assert.equal(normalizeJordanPhone("0791234567"), "962791234567");
 assert.equal(normalizeJordanPhone("+962791234567"), "962791234567");
@@ -31,5 +32,9 @@ assert.equal(schema?.["@type"], "JobPosting");
 
 const checklist = jobQualityChecklist({ title: "موظف مبيعات", city: "إربد", companyNameText: "شركة", contactMethod: "INTERNAL_APPLY", requirements: "خبرة بسيطة", expiresAt: new Date(), sourceType: "EMPLOYER_DIRECT" });
 assert.equal(checklist.every((x) => x.ok), true);
+
+const reviewToken = createApplicationReviewToken("app_123", "owner@example.com");
+assert.equal(verifyApplicationReviewToken("app_123", "owner@example.com", reviewToken), true);
+assert.equal(verifyApplicationReviewToken("app_123", "other@example.com", reviewToken), false);
 
 console.log("All lightweight tests passed.");

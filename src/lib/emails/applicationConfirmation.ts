@@ -1,6 +1,7 @@
 import { getNotifier } from "@/lib/notifications";
 import { env } from "@/lib/env";
 import { formatDateArabic } from "@/lib/utils";
+import { absoluteUrl } from "@/lib/seo/site";
 import { brandedEmailLayout, emailSignature } from "./layout";
 
 // Job Type Arabic labels helper
@@ -140,6 +141,7 @@ interface EmployerEmailOptions {
   educations?: CvEducation[];
   coverNote?: string | null;
   cvId?: string | null;
+  cvUrl?: string | null;
   appliedAt: Date;
   reviewUrl: string;
 }
@@ -151,7 +153,7 @@ const EDU_LABEL: Record<string, string> = {
 export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
   const notifier = getNotifier();
   const dateStr = formatDateArabic(opts.appliedAt);
-  const siteUrl = env.SITE_URL;
+  const siteUrl = absoluteUrl("/");
   const contactEmail = env.COMPANY_EMAIL || env.CONTACT_EMAIL || emailSignature.email;
   const whatsapp = env.PLATFORM_WHATSAPP || emailSignature.whatsapp;
   const whatsappDisplay = whatsapp === emailSignature.whatsapp ? emailSignature.phoneDisplay : `+${whatsapp}`;
@@ -182,7 +184,7 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
       </td>
     </tr>`).join("");
 
-  const cvLink = opts.cvId ? `${siteUrl}/cv/${opts.cvId}` : "";
+  const cvLink = opts.cvUrl || (opts.cvId ? absoluteUrl(`/cv/${opts.cvId}`) : "");
   const whatsappLink = opts.applicantPhone ? `https://wa.me/${opts.applicantPhone.replace(/\D/g, "")}` : "";
 
   const html = `
@@ -244,6 +246,12 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
         <div>${skillBadges}</div>
       </div>` : ""}
 
+      ${opts.applicantSummary ? `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-right:4px solid #1B4FDB;border-radius:10px;padding:14px;margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:800;color:#1e3a8a;margin-bottom:6px;">🧾 نبذة مختصرة عن المتقدم</div>
+        <div style="font-size:13px;color:#334155;line-height:1.7;">${opts.applicantSummary.slice(0, 500)}${opts.applicantSummary.length > 500 ? "…" : ""}</div>
+      </div>` : ""}
+
       <!-- Cover Note -->
       ${opts.coverNote ? `
       <div style="background:#fffbeb;border:1px solid #fde68a;border-right:4px solid #F59E0B;border-radius:10px;padding:14px;margin-bottom:20px;">
@@ -275,10 +283,10 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
       <!-- CTA Buttons -->
       <div style="text-align:center;margin:28px 0 10px;">
         <a href="${opts.reviewUrl}" style="display:inline-block;background:linear-gradient(135deg,#1B4FDB,#4F79FF);color:#ffffff;padding:14px 36px;text-decoration:none;border-radius:12px;font-weight:900;font-size:15px;box-shadow:0 6px 20px rgba(27,79,219,0.30);margin:0 6px 10px;">
-          🔍 مراجعة الطلب كاملاً
+          🔍 مراجعة الطلب كاملاً بدون تسجيل دخول
         </a>
         ${cvLink ? `<a href="${cvLink}" style="display:inline-block;background:linear-gradient(135deg,#059669,#10B981);color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:12px;font-weight:900;font-size:14px;box-shadow:0 6px 20px rgba(5,150,105,0.25);margin:0 6px 10px;">
-          📄 عرض السيرة الذاتية / PDF
+          📄 عرض السيرة الذاتية وطباعتها PDF
         </a>` : ""}
         ${cvLink ? `<div style="font-size:11px;color:#64748b;margin-top:4px;">يمكن لصاحب العمل فتح السيرة وطباعتها أو حفظها PDF مباشرة من المتصفح.</div>` : ""}
       </div>
@@ -306,7 +314,7 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
     to: opts.to,
     subject,
     html,
-    text: `متقدم جديد على وظيفتك "${opts.jobTitle}": ${opts.applicantName}${opts.applicantPhone ? ` — ${opts.applicantPhone}` : ""}${opts.coverNote ? `\n\nرسالته: ${opts.coverNote.slice(0, 200)}` : ""}\n\nراجع الطلب: ${opts.reviewUrl}`,
+    text: `متقدم جديد على وظيفتك "${opts.jobTitle}": ${opts.applicantName}${opts.applicantPhone ? ` — ${opts.applicantPhone}` : ""}${opts.coverNote ? `\n\nرسالته: ${opts.coverNote.slice(0, 200)}` : ""}\n\nراجع الطلب بدون تسجيل دخول: ${opts.reviewUrl}${cvLink ? `\nعرض السيرة وطباعتها PDF: ${cvLink}` : ""}`,
   });
 }
 

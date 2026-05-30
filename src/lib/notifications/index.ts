@@ -144,6 +144,24 @@ class ResendProvider implements NotificationProvider {
 // Provider priority: Resend (transactional) > SMTP > Console fallback.
 type ProviderKind = "resend" | "smtp" | "console";
 
+function isInternalQaRecipient(email: string) {
+  const normalized = email.trim().toLowerCase();
+  return /^qa[-\w]*@jordan-job\.shop$/.test(normalized) || /^qa-launch[-\w]*@jordan-job\.shop$/.test(normalized);
+}
+
+class QaSafeProvider implements NotificationProvider {
+  constructor(private readonly next: NotificationProvider) {}
+
+  async send(opts: NotificationMessage) {
+    if (isInternalQaRecipient(opts.to)) {
+      console.warn(`[notify] Skipped internal QA recipient ${opts.to} to avoid production bounce emails.`);
+      return { ok: true, provider: "console" as const, messageId: "skipped-internal-qa-recipient" };
+    }
+
+    return this.next.send(opts);
+  }
+}
+
 function desiredKind(): ProviderKind {
   if (process.env.RESEND_API_KEY) return "resend";
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) return "smtp";
@@ -157,13 +175,13 @@ function makeProvider(kind: ProviderKind): NotificationProvider {
 }
 
 let currentKind: ProviderKind = desiredKind();
-let provider: NotificationProvider = makeProvider(currentKind);
+let provider: NotificationProvider = new QaSafeProvider(makeProvider(currentKind));
 
 export function getNotifier(): NotificationProvider {
   const kind = desiredKind();
   if (kind !== currentKind) {
     currentKind = kind;
-    provider = makeProvider(kind);
+    provider = new QaSafeProvider(makeProvider(kind));
   }
   return provider;
 }

@@ -14,6 +14,8 @@ import { getNotifier } from "@/lib/notifications";
 import { sendApplicationConfirmation, sendApplicationStatusUpdate, sendNewApplicationAlert } from "@/lib/emails/applicationConfirmation";
 import { brandedEmailLayout } from "@/lib/emails/layout";
 import { env } from "@/lib/env";
+import { createApplicationReviewToken } from "@/lib/application-review-token";
+import { absoluteUrl } from "@/lib/seo/site";
 
 function str(form: FormData, key: string) {
   const v = form.get(key);
@@ -670,6 +672,11 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
 
     if (employerEmail) {
       try {
+        const reviewToken = createApplicationReviewToken(application.id, employerEmail);
+        const reviewUrl = absoluteUrl(`/applications/review/${application.id}?token=${encodeURIComponent(reviewToken)}`);
+        const cvUrl = cv
+          ? absoluteUrl(`/applications/review/${application.id}/cv?token=${encodeURIComponent(reviewToken)}`)
+          : null;
         const result = await sendNewApplicationAlert({
           to: employerEmail,
           jobTitle: job.title,
@@ -696,8 +703,9 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
           })) || [],
           coverNote: parsed.data.coverNote || null,
           cvId: cv?.id || null,
+          cvUrl,
           appliedAt: application.createdAt,
-          reviewUrl: `${env.SITE_URL}/employer/jobs/${job.id}/applications`,
+          reviewUrl,
         });
         await prisma.application.update({
           where: { id: application.id },
