@@ -39,14 +39,29 @@ export default async function EmployerApplicationsPage({ params }: { params: Pro
     return b.matchScore - a.matchScore;
   });
 
+  const workflowStatuses = ["VIEWED", "SHORTLISTED", "INTERVIEW", "HIRED", "REJECTED"];
+
   return (
     <section className="container-jo py-8">
-      <h1 className="section-title">مرشحو وظيفة: {job.title}</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="section-title mb-1">مرشحو وظيفة: {job.title}</h1>
+          <p className="section-sub mb-0">كل تغيير حالة يرسل تحديثاً للمتقدم ويتم تسجيل قبول الإرسال من مزود البريد.</p>
+        </div>
+        <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-extrabold text-emerald-700">
+          {sortedApplications.length.toLocaleString("ar-JO")} متقدم
+        </span>
+      </div>
       <div className="space-y-4">
         {sortedApplications.map((a) => {
           const profile = a.jobSeeker.jobSeekerProfile;
           const score = profile ? computeMatch(job, { ...profile, hasCv: !!a.jobSeeker.cvProfile }) : { score: a.matchScore, reasons: [] };
           const isPlus = profile?.plan === "PLUS";
+          const emailBadges = [
+            a.applicantConfirmationSentAt ? "تأكيد المتقدم مرسل" : "تأكيد المتقدم غير مؤكد",
+            a.employerNotificationSentAt ? "إشعار الشركة مرسل" : "إشعار الشركة غير مؤكد",
+            a.statusNotificationSentAt ? "آخر تحديث حالة مرسل" : null,
+          ].filter(Boolean);
 
           return (
             <div className={`card-pad border transition-all duration-300 ${
@@ -66,12 +81,41 @@ export default async function EmployerApplicationsPage({ params }: { params: Pro
                   <p className="text-xs text-navy-500 mt-1">المهارات: {fromCsv(profile?.skills).join("، ") || "غير مدخلة"}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {["SHORTLISTED","INTERVIEW","REJECTED","HIRED"].map((s) => (
+                  {workflowStatuses.map((s) => (
                     <form key={s} action={adminUpdateApplicationStatus.bind(null, a.id, s)}>
-                      <button className="btn-outline text-xs px-3 py-1.5 rounded-xl">{APP_STATUS_LABEL[s]}</button>
+                      <button
+                        className={`btn-outline text-xs px-3 py-1.5 rounded-xl ${a.status === s ? "border-emerald-500 bg-emerald-50 text-emerald-800" : ""}`}
+                        disabled={a.status === s}
+                      >
+                        {APP_STATUS_LABEL[s]}
+                      </button>
                     </form>
                   ))}
                 </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {emailBadges.map((badge) => (
+                  <span
+                    className={`rounded-lg border px-2.5 py-1 text-[11px] font-extrabold ${
+                      badge?.includes("غير")
+                        ? "border-amber-100 bg-amber-50 text-amber-800"
+                        : "border-emerald-100 bg-emerald-50 text-emerald-700"
+                    }`}
+                    key={badge}
+                  >
+                    {badge}
+                  </span>
+                ))}
+                {a.employerNotificationTo && (
+                  <span className="rounded-lg border border-slate-100 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-600" dir="ltr">
+                    {a.employerNotificationTo}
+                  </span>
+                )}
+                {a.notificationError && (
+                  <span className="rounded-lg border border-rose-100 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700">
+                    يحتاج متابعة بريدية
+                  </span>
+                )}
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
                 {topReasons(score, 5).map((r) => (

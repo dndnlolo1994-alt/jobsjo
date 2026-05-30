@@ -460,6 +460,11 @@ model Application {
   coverNote     String?
   status        ApplicationStatus @default(SUBMITTED)
   appliedVia    AppliedVia @default(INTERNAL)
+  applicantConfirmationSentAt DateTime?
+  employerNotificationSentAt  DateTime?
+  statusNotificationSentAt    DateTime?
+  employerNotificationTo      String?
+  notificationError           String?
   matchScore    Int      @default(0)
   employerNotes String?
   createdAt     DateTime @default(now())

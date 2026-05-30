@@ -451,19 +451,24 @@ model Job {
 // ============================================================
 
 model Application {
-  id            String            @id @default(cuid())
-  jobId         String
-  job           Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobSeekerId   String
-  jobSeeker     User              @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
-  cvId          String?
-  coverNote     String?
-  status        ApplicationStatus @default(SUBMITTED)
-  appliedVia    AppliedVia        @default(INTERNAL)
-  matchScore    Int               @default(0)
-  employerNotes String?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id                          String            @id @default(cuid())
+  jobId                       String
+  job                         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobSeekerId                 String
+  jobSeeker                   User              @relation(fields: [jobSeekerId], references: [id], onDelete: Cascade)
+  cvId                        String?
+  coverNote                   String?
+  status                      ApplicationStatus @default(SUBMITTED)
+  appliedVia                  AppliedVia        @default(INTERNAL)
+  applicantConfirmationSentAt DateTime?
+  employerNotificationSentAt  DateTime?
+  statusNotificationSentAt    DateTime?
+  employerNotificationTo      String?
+  notificationError           String?
+  matchScore                  Int               @default(0)
+  employerNotes               String?
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
 
   @@unique([jobId, jobSeekerId])
   @@index([status])

@@ -18,8 +18,15 @@ export type NotificationMessage = {
   attachments?: NotificationAttachment[];
 };
 
+export type NotificationSendResult = {
+  ok: boolean;
+  provider: "resend" | "smtp" | "console";
+  messageId?: string;
+  error?: string;
+};
+
 export type NotificationProvider = {
-  send(opts: NotificationMessage): Promise<void>;
+  send(opts: NotificationMessage): Promise<NotificationSendResult>;
 };
 
 class ConsoleProvider implements NotificationProvider {
@@ -30,7 +37,7 @@ class ConsoleProvider implements NotificationProvider {
       console.warn(
         `[notify] No email provider configured — message to ${opts.to} ("${opts.subject}") was NOT delivered. Set SMTP_HOST / SMTP_USER / SMTP_PASS to enable email.`
       );
-      return;
+      return { ok: false, provider: "console" as const, error: "NO_EMAIL_PROVIDER_CONFIGURED" };
     }
 
     // Development: print the full message and append to a temp outbox file.
@@ -43,6 +50,7 @@ class ConsoleProvider implements NotificationProvider {
     } catch (err) {
       console.error("Failed to write mock email log:", err);
     }
+    return { ok: true, provider: "console" as const };
   }
 }
 
@@ -64,7 +72,7 @@ class SmtpProvider implements NotificationProvider {
   async send(opts: NotificationMessage) {
     const fromAddress = process.env.SMTP_FROM || `"جوبز الأردن" <noreply@jojobs.jo>`;
     try {
-      await this.transporter.sendMail({
+      const info = await this.transporter.sendMail({
         from: fromAddress,
         to: opts.to,
         subject: opts.subject,
@@ -73,10 +81,16 @@ class SmtpProvider implements NotificationProvider {
         attachments: opts.attachments,
       });
       console.log(`[SMTP] Email sent successfully to ${opts.to}`);
+      return { ok: true, provider: "smtp" as const, messageId: info.messageId };
     } catch (err) {
       console.error(`[SMTP] Failed to send email to ${opts.to}:`, err);
       // Fallback to console provider
       await new ConsoleProvider().send(opts);
+      return {
+        ok: false,
+        provider: "smtp" as const,
+        error: err instanceof Error ? err.message : "SMTP_SEND_FAILED",
+      };
     }
   }
 }
@@ -107,12 +121,22 @@ class ResendProvider implements NotificationProvider {
         console.error(`[Resend] Failed to send to ${opts.to}:`, error);
         // Fallback so the flow never crashes (no content leaked in prod).
         await new ConsoleProvider().send(opts);
-        return;
+        return {
+          ok: false,
+          provider: "resend" as const,
+          error: error.message ?? "RESEND_SEND_FAILED",
+        };
       }
       console.log(`[Resend] Email sent to ${opts.to} (id: ${data?.id ?? "n/a"})`);
+      return { ok: true, provider: "resend" as const, messageId: data?.id };
     } catch (err) {
       console.error(`[Resend] Exception sending to ${opts.to}:`, err);
       await new ConsoleProvider().send(opts);
+      return {
+        ok: false,
+        provider: "resend" as const,
+        error: err instanceof Error ? err.message : "RESEND_EXCEPTION",
+      };
     }
   }
 }

@@ -1,7 +1,7 @@
 import { getNotifier } from "@/lib/notifications";
 import { env } from "@/lib/env";
 import { formatDateArabic } from "@/lib/utils";
-import { emailSignature } from "./layout";
+import { brandedEmailLayout, emailSignature } from "./layout";
 
 // Job Type Arabic labels helper
 const JOB_TYPE_LABEL: Record<string, string> = {
@@ -114,7 +114,7 @@ export async function sendApplicationConfirmation(opts: SeekerEmailOptions) {
     </div>
   `;
 
-  await notifier.send({
+  return notifier.send({
     to: opts.to,
     subject,
     html,
@@ -302,10 +302,56 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
   </body>
   </html>`;
 
-  await notifier.send({
+  return notifier.send({
     to: opts.to,
     subject,
     html,
     text: `متقدم جديد على وظيفتك "${opts.jobTitle}": ${opts.applicantName}${opts.applicantPhone ? ` — ${opts.applicantPhone}` : ""}${opts.coverNote ? `\n\nرسالته: ${opts.coverNote.slice(0, 200)}` : ""}\n\nراجع الطلب: ${opts.reviewUrl}`,
   });
+}
+
+interface StatusUpdateEmailOptions {
+  to: string;
+  applicantName: string;
+  jobTitle: string;
+  companyName: string;
+  status: string;
+  statusLabel: string;
+  updatedAt: Date;
+}
+
+export async function sendApplicationStatusUpdate(opts: StatusUpdateEmailOptions) {
+  const notifier = getNotifier();
+  const boardUrl = `${env.SITE_URL}/me/applications/board`;
+  const updatedAt = formatDateArabic(opts.updatedAt);
+  const subject = `تحديث على طلبك — ${opts.statusLabel} | ${opts.jobTitle}`;
+
+  const tone = opts.status === "HIRED"
+    ? { bg: "#ecfdf5", border: "#a7f3d0", color: "#065f46", title: "مبروك، طلبك وصل لمرحلة متقدمة." }
+    : opts.status === "REJECTED"
+      ? { bg: "#fff1f2", border: "#fecdd3", color: "#9f1239", title: "تم تحديث حالة الطلب." }
+      : opts.status === "INTERVIEW"
+        ? { bg: "#eff6ff", border: "#bfdbfe", color: "#1d4ed8", title: "صاحب العمل نقل طلبك لمرحلة المقابلة." }
+        : { bg: "#fffbeb", border: "#fde68a", color: "#92400e", title: "طلبك يتحرك داخل مسار المراجعة." };
+
+  const text = `مرحباً ${opts.applicantName}، تم تحديث حالة طلبك لوظيفة ${opts.jobTitle} في ${opts.companyName} إلى: ${opts.statusLabel}. تابع الطلب من: ${boardUrl}`;
+  const html = brandedEmailLayout({
+    title: "تحديث حالة طلب التقديم",
+    subtitle: "نرسل لك هذا التحديث فور تغيير حالة طلبك من صاحب العمل أو إدارة المنصة.",
+    preheader: text,
+    ctaLabel: "فتح لوحة تتبع الطلبات",
+    ctaHref: boardUrl,
+    bodyHtml: `
+      <p style="margin:0 0 12px;">مرحباً <strong>${opts.applicantName}</strong>،</p>
+      <p style="margin:0 0 16px;">تم تحديث حالة طلبك على وظيفة <strong>${opts.jobTitle}</strong> لدى <strong>${opts.companyName}</strong>.</p>
+      <div style="background:${tone.bg};border:1px solid ${tone.border};border-radius:16px;padding:18px;margin:18px 0;color:${tone.color};">
+        <div style="font-size:13px;font-weight:900;margin-bottom:6px;">${tone.title}</div>
+        <div style="font-size:22px;font-weight:900;">${opts.statusLabel}</div>
+        <div style="font-size:12px;margin-top:6px;color:#64748b;">تاريخ التحديث: ${updatedAt}</div>
+      </div>
+      <p style="margin:16px 0 0;color:#64748b;font-size:13px;">يمكنك متابعة كل طلباتك من لوحة التتبع داخل حسابك.</p>
+    `,
+  });
+
+  return notifier.send({ to: opts.to, subject, text, html });
 }

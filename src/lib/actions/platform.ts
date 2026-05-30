@@ -7,11 +7,11 @@ import { requireAdmin, requireEmployer, requireJobSeeker, requireUser, hashPassw
 import { getSession } from "@/lib/session";
 import { registerSchema, loginSchema, applicationSchema, companyClaimSchema, cvSchema } from "@/lib/validation";
 import { jobCreateSchema } from "@/lib/validation";
-import { uniqueSlug, toCsv, formatDateArabic } from "@/lib/utils";
+import { APP_STATUS_LABEL, uniqueSlug, toCsv, formatDateArabic } from "@/lib/utils";
 import { computeMatch } from "@/lib/matching/job-score";
 import { ensureCvPdfBilling } from "@/lib/billing/cv";
 import { getNotifier } from "@/lib/notifications";
-import { sendApplicationConfirmation, sendNewApplicationAlert } from "@/lib/emails/applicationConfirmation";
+import { sendApplicationConfirmation, sendApplicationStatusUpdate, sendNewApplicationAlert } from "@/lib/emails/applicationConfirmation";
 import { brandedEmailLayout } from "@/lib/emails/layout";
 import { env } from "@/lib/env";
 
@@ -626,14 +626,17 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
 
   const match = seeker ? computeMatch(job, { ...seeker, hasCv: !!cv }) : { score: 0 };
   try {
-    const application = await prisma.application.create({
-      data: { jobId: job.id, jobSeekerId: user.id, cvId: cv?.id, coverNote: parsed.data.coverNote, matchScore: match.score, appliedVia: "INTERNAL" },
+    const application = await prisma.$transaction(async (tx) => {
+      const created = await tx.application.create({
+        data: { jobId: job.id, jobSeekerId: user.id, cvId: cv?.id, coverNote: parsed.data.coverNote, matchScore: match.score, appliedVia: "INTERNAL" },
+      });
+      await tx.job.update({ where: { id: job.id }, data: { applicationCount: { increment: 1 } } });
+      return created;
     });
-    await prisma.job.update({ where: { id: job.id }, data: { applicationCount: { increment: 1 } } });
 
     // Send confirmation email to Seeker
     try {
-      await sendApplicationConfirmation({
+      const result = await sendApplicationConfirmation({
         to: user.email,
         applicantName: cv?.fullName || user.fullName,
         jobTitle: job.title,
@@ -644,8 +647,18 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
         applicationId: application.id,
         appliedAt: application.createdAt,
       });
+      await prisma.application.update({
+        where: { id: application.id },
+        data: result.ok
+          ? { applicantConfirmationSentAt: new Date() }
+          : { notificationError: `APPLICANT_EMAIL_FAILED: ${result.error ?? result.provider}`.slice(0, 500) },
+      });
     } catch (err) {
       console.error("Failed to send seeker confirmation email:", err);
+      await prisma.application.update({
+        where: { id: application.id },
+        data: { notificationError: `APPLICANT_EMAIL_EXCEPTION: ${err instanceof Error ? err.message : "unknown"}`.slice(0, 500) },
+      }).catch(() => {});
     }
 
     // Send notification to employer
@@ -657,7 +670,7 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
 
     if (employerEmail) {
       try {
-        await sendNewApplicationAlert({
+        const result = await sendNewApplicationAlert({
           to: employerEmail,
           jobTitle: job.title,
           applicantName: cv?.fullName || user.fullName,
@@ -686,9 +699,27 @@ export async function applyToJobAction(_: unknown, form: FormData): Promise<any>
           appliedAt: application.createdAt,
           reviewUrl: `${env.SITE_URL}/employer/jobs/${job.id}/applications`,
         });
+        await prisma.application.update({
+          where: { id: application.id },
+          data: result.ok
+            ? { employerNotificationSentAt: new Date(), employerNotificationTo: employerEmail }
+            : { employerNotificationTo: employerEmail, notificationError: `EMPLOYER_EMAIL_FAILED: ${result.error ?? result.provider}`.slice(0, 500) },
+        });
       } catch (err) {
         console.error("Failed to send employer alert email:", err);
+        await prisma.application.update({
+          where: { id: application.id },
+          data: {
+            employerNotificationTo: employerEmail,
+            notificationError: `EMPLOYER_EMAIL_EXCEPTION: ${err instanceof Error ? err.message : "unknown"}`.slice(0, 500),
+          },
+        }).catch(() => {});
       }
+    } else {
+      await prisma.application.update({
+        where: { id: application.id },
+        data: { notificationError: "NO_EMPLOYER_EMAIL_ON_JOB" },
+      }).catch(() => {});
     }
   } catch (err) {
     console.error("Apply to job error:", err);
@@ -972,14 +1003,64 @@ export async function adminDeletePaymentAction(id: string) {
 }
 
 export async function adminUpdateApplicationStatus(id: string, status: string) {
-  await requireEmployer();
-  const app = await prisma.application.update({ 
-    where: { id }, 
-    data: { status: status as never },
-    select: { jobId: true }
+  const user = await requireEmployer();
+  const allowedStatuses = new Set(["SUBMITTED", "VIEWED", "SHORTLISTED", "INTERVIEW", "REJECTED", "HIRED", "WITHDRAWN"]);
+  if (!allowedStatuses.has(status)) {
+    redirect("/employer");
+  }
+
+  const existing = await prisma.application.findUnique({
+    where: { id },
+    include: {
+      job: { include: { company: true } },
+      jobSeeker: true,
+    },
   });
+
+  if (!existing) redirect("/employer");
+  if (user.role !== "ADMIN" && existing.job.postedById !== user.id) {
+    redirect("/employer");
+  }
+
+  const app = await prisma.application.update({
+    where: { id },
+    data: { status: status as never },
+    include: {
+      job: { include: { company: true } },
+      jobSeeker: true,
+    },
+  });
+
+  const companyName = app.job.company?.name ?? app.job.companyNameText ?? "صاحب عمل خاص";
+  const statusLabel = APP_STATUS_LABEL[app.status] ?? app.status;
+  try {
+    const result = await sendApplicationStatusUpdate({
+      to: app.jobSeeker.email,
+      applicantName: app.jobSeeker.fullName,
+      jobTitle: app.job.title,
+      companyName,
+      status: app.status,
+      statusLabel,
+      updatedAt: app.updatedAt,
+    });
+    await prisma.application.update({
+      where: { id },
+      data: result.ok
+        ? { statusNotificationSentAt: new Date() }
+        : { notificationError: `STATUS_EMAIL_FAILED: ${result.error ?? result.provider}`.slice(0, 500) },
+    });
+  } catch (err) {
+    console.error("Failed to send application status update email:", err);
+    await prisma.application.update({
+      where: { id },
+      data: { notificationError: `STATUS_EMAIL_EXCEPTION: ${err instanceof Error ? err.message : "unknown"}`.slice(0, 500) },
+    }).catch(() => {});
+  }
+
   revalidatePath(`/employer/jobs/${app.jobId}/applications`);
   revalidatePath("/employer");
+  revalidatePath("/me/applications");
+  revalidatePath("/me/applications/board");
   redirect(`/employer/jobs/${app.jobId}/applications`);
 }
 

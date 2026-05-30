@@ -531,6 +531,18 @@ h1, h2, h3, h4, h5, h6 {
   .border-navy-200,
   .border-navy-300 { border-color: rgba(255, 255, 255, 0.10); }
 
+  .card .bg-slate-50,
+  .card .bg-slate-50\/50,
+  .card .bg-slate-50\/60,
+  .card .bg-slate-50\/80 {
+    background-color: rgba(255, 255, 255, 0.055);
+  }
+  .card .border-slate-50,
+  .card .border-slate-100,
+  .card .border-slate-200 {
+    border-color: rgba(255, 255, 255, 0.10);
+  }
+
   /* Restore the exact navy palette for the printable/preview CV */
   .cv-print .text-navy-400, .cv-print.text-navy-400 { color: #506e93; }
   .cv-print .text-navy-500, .cv-print.text-navy-500 { color: #324c70; }

@@ -33,7 +33,7 @@ export default async function ApplicationsPage({
       {applied === "true" && (
         <div className="bg-emerald-50 border border-emerald-250 text-emerald-800 text-sm p-4 rounded-2xl mb-6 font-bold flex items-center gap-2">
           <span>✓</span>
-          <span>تم إرسال طلب التقديم للوظيفة بنجاح! يمكنك تتبع حالة طلباتك في هذه الصفحة.</span>
+          <span>تم إرسال طلب التقديم بنجاح. سنعرض لك هنا حالة إشعار الشركة وتحديثات الطلب.</span>
         </div>
       )}
 
@@ -54,6 +54,14 @@ export default async function ApplicationsPage({
           const statusText = isPlus 
             ? APP_STATUS_LABEL[a.status] 
             : "تم التقديم بنجاح";
+          const employerEmailText = a.employerNotificationSentAt
+            ? "إشعار الشركة مرسل"
+            : a.employerNotificationTo
+              ? "إيميل الشركة قيد المراجعة"
+              : "الطلب مسجل داخل المنصة";
+          const confirmationText = a.applicantConfirmationSentAt
+            ? "تأكيد الإيميل مرسل لك"
+            : "تأكيد الإيميل قيد الإرسال";
           
           return (
             <div className="card-pad hover:border-emerald-100 transition-all duration-200" key={a.id}>
@@ -78,9 +86,14 @@ export default async function ApplicationsPage({
                   </span>
 
                   {a.appliedVia === "INTERNAL" && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-extrabold bg-emerald-600 text-white px-2.5 py-1 rounded-lg shadow-sm">
-                      📧 تم إرسال الـ CV للشركة بنجاح
-                    </span>
+                    <>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-extrabold bg-emerald-600 text-white px-2.5 py-1 rounded-lg shadow-sm">
+                        📧 {employerEmailText}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-extrabold bg-slate-900 text-white px-2.5 py-1 rounded-lg shadow-sm">
+                        ✓ {confirmationText}
+                      </span>
+                    </>
                   )}
                 </div>
               </div>

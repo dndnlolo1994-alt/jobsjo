@@ -65,6 +65,12 @@ export default async function ApplicationsBoardPage() {
                       <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700">
                         {isPlus ? APP_STATUS_LABEL[app.status] : "تم التقديم"}
                       </span>
+                      {app.employerNotificationSentAt && (
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">إشعار الشركة مرسل</span>
+                      )}
+                      {app.statusNotificationSentAt && (
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-700">آخر تحديث مرسل للإيميل</span>
+                      )}
                     </div>
                   </Link>
                 ))}

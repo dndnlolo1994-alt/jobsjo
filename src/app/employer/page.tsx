@@ -10,11 +10,14 @@ export default async function EmployerPage() {
   const user = await requireEmployer();
   
   // Fetch jobs posted by this specific employer (or all if admin)
-  const jobs = await prisma.job.findMany({ 
-    where: user.role === "ADMIN" ? {} : { postedById: user.id }, 
-    include: { _count: { select: { applications: true } } }, 
-    orderBy: { createdAt: "desc" }
-  });
+  const [jobs, employerProfile] = await Promise.all([
+    prisma.job.findMany({
+      where: user.role === "ADMIN" ? {} : { postedById: user.id },
+      include: { _count: { select: { applications: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.employerProfile.findUnique({ where: { userId: user.id }, select: { plan: true, planExpiresAt: true } }),
+  ]);
   
   const totalApps = jobs.reduce((s, j) => s + j._count.applications, 0);
   const totalViews = jobs.reduce((s, j) => s + j.viewCount, 0);
@@ -59,7 +62,7 @@ export default async function EmployerPage() {
         <StatCard label="📦 شواغرك النشطة" value={jobs.length} />
         <StatCard label="📥 طلبات التقديم" value={totalApps > 0 ? totalApps : "-"} />
         <StatCard label="👁️ مشاهدات الوظائف" value={totalViews} />
-        <StatCard label="⚡ باقة الحساب" value={user.role === "ADMIN" ? "ADMIN" : "FREE"} />
+        <StatCard label="⚡ باقة الحساب" value={user.role === "ADMIN" ? "ADMIN" : employerProfile?.plan ?? "FREE"} />
       </div>
 
       {/* Jobs Listing Table */}

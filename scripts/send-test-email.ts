@@ -35,7 +35,7 @@ async function main() {
     );
   }
 
-  await getNotifier().send({
+  const result = await getNotifier().send({
     to,
     subject: "اختبار البريد — جوبز الأردن | JoJobs email test",
     html: `<div dir="rtl" style="font-family: Arial, sans-serif; padding:16px; color:#0f172a;">
@@ -47,6 +47,7 @@ async function main() {
     text: "رسالة اختبار من جوبز الأردن — إذا وصلتك فإعداد البريد يعمل بنجاح. (JoJobs email delivery test)",
   });
 
+  console.log(`[test:email] Provider result: ${result.ok ? "accepted" : "failed"} via ${result.provider}${result.messageId ? ` (${result.messageId})` : ""}`);
   console.log(`[test:email] Done. If the provider was Resend/SMTP, check the inbox (and spam) of ${to}.`);
   process.exit(0);
 }

@@ -14838,6 +14838,11 @@ export namespace Prisma {
     coverNote: string | null
     status: $Enums.ApplicationStatus | null
     appliedVia: $Enums.AppliedVia | null
+    applicantConfirmationSentAt: Date | null
+    employerNotificationSentAt: Date | null
+    statusNotificationSentAt: Date | null
+    employerNotificationTo: string | null
+    notificationError: string | null
     matchScore: number | null
     employerNotes: string | null
     createdAt: Date | null
@@ -14852,6 +14857,11 @@ export namespace Prisma {
     coverNote: string | null
     status: $Enums.ApplicationStatus | null
     appliedVia: $Enums.AppliedVia | null
+    applicantConfirmationSentAt: Date | null
+    employerNotificationSentAt: Date | null
+    statusNotificationSentAt: Date | null
+    employerNotificationTo: string | null
+    notificationError: string | null
     matchScore: number | null
     employerNotes: string | null
     createdAt: Date | null
@@ -14866,6 +14876,11 @@ export namespace Prisma {
     coverNote: number
     status: number
     appliedVia: number
+    applicantConfirmationSentAt: number
+    employerNotificationSentAt: number
+    statusNotificationSentAt: number
+    employerNotificationTo: number
+    notificationError: number
     matchScore: number
     employerNotes: number
     createdAt: number
@@ -14890,6 +14905,11 @@ export namespace Prisma {
     coverNote?: true
     status?: true
     appliedVia?: true
+    applicantConfirmationSentAt?: true
+    employerNotificationSentAt?: true
+    statusNotificationSentAt?: true
+    employerNotificationTo?: true
+    notificationError?: true
     matchScore?: true
     employerNotes?: true
     createdAt?: true
@@ -14904,6 +14924,11 @@ export namespace Prisma {
     coverNote?: true
     status?: true
     appliedVia?: true
+    applicantConfirmationSentAt?: true
+    employerNotificationSentAt?: true
+    statusNotificationSentAt?: true
+    employerNotificationTo?: true
+    notificationError?: true
     matchScore?: true
     employerNotes?: true
     createdAt?: true
@@ -14918,6 +14943,11 @@ export namespace Prisma {
     coverNote?: true
     status?: true
     appliedVia?: true
+    applicantConfirmationSentAt?: true
+    employerNotificationSentAt?: true
+    statusNotificationSentAt?: true
+    employerNotificationTo?: true
+    notificationError?: true
     matchScore?: true
     employerNotes?: true
     createdAt?: true
@@ -15019,6 +15049,11 @@ export namespace Prisma {
     coverNote: string | null
     status: $Enums.ApplicationStatus
     appliedVia: $Enums.AppliedVia
+    applicantConfirmationSentAt: Date | null
+    employerNotificationSentAt: Date | null
+    statusNotificationSentAt: Date | null
+    employerNotificationTo: string | null
+    notificationError: string | null
     matchScore: number
     employerNotes: string | null
     createdAt: Date
@@ -15052,6 +15087,11 @@ export namespace Prisma {
     coverNote?: boolean
     status?: boolean
     appliedVia?: boolean
+    applicantConfirmationSentAt?: boolean
+    employerNotificationSentAt?: boolean
+    statusNotificationSentAt?: boolean
+    employerNotificationTo?: boolean
+    notificationError?: boolean
     matchScore?: boolean
     employerNotes?: boolean
     createdAt?: boolean
@@ -15068,6 +15108,11 @@ export namespace Prisma {
     coverNote?: boolean
     status?: boolean
     appliedVia?: boolean
+    applicantConfirmationSentAt?: boolean
+    employerNotificationSentAt?: boolean
+    statusNotificationSentAt?: boolean
+    employerNotificationTo?: boolean
+    notificationError?: boolean
     matchScore?: boolean
     employerNotes?: boolean
     createdAt?: boolean
@@ -15084,6 +15129,11 @@ export namespace Prisma {
     coverNote?: boolean
     status?: boolean
     appliedVia?: boolean
+    applicantConfirmationSentAt?: boolean
+    employerNotificationSentAt?: boolean
+    statusNotificationSentAt?: boolean
+    employerNotificationTo?: boolean
+    notificationError?: boolean
     matchScore?: boolean
     employerNotes?: boolean
     createdAt?: boolean
@@ -15113,6 +15163,11 @@ export namespace Prisma {
       coverNote: string | null
       status: $Enums.ApplicationStatus
       appliedVia: $Enums.AppliedVia
+      applicantConfirmationSentAt: Date | null
+      employerNotificationSentAt: Date | null
+      statusNotificationSentAt: Date | null
+      employerNotificationTo: string | null
+      notificationError: string | null
       matchScore: number
       employerNotes: string | null
       createdAt: Date
@@ -15519,6 +15574,11 @@ export namespace Prisma {
     readonly coverNote: FieldRef<"Application", 'String'>
     readonly status: FieldRef<"Application", 'ApplicationStatus'>
     readonly appliedVia: FieldRef<"Application", 'AppliedVia'>
+    readonly applicantConfirmationSentAt: FieldRef<"Application", 'DateTime'>
+    readonly employerNotificationSentAt: FieldRef<"Application", 'DateTime'>
+    readonly statusNotificationSentAt: FieldRef<"Application", 'DateTime'>
+    readonly employerNotificationTo: FieldRef<"Application", 'String'>
+    readonly notificationError: FieldRef<"Application", 'String'>
     readonly matchScore: FieldRef<"Application", 'Int'>
     readonly employerNotes: FieldRef<"Application", 'String'>
     readonly createdAt: FieldRef<"Application", 'DateTime'>
@@ -26772,6 +26832,11 @@ export namespace Prisma {
     coverNote: 'coverNote',
     status: 'status',
     appliedVia: 'appliedVia',
+    applicantConfirmationSentAt: 'applicantConfirmationSentAt',
+    employerNotificationSentAt: 'employerNotificationSentAt',
+    statusNotificationSentAt: 'statusNotificationSentAt',
+    employerNotificationTo: 'employerNotificationTo',
+    notificationError: 'notificationError',
     matchScore: 'matchScore',
     employerNotes: 'employerNotes',
     createdAt: 'createdAt',
@@ -28584,6 +28649,11 @@ export namespace Prisma {
     coverNote?: StringNullableFilter<"Application"> | string | null
     status?: EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFilter<"Application"> | $Enums.AppliedVia
+    applicantConfirmationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    employerNotificationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    statusNotificationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    employerNotificationTo?: StringNullableFilter<"Application"> | string | null
+    notificationError?: StringNullableFilter<"Application"> | string | null
     matchScore?: IntFilter<"Application"> | number
     employerNotes?: StringNullableFilter<"Application"> | string | null
     createdAt?: DateTimeFilter<"Application"> | Date | string
@@ -28600,6 +28670,11 @@ export namespace Prisma {
     coverNote?: SortOrderInput | SortOrder
     status?: SortOrder
     appliedVia?: SortOrder
+    applicantConfirmationSentAt?: SortOrderInput | SortOrder
+    employerNotificationSentAt?: SortOrderInput | SortOrder
+    statusNotificationSentAt?: SortOrderInput | SortOrder
+    employerNotificationTo?: SortOrderInput | SortOrder
+    notificationError?: SortOrderInput | SortOrder
     matchScore?: SortOrder
     employerNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -28620,6 +28695,11 @@ export namespace Prisma {
     coverNote?: StringNullableFilter<"Application"> | string | null
     status?: EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFilter<"Application"> | $Enums.AppliedVia
+    applicantConfirmationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    employerNotificationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    statusNotificationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    employerNotificationTo?: StringNullableFilter<"Application"> | string | null
+    notificationError?: StringNullableFilter<"Application"> | string | null
     matchScore?: IntFilter<"Application"> | number
     employerNotes?: StringNullableFilter<"Application"> | string | null
     createdAt?: DateTimeFilter<"Application"> | Date | string
@@ -28636,6 +28716,11 @@ export namespace Prisma {
     coverNote?: SortOrderInput | SortOrder
     status?: SortOrder
     appliedVia?: SortOrder
+    applicantConfirmationSentAt?: SortOrderInput | SortOrder
+    employerNotificationSentAt?: SortOrderInput | SortOrder
+    statusNotificationSentAt?: SortOrderInput | SortOrder
+    employerNotificationTo?: SortOrderInput | SortOrder
+    notificationError?: SortOrderInput | SortOrder
     matchScore?: SortOrder
     employerNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -28658,6 +28743,11 @@ export namespace Prisma {
     coverNote?: StringNullableWithAggregatesFilter<"Application"> | string | null
     status?: EnumApplicationStatusWithAggregatesFilter<"Application"> | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaWithAggregatesFilter<"Application"> | $Enums.AppliedVia
+    applicantConfirmationSentAt?: DateTimeNullableWithAggregatesFilter<"Application"> | Date | string | null
+    employerNotificationSentAt?: DateTimeNullableWithAggregatesFilter<"Application"> | Date | string | null
+    statusNotificationSentAt?: DateTimeNullableWithAggregatesFilter<"Application"> | Date | string | null
+    employerNotificationTo?: StringNullableWithAggregatesFilter<"Application"> | string | null
+    notificationError?: StringNullableWithAggregatesFilter<"Application"> | string | null
     matchScore?: IntWithAggregatesFilter<"Application"> | number
     employerNotes?: StringNullableWithAggregatesFilter<"Application"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Application"> | Date | string
@@ -30923,6 +31013,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -30939,6 +31034,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -30951,6 +31051,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30967,6 +31072,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30981,6 +31091,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -30993,6 +31108,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31007,6 +31127,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33125,6 +33250,11 @@ export namespace Prisma {
     coverNote?: SortOrder
     status?: SortOrder
     appliedVia?: SortOrder
+    applicantConfirmationSentAt?: SortOrder
+    employerNotificationSentAt?: SortOrder
+    statusNotificationSentAt?: SortOrder
+    employerNotificationTo?: SortOrder
+    notificationError?: SortOrder
     matchScore?: SortOrder
     employerNotes?: SortOrder
     createdAt?: SortOrder
@@ -33143,6 +33273,11 @@ export namespace Prisma {
     coverNote?: SortOrder
     status?: SortOrder
     appliedVia?: SortOrder
+    applicantConfirmationSentAt?: SortOrder
+    employerNotificationSentAt?: SortOrder
+    statusNotificationSentAt?: SortOrder
+    employerNotificationTo?: SortOrder
+    notificationError?: SortOrder
     matchScore?: SortOrder
     employerNotes?: SortOrder
     createdAt?: SortOrder
@@ -33157,6 +33292,11 @@ export namespace Prisma {
     coverNote?: SortOrder
     status?: SortOrder
     appliedVia?: SortOrder
+    applicantConfirmationSentAt?: SortOrder
+    employerNotificationSentAt?: SortOrder
+    statusNotificationSentAt?: SortOrder
+    employerNotificationTo?: SortOrder
+    notificationError?: SortOrder
     matchScore?: SortOrder
     employerNotes?: SortOrder
     createdAt?: SortOrder
@@ -35925,6 +36065,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -35939,6 +36084,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -36331,6 +36481,11 @@ export namespace Prisma {
     coverNote?: StringNullableFilter<"Application"> | string | null
     status?: EnumApplicationStatusFilter<"Application"> | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFilter<"Application"> | $Enums.AppliedVia
+    applicantConfirmationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    employerNotificationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    statusNotificationSentAt?: DateTimeNullableFilter<"Application"> | Date | string | null
+    employerNotificationTo?: StringNullableFilter<"Application"> | string | null
+    notificationError?: StringNullableFilter<"Application"> | string | null
     matchScore?: IntFilter<"Application"> | number
     employerNotes?: StringNullableFilter<"Application"> | string | null
     createdAt?: DateTimeFilter<"Application"> | Date | string
@@ -38127,6 +38282,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -38141,6 +38301,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -40786,6 +40951,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -40859,6 +41029,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40873,6 +41048,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40886,6 +41066,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41558,6 +41743,11 @@ export namespace Prisma {
     coverNote?: string | null
     status?: $Enums.ApplicationStatus
     appliedVia?: $Enums.AppliedVia
+    applicantConfirmationSentAt?: Date | string | null
+    employerNotificationSentAt?: Date | string | null
+    statusNotificationSentAt?: Date | string | null
+    employerNotificationTo?: string | null
+    notificationError?: string | null
     matchScore?: number
     employerNotes?: string | null
     createdAt?: Date | string
@@ -41611,6 +41801,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41625,6 +41820,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41638,6 +41838,11 @@ export namespace Prisma {
     coverNote?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
     appliedVia?: EnumAppliedViaFieldUpdateOperationsInput | $Enums.AppliedVia
+    applicantConfirmationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    statusNotificationSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    employerNotificationTo?: NullableStringFieldUpdateOperationsInput | string | null
+    notificationError?: NullableStringFieldUpdateOperationsInput | string | null
     matchScore?: IntFieldUpdateOperationsInput | number
     employerNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
