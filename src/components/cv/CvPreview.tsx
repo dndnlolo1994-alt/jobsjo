@@ -540,8 +540,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     educations.length > 3 ||
     certifications.length > 6 ||
     skillsWithLevels.length > 16 ||
-    extraSections.length > 7 ||
-    cvTextLength > 2800;
+    extraSections.length > 5 ||
+    cvTextLength > 2550;
 
   let page1Exps = experiences;
   let page2Exps: any[] = [];
@@ -567,8 +567,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     page1Certs = certifications.slice(0, 2);
     page2Certs = certifications.slice(2);
 
-    page1Extras = extraSections.slice(0, 3);
-    page2Extras = extraSections.slice(3);
+    page1Extras = extraSections.slice(0, 2);
+    page2Extras = extraSections.slice(2);
   }
 
   const renderPage = (
