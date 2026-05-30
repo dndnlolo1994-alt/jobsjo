@@ -319,8 +319,11 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isPending) return;
+
     setIsPending(true);
     setMessage("");
+    setIsSuccess(false);
 
     const formData = new FormData();
     formData.append("fullName", fullName);
@@ -339,15 +342,22 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
     formData.append("certificationsJson", JSON.stringify(certifications));
     formData.append("englishVersion", JSON.stringify({ ...englishVersion, extras: extraInfo }));
 
-    const res = await saveCvAction(null, formData);
-    setIsPending(false);
-    if (res.ok) {
-      setIsSuccess(true);
-      setMessage(res.message || "تم حفظ السيرة الذاتية بنجاح");
-      setTimeout(() => setIsSuccess(false), 4000);
-    } else {
+    try {
+      const res = await saveCvAction(null, formData);
+      if (res.ok) {
+        setIsSuccess(true);
+        setMessage(res.message || "تم حفظ السيرة الذاتية بنجاح");
+        setTimeout(() => setIsSuccess(false), 4000);
+      } else {
+        setIsSuccess(false);
+        setMessage(res.message || "حدث خطأ ما");
+      }
+    } catch (error) {
+      console.error("CV save failed", error);
       setIsSuccess(false);
-      setMessage(res.message || "حدث خطأ ما");
+      setMessage("تعذر حفظ السيرة الآن. تأكد من الاتصال وحاول مرة أخرى.");
+    } finally {
+      setIsPending(false);
     }
   };
 

@@ -461,130 +461,145 @@ export async function saveCvAction(_: unknown, form: FormData) {
     return { ok: false, message: "فشل في معالجة تفاصيل السيرة الذاتية" };
   }
 
-  const cv = await prisma.cVProfile.upsert({
-    where: { userId: user.id },
-    create: {
-      userId: user.id,
-      fullName: data.fullName,
-      jobTitle: data.jobTitle,
-      summary: data.summary,
-      email: data.email || user.email,
-      phone: data.phone,
-      city: data.city,
-      website: data.website,
-      linkedin: data.linkedin,
-      photo: data.photo || null,
-      template: data.template || "modern-emerald",
-      englishVersion: data.englishVersion || null,
-    },
-    update: {
-      fullName: data.fullName,
-      jobTitle: data.jobTitle,
-      summary: data.summary,
-      email: data.email || user.email,
-      phone: data.phone,
-      city: data.city,
-      website: data.website,
-      linkedin: data.linkedin,
-      photo: data.photo || null,
-      template: data.template || "modern-emerald",
-      englishVersion: data.englishVersion || null,
-    },
-  });
+  const cleanText = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+  const cleanExperiences = experiences
+    .map((e: any, index: number) => ({
+      position: cleanText(e?.position),
+      company: cleanText(e?.company),
+      city: cleanText(e?.city) || null,
+      startDate: cleanText(e?.startDate),
+      endDate: cleanText(e?.endDate) || null,
+      description: cleanText(e?.description) || null,
+      order: index,
+    }))
+    .filter((e) => e.position && e.company && e.startDate);
+  const cleanEducations = educations
+    .map((e: any, index: number) => ({
+      degree: cleanText(e?.degree),
+      institution: cleanText(e?.institution),
+      city: cleanText(e?.city) || null,
+      startDate: cleanText(e?.startDate),
+      endDate: cleanText(e?.endDate) || null,
+      description: cleanText(e?.description) || null,
+      order: index,
+    }))
+    .filter((e) => e.degree && e.institution && e.startDate);
+  const cleanSkills = skills
+    .map((s: any, index: number) => ({
+      name: cleanText(s?.name ?? s),
+      level: Math.min(5, Math.max(1, Number.parseInt(String(s?.level ?? 3), 10) || 3)),
+      order: index,
+    }))
+    .filter((s) => s.name);
+  const cleanCertifications = certifications
+    .map((c: any, index: number) => ({
+      name: cleanText(c?.name),
+      issuer: cleanText(c?.issuer) || null,
+      year: cleanText(c?.year) || null,
+      order: index,
+    }))
+    .filter((c) => c.name);
 
-  // Delete all existing items and recreate
-  await prisma.$transaction([
-    prisma.cVExperience.deleteMany({ where: { cvId: cv.id } }),
-    prisma.cVEducation.deleteMany({ where: { cvId: cv.id } }),
-    prisma.cVSkill.deleteMany({ where: { cvId: cv.id } }),
-    prisma.cVCertification.deleteMany({ where: { cvId: cv.id } }),
-  ]);
+  try {
+    const cv = await prisma.$transaction(async (tx) => {
+      const savedCv = await tx.cVProfile.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          fullName: data.fullName,
+          jobTitle: data.jobTitle,
+          summary: data.summary,
+          email: data.email || user.email,
+          phone: data.phone,
+          city: data.city,
+          website: data.website,
+          linkedin: data.linkedin,
+          photo: data.photo || null,
+          template: data.template || "modern-emerald",
+          englishVersion: data.englishVersion || null,
+        },
+        update: {
+          fullName: data.fullName,
+          jobTitle: data.jobTitle,
+          summary: data.summary,
+          email: data.email || user.email,
+          phone: data.phone,
+          city: data.city,
+          website: data.website,
+          linkedin: data.linkedin,
+          photo: data.photo || null,
+          template: data.template || "modern-emerald",
+          englishVersion: data.englishVersion || null,
+        },
+      });
 
-  if (experiences.length > 0) {
-    await prisma.cVExperience.createMany({
-      data: experiences.map((e: any, index: number) => ({
-        cvId: cv.id,
-        position: e.position,
-        company: e.company,
-        city: e.city || null,
-        startDate: e.startDate,
-        endDate: e.endDate || null,
-        description: e.description || null,
-        order: index,
-      })),
+      await tx.cVExperience.deleteMany({ where: { cvId: savedCv.id } });
+      await tx.cVEducation.deleteMany({ where: { cvId: savedCv.id } });
+      await tx.cVSkill.deleteMany({ where: { cvId: savedCv.id } });
+      await tx.cVCertification.deleteMany({ where: { cvId: savedCv.id } });
+
+      if (cleanExperiences.length > 0) {
+        await tx.cVExperience.createMany({
+          data: cleanExperiences.map((e) => ({ ...e, cvId: savedCv.id })),
+        });
+      }
+
+      if (cleanEducations.length > 0) {
+        await tx.cVEducation.createMany({
+          data: cleanEducations.map((e) => ({ ...e, cvId: savedCv.id })),
+        });
+      }
+
+      if (cleanSkills.length > 0) {
+        await tx.cVSkill.createMany({
+          data: cleanSkills.map((s) => ({ ...s, cvId: savedCv.id })),
+        });
+      }
+
+      if (cleanCertifications.length > 0) {
+        await tx.cVCertification.createMany({
+          data: cleanCertifications.map((c) => ({ ...c, cvId: savedCv.id })),
+        });
+      }
+
+      const skillsCsv = cleanSkills.map((s) => s.name).join(",");
+      await tx.jobSeekerProfile.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          fullName: data.fullName,
+          phone: data.phone,
+          email: data.email || user.email,
+          city: data.city,
+          headline: data.jobTitle,
+          summary: data.summary,
+          skills: skillsCsv,
+        },
+        update: {
+          fullName: data.fullName,
+          phone: data.phone,
+          email: data.email || user.email,
+          city: data.city,
+          headline: data.jobTitle,
+          summary: data.summary,
+          skills: skillsCsv,
+        },
+      });
+
+      return savedCv;
     });
+
+    await ensureCvPdfBilling(user.id, cv.id);
+    revalidatePath("/me/cv");
+    revalidatePath("/me/cv/preview");
+    revalidatePath("/me/cv/download");
+    revalidatePath(`/cv/${user.id}`);
+    revalidatePath(`/cv/${cv.id}`);
+    return { ok: true, message: "تم حفظ السيرة الذاتية بنجاح" };
+  } catch (error) {
+    console.error("saveCvAction failed", error);
+    return { ok: false, message: "تعذر حفظ السيرة الآن. حاول مرة أخرى بعد لحظات." };
   }
-
-  if (educations.length > 0) {
-    await prisma.cVEducation.createMany({
-      data: educations.map((e: any, index: number) => ({
-        cvId: cv.id,
-        degree: e.degree,
-        institution: e.institution,
-        city: e.city || null,
-        startDate: e.startDate,
-        endDate: e.endDate || null,
-        description: e.description || null,
-        order: index,
-      })),
-    });
-  }
-
-  if (skills.length > 0) {
-    await prisma.cVSkill.createMany({
-      data: skills.map((s: any, index: number) => ({
-        cvId: cv.id,
-        name: s.name,
-        level: s.level ? parseInt(s.level) : 3,
-        order: index,
-      })),
-    });
-  }
-
-  if (certifications.length > 0) {
-    await prisma.cVCertification.createMany({
-      data: certifications.map((c: any, index: number) => ({
-        cvId: cv.id,
-        name: c.name,
-        issuer: c.issuer || null,
-        year: c.year || null,
-        order: index,
-      })),
-    });
-  }
-
-  const skillsCsv = skills.map((s: any) => s.name).join(",");
-
-  await ensureCvPdfBilling(user.id, cv.id);
-  await prisma.jobSeekerProfile.upsert({
-    where: { userId: user.id },
-    create: {
-      userId: user.id,
-      fullName: data.fullName,
-      phone: data.phone,
-      email: data.email || user.email,
-      city: data.city,
-      headline: data.jobTitle,
-      summary: data.summary,
-      skills: skillsCsv,
-    },
-    update: {
-      fullName: data.fullName,
-      phone: data.phone,
-      email: data.email || user.email,
-      city: data.city,
-      headline: data.jobTitle,
-      summary: data.summary,
-      skills: skillsCsv,
-    },
-  });
-
-  revalidatePath("/me/cv");
-  revalidatePath("/me/cv/preview");
-  revalidatePath("/me/cv/download");
-  revalidatePath(`/cv/${user.id}`);
-  revalidatePath(`/cv/${cv.id}`);
-  return { ok: true, message: "تم حفظ السيرة الذاتية بنجاح" };
 }
 
 export async function applyToJobAction(_: unknown, form: FormData): Promise<any> {
