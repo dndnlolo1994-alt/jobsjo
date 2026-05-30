@@ -590,9 +590,9 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
         dir={isEn ? "ltr" : "rtl"}
         key={pageNum}
       >
-        <div className="flex flex-1 flex-col p-9">
+        <div className="flex flex-1 flex-col p-7">
           {/* ترويسة فاتحة هادئة — div وليس header كي تُطبع دائماً. المجاني بدون صورة (سادة) */}
-          <div className="cv-header mb-6 flex items-start justify-between gap-6 border-b border-[#edece6] pb-5">
+          <div className="cv-header mb-4 flex items-start justify-between gap-6 border-b border-[#edece6] pb-4">
             <div className="min-w-0">
               <div className="mb-2 text-[8px] font-bold uppercase tracking-[0.3em] text-[#b3a380]" dir="ltr">Curriculum Vitae</div>
               <h1 className="break-words text-[35px] font-extrabold leading-[1.05] text-slate-800">{fullName}</h1>
@@ -612,7 +612,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
           <div className="grid flex-1 grid-cols-[1fr_218px] gap-6">
             <main className="min-w-0">
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {showSummary && summary && (
                   <section className="break-inside-avoid">
                     <SectionTitle title={t("الملخص التنفيذي")} />
@@ -623,7 +623,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                 {pageExps.length > 0 && (
                   <section>
                     <SectionTitle title={t("الخبرات العملية")} />
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {pageExps.map((exp, idx) => (
                         <div key={exp.id || `${exp.position}-${idx}`} className="break-inside-avoid border-b border-[#f1f0ea] pb-3 last:border-b-0">
                           <div className="flex items-start justify-between gap-4">
@@ -688,14 +688,14 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               </div>
             </main>
 
-            <aside className="flex flex-col border-s border-[#edece6] ps-5">
-              <div className="flex-1 space-y-4">
+            <aside className="flex flex-col border-s border-[#edece6] ps-4">
+              <div className="flex-1 space-y-3">
                 {pageNum === 1 && (
                   <section className="break-inside-avoid">
                     <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("الاتصال")}
                     </h2>
-                    <dl className="space-y-2 text-[9.8px] leading-snug">
+                    <dl className="space-y-1.5 text-[9.8px] leading-snug">
                       {cv.phone && (
                         <div>
                           <dt className="font-bold text-[#a98c5c]">{isEn ? "Phone" : "الهاتف"}</dt>
@@ -735,7 +735,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("المهارات")}
                     </h2>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {pageSkills.map((skill, idx) => {
                         const lvl = Math.min(5, Math.max(1, Number(skill.level || 4)));
                         return (
@@ -758,9 +758,9 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     <h2 className="mb-2 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("الشهادات")}
                     </h2>
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       {pageCerts.map((cert, idx) => (
-                        <div key={cert.id || `${cert.name}-${idx}`} className="rounded-md border border-[#efeee8] bg-white p-2">
+                        <div key={cert.id || `${cert.name}-${idx}`} className="rounded-md border border-[#efeee8] bg-white p-1.5">
                           <p className="text-[9.6px] font-extrabold leading-snug text-slate-800">{cert.name}</p>
                           <p className="mt-0.5 text-[8.5px] font-bold text-slate-400">{cert.issuer} {cert.year ? `/ ${cert.year}` : ""}</p>
                         </div>
@@ -774,7 +774,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     <h2 className="mb-2 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {section.title}
                     </h2>
-                    <ul className="space-y-1.5">
+                    <ul className="space-y-1">
                       {section.lines.slice(0, 5).map((line, idx) => (
                         <li key={idx} className="flex gap-1.5 text-[9.4px] font-medium leading-[1.5] text-slate-500">
                           <span className="mt-[3px] h-1 w-1 shrink-0 rounded-full bg-[#c0a368]" /> <span>{line}</span>
@@ -785,7 +785,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                 ))}
               </div>
 
-              <div className="mt-auto space-y-2 border-t border-[#edece6] pt-3">
+              <div className="mt-auto space-y-1.5 border-t border-[#edece6] pt-2.5">
                 {pageNum === 1 && qrCodeDataUrl && (
                   <div className="flex items-center gap-2 rounded-xl border border-[#e7e1d2] bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -802,7 +802,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
           </div>
 
           {showFooter && (
-            <div className="mt-5 flex items-center justify-between border-t border-[#edece6] pt-3 text-[9px] font-bold text-slate-400">
+            <div className="mt-4 flex items-center justify-between border-t border-[#edece6] pt-2.5 text-[9px] font-bold text-slate-400">
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[#c0a368]" /> {fullName}</span>
               <span>{jobTitle || t("باحث عن عمل")}</span>
             </div>
