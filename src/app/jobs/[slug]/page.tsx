@@ -13,17 +13,11 @@ import { SubmitButton } from "@/components/forms/SubmitButton";
 import { BreadcrumbJsonLd } from "@/components/seo/BreadcrumbJsonLd";
 import { publicMetadata } from "@/lib/seo/site";
 
-export const revalidate = 3600;
-export const dynamicParams = true;
+export const dynamic = "force-dynamic";
 
 const getJobBySlug = cache((slug: string) =>
   prisma.job.findUnique({ where: { slug }, include: { company: true } })
 );
-
-export async function generateStaticParams() {
-  // Avoid opening many Prisma connections during Vercel builds; pages are cached on first request.
-  return [];
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
