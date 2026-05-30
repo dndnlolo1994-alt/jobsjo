@@ -1,5 +1,6 @@
 import "server-only";
 import bcrypt from "bcryptjs";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { prisma } from "./prisma";
 import { getSessionUser, getSession, destroySession, type SessionUser } from "./session";
@@ -17,14 +18,20 @@ export function isAdminEmail(email: string): boolean {
   return env.ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
-export async function requireUser(): Promise<SessionUser> {
-  const u = await getSessionUser();
-  if (!u) redirect("/login");
+export const getCachedSessionUser = cache(getSessionUser);
 
-  const userExists = await prisma.user.findUnique({
-    where: { id: u.id },
+const sessionUserExists = cache(async (id: string) => {
+  return prisma.user.findUnique({
+    where: { id },
     select: { id: true },
   });
+});
+
+export async function requireUser(): Promise<SessionUser> {
+  const u = await getCachedSessionUser();
+  if (!u) redirect("/login");
+
+  const userExists = await sessionUserExists(u.id);
 
   if (!userExists) {
     try {
@@ -80,7 +87,7 @@ export async function requireJobSeeker(): Promise<SessionUser> {
 }
 
 export async function getCurrentUserFull() {
-  const sess = await getSessionUser();
+  const sess = await getCachedSessionUser();
   if (!sess) return null;
   
   if (isAdminEmail(sess.email) && sess.role !== "ADMIN") {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -15,6 +16,10 @@ import { publicMetadata } from "@/lib/seo/site";
 export const revalidate = 3600;
 export const dynamicParams = true;
 
+const getJobBySlug = cache((slug: string) =>
+  prisma.job.findUnique({ where: { slug }, include: { company: true } })
+);
+
 export async function generateStaticParams() {
   // Avoid opening many Prisma connections during Vercel builds; pages are cached on first request.
   return [];
@@ -23,21 +28,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const job = await prisma.job.findUnique({
-    where: { slug: decodedSlug },
-    select: {
-      title: true,
-      description: true,
-      status: true,
-      city: true,
-      jobCategory: true,
-      salaryMin: true,
-      salaryMax: true,
-      salaryText: true,
-      companyNameText: true,
-      company: { select: { name: true } },
-    },
-  });
+  const job = await getJobBySlug(decodedSlug);
   if (!job) return {};
   const isPublished = job.status === "PUBLISHED";
   const companyName = job.company?.name ?? job.companyNameText ?? "صاحب عمل خاص";
@@ -58,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function JobDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const job = await prisma.job.findUnique({ where: { slug: decodedSlug }, include: { company: true } });
+  const job = await getJobBySlug(decodedSlug);
   if (!job) notFound();
   
   const companyName = job.company?.name ?? job.companyNameText ?? "صاحب عمل خاص";

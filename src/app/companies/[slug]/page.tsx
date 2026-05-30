@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -13,13 +14,20 @@ import { publicMetadata } from "@/lib/seo/site";
 
 export const revalidate = 3600;
 
+const getCompanyBySlug = cache((slug: string) =>
+  prisma.company.findUnique({
+    where: { slug },
+    include: {
+      jobs: { where: { status: "PUBLISHED" }, include: { company: { select: { name: true, slug: true, logoUrl: true } } }, orderBy: { publishedAt: "desc" } },
+      reviews: { where: { status: "APPROVED" }, orderBy: { createdAt: "desc" }, take: 8 },
+    },
+  })
+);
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const company = await prisma.company.findUnique({
-    where: { slug: decodedSlug },
-    select: { name: true, description: true, city: true, industry: true },
-  });
+  const company = await getCompanyBySlug(decodedSlug);
   if (!company) return { title: "شركة غير موجودة | جوبز الأردن" };
 
   const title = `وظائف شركة ${company.name} في الأردن`;
@@ -47,16 +55,7 @@ export default async function CompanyPage({
   const { slug } = await params;
   const { claimed } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
-  const [company, user] = await Promise.all([
-    prisma.company.findUnique({
-      where: { slug: decodedSlug },
-      include: {
-        jobs: { where: { status: "PUBLISHED" }, include: { company: { select: { name: true, slug: true, logoUrl: true } } }, orderBy: { publishedAt: "desc" } },
-        reviews: { where: { status: "APPROVED" }, orderBy: { createdAt: "desc" }, take: 8 },
-      },
-    }),
-    getSessionUser(),
-  ]);
+  const [company, user] = await Promise.all([getCompanyBySlug(decodedSlug), getSessionUser()]);
   if (!company) notFound();
   const hiringEmail = company.email ?? company.jobs.find((job) => job.contactEmail && job.contactMethod === "EMAIL")?.contactEmail ?? null;
   const mailSubject = `استفسار توظيف عبر جوبز الأردن - ${company.name}`;

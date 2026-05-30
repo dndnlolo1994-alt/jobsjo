@@ -1,11 +1,15 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { env } from "@/lib/env";
 import { Logo } from "./Logo";
 import { WHATSAPP_NUMBER, WHATSAPP_URL } from "@/lib/constants";
 
 const FOOTER_BRAND_NAME = "جوبز الأردن";
 
-export function Footer() {
+export async function Footer() {
+  const pathname = (await headers()).get("x-pathname") || "";
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer
       className="relative text-gray-300 mt-20 overflow-hidden"

@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import type { JobStatus } from "@/generated/client";
 import { requireAdmin } from "@/lib/auth";
 import { adminApproveJobAction, adminRejectJobAction } from "@/lib/actions/platform";
 import { JOB_STATUS_LABEL, SOURCE_TYPE_LABEL, formatDateArabic, JOB_TYPE_LABEL } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "إدارة وتدقيق الوظائف", robots: { index: false, follow: false } };
+
+const statCardBase = "rounded-3xl border border-white/10 bg-white/[0.06] p-5 text-right shadow-2xl shadow-black/10 backdrop-blur-xl transition-colors hover:border-[#c0a368]/35 hover:bg-white/[0.09]";
+const tabBase = "rounded-full border px-4 py-2 text-sm font-extrabold transition-colors";
 
 export default async function AdminJobsPage({
   searchParams,
@@ -15,13 +19,33 @@ export default async function AdminJobsPage({
   await requireAdmin();
   const { tab } = await searchParams;
   const activeTab = tab || "pending";
+  const statusForTab: Record<string, JobStatus | undefined> = {
+    pending: "PENDING_REVIEW",
+    published: "PUBLISHED",
+    rejected: "REJECTED",
+    draft: "DRAFT",
+    all: undefined,
+  };
+  const activeStatus = statusForTab[activeTab] ?? "PENDING_REVIEW";
 
-  // Fetch all jobs in the system
-  const jobs = await prisma.job.findMany({
-    include: { company: true },
-    orderBy: { createdAt: "desc" },
-    take: 150,
-  });
+  const [jobs, statusCounts] = await Promise.all([
+    prisma.job.findMany({
+      where: activeStatus ? { status: activeStatus } : undefined,
+      include: { company: true },
+      orderBy: { createdAt: "desc" },
+      take: activeStatus ? 60 : 100,
+    }),
+    prisma.job.groupBy({
+      by: ["status"],
+      _count: { _all: true },
+    }),
+  ]);
+  const countByStatus = new Map(statusCounts.map((row) => [row.status, row._count._all]));
+  const pendingJobsCount = countByStatus.get("PENDING_REVIEW") ?? 0;
+  const publishedJobsCount = countByStatus.get("PUBLISHED") ?? 0;
+  const rejectedJobsCount = countByStatus.get("REJECTED") ?? 0;
+  const draftJobsCount = countByStatus.get("DRAFT") ?? 0;
+  const allJobsCount = statusCounts.reduce((sum, row) => sum + row._count._all, 0);
 
   // Fetch posted by users to display publisher info
   const postedByIds = jobs.map((j) => j.postedById).filter(Boolean) as string[];
@@ -34,11 +58,6 @@ export default async function AdminJobsPage({
   
   const userMap = new Map(postedByUsers.map((u) => [u.id, u]));
 
-  const pendingJobs = jobs.filter((j) => j.status === "PENDING_REVIEW");
-  const publishedJobs = jobs.filter((j) => j.status === "PUBLISHED");
-  const rejectedJobs = jobs.filter((j) => j.status === "REJECTED");
-  const draftJobs = jobs.filter((j) => j.status === "DRAFT");
-
   // Replaced local inline server actions with direct bound imported actions to fix Next.js 15 crashes
 
   const STATUS_BADGES: Record<string, string> = {
@@ -49,89 +68,89 @@ export default async function AdminJobsPage({
     EXPIRED: "bg-amber-50 text-amber-700 border-amber-100",
   };
 
-  const displayedJobs = 
-    activeTab === "pending" ? pendingJobs :
-    activeTab === "published" ? publishedJobs :
-    activeTab === "rejected" ? rejectedJobs :
-    activeTab === "draft" ? draftJobs : jobs;
+  const displayedJobs = jobs;
 
   return (
-    <section className="container-jo py-8">
+    <section className="py-2">
       {/* Header Panel */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white border border-slate-150/60 p-6 rounded-2xl shadow-sm">
+      <div className="relative mb-8 overflow-hidden rounded-[2rem] border border-[#c0a368]/20 bg-[linear-gradient(135deg,rgba(17,21,36,0.95),rgba(15,23,42,0.82))] p-6 shadow-2xl shadow-black/25 backdrop-blur-xl">
+        <div className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[#c0a368]/15 blur-3xl" />
+        <div className="relative flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-extrabold text-navy-950">إدارة وتدقيق الوظائف</h1>
-          <p className="text-sm text-navy-500 mt-1">راجع الوظائف المقدمة من أصحاب الشركات، وافق على النشر، أو ارفض المحتوى غير اللائق.</p>
+          <p className="mb-2 inline-flex rounded-full border border-[#c0a368]/30 bg-[#c0a368]/10 px-3 py-1 text-xs font-extrabold text-[#e8d39c]">مراجعة الوظائف</p>
+          <h1 className="text-3xl font-extrabold text-white">إدارة وتدقيق الوظائف</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-300">راجع الوظائف المقدمة من أصحاب الشركات، وافق على النشر، أو ارفض المحتوى غير اللائق.</p>
         </div>
-        <Link className="btn-primary text-sm px-5 py-2.5 shadow-md shadow-emerald-600/10 hover:scale-[1.01] transition-transform" href="/admin/jobs/new">
+        <Link className="inline-flex items-center justify-center rounded-full bg-[#c0a368] px-5 py-2.5 text-sm font-extrabold text-slate-950 shadow-lg shadow-[#c0a368]/20 transition-colors hover:bg-[#d4ba79]" href="/admin/jobs/new">
           ➕ إضافة وظيفة يدوية
         </Link>
+        </div>
       </div>
 
       {/* Stats Counter Section */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Link href="/admin/jobs?tab=pending" className={`card-pad text-right transition-all hover:scale-[1.01] ${activeTab === "pending" ? "border-orange-500/30 bg-orange-50/20" : "bg-white"}`}>
-          <div className="text-xs text-navy-400 font-bold">⏳ بانتظار المراجعة</div>
-          <div className="text-3xl font-black text-orange-600 mt-1">{pendingJobs.length}</div>
+        <Link href="/admin/jobs?tab=pending" className={`${statCardBase} ${activeTab === "pending" ? "border-orange-400/40 bg-orange-500/10" : ""}`}>
+          <div className="text-xs text-slate-400 font-bold">⏳ بانتظار المراجعة</div>
+          <div className="text-3xl font-black text-orange-600 mt-1">{pendingJobsCount}</div>
         </Link>
-        <Link href="/admin/jobs?tab=published" className={`card-pad text-right transition-all hover:scale-[1.01] ${activeTab === "published" ? "border-emerald-500/30 bg-emerald-50/20" : "bg-white"}`}>
-          <div className="text-xs text-navy-400 font-bold">✅ الوظائف المنشورة</div>
-          <div className="text-3xl font-black text-emerald-600 mt-1">{publishedJobs.length}</div>
+        <Link href="/admin/jobs?tab=published" className={`${statCardBase} ${activeTab === "published" ? "border-emerald-400/40 bg-emerald-500/10" : ""}`}>
+          <div className="text-xs text-slate-400 font-bold">✅ الوظائف المنشورة</div>
+          <div className="text-3xl font-black text-emerald-300 mt-1">{publishedJobsCount}</div>
         </Link>
-        <Link href="/admin/jobs?tab=rejected" className={`card-pad text-right transition-all hover:scale-[1.01] ${activeTab === "rejected" ? "border-rose-500/30 bg-rose-50/20" : "bg-white"}`}>
-          <div className="text-xs text-navy-400 font-bold">❌ الوظائف المرفوضة</div>
-          <div className="text-3xl font-black text-rose-600 mt-1">{rejectedJobs.length}</div>
+        <Link href="/admin/jobs?tab=rejected" className={`${statCardBase} ${activeTab === "rejected" ? "border-rose-400/40 bg-rose-500/10" : ""}`}>
+          <div className="text-xs text-slate-400 font-bold">❌ الوظائف المرفوضة</div>
+          <div className="text-3xl font-black text-rose-300 mt-1">{rejectedJobsCount}</div>
         </Link>
-        <Link href="/admin/jobs?tab=all" className={`card-pad text-right transition-all hover:scale-[1.01] ${activeTab === "all" ? "border-navy-500/30 bg-navy-50/10" : "bg-white"}`}>
-          <div className="text-xs text-navy-400 font-bold">📁 إجمالي الوظائف</div>
-          <div className="text-3xl font-black text-navy-900 mt-1">{jobs.length}</div>
+        <Link href="/admin/jobs?tab=all" className={`${statCardBase} ${activeTab === "all" ? "border-[#c0a368]/40 bg-[#c0a368]/10" : ""}`}>
+          <div className="text-xs text-slate-400 font-bold">📁 إجمالي الوظائف</div>
+          <div className="text-3xl font-black text-white mt-1">{allJobsCount}</div>
         </Link>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-slate-150 mb-6 gap-2">
+      <div className="mb-6 flex flex-wrap gap-2 rounded-3xl border border-white/10 bg-white/[0.05] p-2 backdrop-blur-xl">
         <Link 
           href="/admin/jobs?tab=pending" 
-          className={`pb-3.5 px-4 font-bold text-sm transition-all border-b-2 -mb-[2px] ${activeTab === "pending" ? "border-orange-500 text-orange-600 font-extrabold" : "border-transparent text-navy-400 hover:text-navy-700"}`}
+          className={`${tabBase} ${activeTab === "pending" ? "border-orange-400/40 bg-orange-500/15 text-orange-200" : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"}`}
         >
-          ⏳ بانتظار التدقيق ({pendingJobs.length})
+          ⏳ بانتظار التدقيق ({pendingJobsCount})
         </Link>
         <Link 
           href="/admin/jobs?tab=published" 
-          className={`pb-3.5 px-4 font-bold text-sm transition-all border-b-2 -mb-[2px] ${activeTab === "published" ? "border-emerald-500 text-emerald-600 font-extrabold" : "border-transparent text-navy-400 hover:text-navy-700"}`}
+          className={`${tabBase} ${activeTab === "published" ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-200" : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"}`}
         >
-          ✅ المنشورة ({publishedJobs.length})
+          ✅ المنشورة ({publishedJobsCount})
         </Link>
         <Link 
           href="/admin/jobs?tab=rejected" 
-          className={`pb-3.5 px-4 font-bold text-sm transition-all border-b-2 -mb-[2px] ${activeTab === "rejected" ? "border-rose-500 text-rose-600 font-extrabold" : "border-transparent text-navy-400 hover:text-navy-700"}`}
+          className={`${tabBase} ${activeTab === "rejected" ? "border-rose-400/40 bg-rose-500/15 text-rose-200" : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"}`}
         >
-          ❌ المرفوضة ({rejectedJobs.length})
+          ❌ المرفوضة ({rejectedJobsCount})
         </Link>
         <Link 
           href="/admin/jobs?tab=all" 
-          className={`pb-3.5 px-4 font-bold text-sm transition-all border-b-2 -mb-[2px] ${activeTab === "all" ? "border-navy-600 text-navy-950 font-extrabold" : "border-transparent text-navy-400 hover:text-navy-700"}`}
+          className={`${tabBase} ${activeTab === "all" ? "border-[#c0a368]/40 bg-[#c0a368]/15 text-[#e8d39c]" : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"}`}
         >
-          📂 الكل ({jobs.length})
+          📂 الكل ({allJobsCount})
         </Link>
       </div>
 
       {/* Jobs Feed / Moderation Panel */}
       <div className="space-y-4">
         {displayedJobs.length === 0 ? (
-          <div className="card-pad text-center py-12 text-navy-400 bg-white border border-slate-150/60 rounded-2xl shadow-sm">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] py-12 text-center text-slate-400 shadow-2xl shadow-black/10 backdrop-blur-xl">
             <span className="text-3xl block mb-2">📭</span>
-            <p className="font-bold text-sm text-navy-800">لا توجد وظائف معروضة في هذا القسم حاليًا.</p>
+            <p className="font-bold text-sm text-white">لا توجد وظائف معروضة في هذا القسم حاليًا.</p>
             <p className="text-xs mt-1">عند نشر وظائف جديدة من أصحاب العمل أو منسقي الإدارة ستظهر هنا.</p>
           </div>
         ) : (
           displayedJobs.map((j) => {
             const publisher = j.postedById ? userMap.get(j.postedById) : null;
             return (
-              <div key={j.id} className="bg-white border border-slate-150/60 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-slate-200 transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+              <div key={j.id} className="flex flex-col items-start justify-between gap-5 rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/10 backdrop-blur-xl transition-colors hover:border-[#c0a368]/35 hover:bg-white/[0.09] md:flex-row md:items-center">
                 <div className="space-y-2 flex-grow">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-extrabold text-lg text-navy-950">{j.title}</h2>
+                    <h2 className="font-extrabold text-lg text-white">{j.title}</h2>
                     <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${STATUS_BADGES[j.status] || "bg-slate-50 text-slate-700 border-slate-150"}`}>
                       {JOB_STATUS_LABEL[j.status] || j.status}
                     </span>
@@ -139,18 +158,18 @@ export default async function AdminJobsPage({
                     {j.urgent && <span className="bg-red-150 text-red-700 border border-red-200 text-[10px] font-extrabold px-2 py-0.5 rounded-full">⚡ عاجلة</span>}
                   </div>
                   
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-navy-600 font-medium">
-                    <div>🏢 الشركة: <strong className="text-navy-950">{j.company?.name ?? j.companyNameText ?? "غير محدد"}</strong></div>
-                    <div>📍 الموقع: <strong className="text-navy-950">{j.city} {j.area ? `· ${j.area}` : ""}</strong></div>
-                    <div>💼 نوع الدوام: <strong className="text-navy-950">{JOB_TYPE_LABEL[j.jobType] || j.jobType}</strong></div>
-                    <div>🗓️ النشر الأصلي: <strong className="text-navy-950">{formatDateArabic(j.createdAt)}</strong></div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400 font-medium">
+                    <div>🏢 الشركة: <strong className="text-slate-100">{j.company?.name ?? j.companyNameText ?? "غير محدد"}</strong></div>
+                    <div>📍 الموقع: <strong className="text-slate-100">{j.city} {j.area ? `· ${j.area}` : ""}</strong></div>
+                    <div>💼 نوع الدوام: <strong className="text-slate-100">{JOB_TYPE_LABEL[j.jobType] || j.jobType}</strong></div>
+                    <div>🗓️ النشر الأصلي: <strong className="text-slate-100">{formatDateArabic(j.createdAt)}</strong></div>
                   </div>
 
                   {/* Publisher / Employer Info Badge */}
                   {publisher && (
-                    <div className="bg-slate-50 border border-slate-100 p-2.5 rounded-xl text-xs mt-2 space-y-1 max-w-xl">
-                      <div className="text-[10px] uppercase tracking-wider text-navy-400 font-bold">👤 معلومات الناشر (صاحب العمل):</div>
-                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-navy-700 font-bold">
+                    <div className="mt-2 max-w-xl space-y-1 rounded-2xl border border-white/10 bg-slate-950/40 p-2.5 text-xs">
+                      <div className="text-[10px] uppercase tracking-wider text-[#e8d39c] font-bold">👤 معلومات الناشر (صاحب العمل):</div>
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-slate-300 font-bold">
                         <span>الاسم: {publisher.fullName}</span>
                         <span>البريد: {publisher.email}</span>
                         {publisher.phone && <span>الهاتف: {publisher.phone}</span>}
@@ -159,25 +178,25 @@ export default async function AdminJobsPage({
                   )}
 
                   {/* Contact Methods details */}
-                  <div className="text-xs text-navy-500 flex flex-wrap gap-x-4 gap-y-1 pt-1.5 border-t border-slate-100 mt-2">
-                    {j.contactEmail && <span>📧 بريد التقديم: <strong className="text-navy-800">{j.contactEmail}</strong></span>}
-                    {j.contactWhatsapp && <span>💬 واتساب: <strong className="text-navy-800">{j.contactWhatsapp}</strong></span>}
-                    {j.externalUrl && <a href={j.externalUrl} target="_blank" className="text-emerald-600 underline font-bold">🔗 الرابط الخارجي</a>}
+                  <div className="text-xs text-slate-400 flex flex-wrap gap-x-4 gap-y-1 pt-1.5 border-t border-white/10 mt-2">
+                    {j.contactEmail && <span>📧 بريد التقديم: <strong className="text-slate-100">{j.contactEmail}</strong></span>}
+                    {j.contactWhatsapp && <span>💬 واتساب: <strong className="text-slate-100">{j.contactWhatsapp}</strong></span>}
+                    {j.externalUrl && <a href={j.externalUrl} target="_blank" className="text-[#e8d39c] underline font-bold">🔗 الرابط الخارجي</a>}
                   </div>
                 </div>
 
                 {/* Interaction Actions */}
-                <div className="flex flex-row md:flex-col lg:flex-row items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-4 md:pt-0">
+                <div className="flex flex-row md:flex-col lg:flex-row items-center gap-2 w-full md:w-auto justify-end border-t border-white/10 md:border-t-0 pt-4 md:pt-0">
                   {j.status === "PENDING_REVIEW" && (
                     <>
                       <form action={adminApproveJobAction.bind(null, j.id)}>
-                        <button className="btn-primary text-xs px-4 py-2 hover:scale-[1.01] transition-transform whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm">
+                        <button className="rounded-full bg-[#c0a368] px-4 py-2 text-xs font-extrabold text-slate-950 shadow-lg shadow-[#c0a368]/15 transition-colors hover:bg-[#d4ba79] whitespace-nowrap">
                           ✔️ موافقة ونشر
                         </button>
                       </form>
                       
                       <form action={adminRejectJobAction.bind(null, j.id)}>
-                        <button className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-100 text-xs px-4 py-2 hover:scale-[1.01] transition-transform whitespace-nowrap rounded-xl font-bold">
+                        <button className="rounded-full border border-rose-800/60 bg-rose-950/50 px-4 py-2 text-xs font-extrabold text-rose-100 transition-colors hover:bg-rose-900 whitespace-nowrap">
                           ❌ رفض
                         </button>
                       </form>
@@ -185,7 +204,7 @@ export default async function AdminJobsPage({
                   )}
 
                   <Link 
-                    className="btn-outline text-xs px-4 py-2 hover:scale-[1.01] transition-transform whitespace-nowrap rounded-xl font-bold" 
+                    className="rounded-full border border-slate-700 bg-slate-900/80 px-4 py-2 text-xs font-extrabold text-slate-100 transition-colors hover:bg-slate-800 whitespace-nowrap" 
                     href={`/admin/jobs/${j.id}/edit`}
                   >
                     ⚙️ تفاصيل

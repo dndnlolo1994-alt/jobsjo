@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 type InstallEvent = Event & {
   prompt: () => Promise<void>;
@@ -8,6 +9,7 @@ type InstallEvent = Event & {
 };
 
 export function PwaInstallPrompt() {
+  const pathname = usePathname();
   const [event, setEvent] = useState<InstallEvent | null>(null);
   const [hidden, setHidden] = useState(true);
 
@@ -26,7 +28,7 @@ export function PwaInstallPrompt() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  if (!event || hidden) return null;
+  if (pathname?.startsWith("/admin") || !event || hidden) return null;
 
   async function install() {
     if (!event) return;

@@ -5,6 +5,8 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const hostname = request.nextUrl.hostname;
   const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
 
   // 1. Enforce HTTPS in production
   const forwardedProto = request.headers.get("x-forwarded-proto");
@@ -35,7 +37,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {

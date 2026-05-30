@@ -14,6 +14,7 @@ const items = [
 
 export function MobileNav() {
   const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-navy-100 bg-white/95 shadow-[0_-4px_16px_rgba(10,19,32,0.04)] backdrop-blur-md md:hidden mobile-safe">

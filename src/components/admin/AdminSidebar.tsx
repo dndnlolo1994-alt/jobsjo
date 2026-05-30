@@ -53,14 +53,14 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
 
   return (
     <>
-      <div className="md:hidden sticky top-0 z-40 flex w-full items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-3 text-white shadow-md">
+      <div className="md:hidden sticky top-0 z-40 flex w-full items-center justify-between border-b border-[#c0a368]/20 bg-slate-950/95 px-4 py-3 text-white shadow-md backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-500 text-white">
+          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-[#c0a368] text-slate-950 shadow-lg shadow-[#c0a368]/20">
             <Zap className="h-4 w-4" aria-hidden="true" />
           </span>
           <div>
             <h3 className="text-sm font-extrabold">بوابة المشرفين</h3>
-            <p className="text-[10px] font-bold text-emerald-300">إدارة المنصة</p>
+            <p className="text-[10px] font-bold text-[#e8d39c]">إدارة المنصة</p>
           </div>
         </div>
         <button
@@ -82,8 +82,8 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
 
       <aside
         className={`
-          fixed bottom-0 right-0 top-0 z-50 flex h-screen w-72 shrink-0 flex-col justify-between border-l border-slate-800
-          bg-[#07111f] p-5 text-slate-100 shadow-[0_20px_60px_rgba(2,6,23,0.45)] transition-transform duration-300 ease-out
+          fixed bottom-0 right-0 top-0 z-50 flex h-screen w-72 shrink-0 flex-col justify-between border-l border-[#c0a368]/15
+          bg-[#07111f]/95 p-5 text-slate-100 shadow-[0_20px_70px_rgba(0,0,0,0.50)] backdrop-blur-xl transition-transform duration-300 ease-out
           md:sticky md:z-10 md:translate-x-0
           ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
@@ -92,12 +92,12 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
           <div>
             <div className="mb-5 flex items-center justify-between border-b border-slate-800 pb-5">
               <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-950/40">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#c0a368] text-slate-950 shadow-lg shadow-[#c0a368]/20">
                   <Zap className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div>
                   <h3 className="text-base font-extrabold text-white">بوابة المشرفين</h3>
-                  <p className="text-[10px] font-bold tracking-wide text-emerald-300">لوحة تحكم تشغيلية</p>
+                  <p className="text-[10px] font-bold tracking-wide text-[#e8d39c]">لوحة تحكم تشغيلية</p>
                 </div>
               </div>
               <button
@@ -122,8 +122,8 @@ export default function AdminSidebar({ user }: AdminSidebarProps) {
                     className={`
                       flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors
                       ${isActive
-                        ? "bg-[#c0a368] text-slate-950 shadow-sm shadow-[#c0a368]/20"
-                        : "text-slate-300 hover:bg-slate-900 hover:text-white"}
+                        ? "bg-[#c0a368] text-slate-950 shadow-lg shadow-[#c0a368]/20"
+                        : "text-slate-300 hover:bg-white/5 hover:text-white"}
                     `}
                   >
                     <span
