@@ -66,4 +66,6 @@ export const env = {
   NEXT_PUBLIC_GA_MEASUREMENT_ID: clean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? ""),
   NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: clean(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? ""),
   ANTHROPIC_API_KEY: clean(process.env.ANTHROPIC_API_KEY ?? ""),
+  ANTHROPIC_AUTH_TOKEN: clean(process.env.ANTHROPIC_AUTH_TOKEN ?? process.env.ANTHROPIC_API_KEY ?? ""),
+  ANTHROPIC_BASE_URL: clean(process.env.ANTHROPIC_BASE_URL ?? "https://api.anthropic.com").replace(/\/+$/, ""),
 };

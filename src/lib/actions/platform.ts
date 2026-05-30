@@ -699,7 +699,10 @@ export async function generateCvEnglishAction() {
     return { ok: false, message: "احفظ السيرة العربية أولاً ثم جرّب توليد النسخة الإنجليزية." };
   }
 
-  if (!env.ANTHROPIC_API_KEY) {
+  const anthropicToken = env.ANTHROPIC_AUTH_TOKEN || env.ANTHROPIC_API_KEY;
+  const anthropicBaseUrl = (env.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/v1$/, "");
+
+  if (!anthropicToken) {
     return {
       ok: false,
       code: "NO_AI_KEY",
@@ -764,13 +767,19 @@ ${JSON.stringify(sourcePayload)}
 `;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const headers: Record<string, string> = {
+      "content-type": "application/json",
+      "x-api-key": anthropicToken,
+      "anthropic-version": "2023-06-01",
+    };
+
+    if (!anthropicBaseUrl.includes("api.anthropic.com")) {
+      headers.authorization = `Bearer ${anthropicToken}`;
+    }
+
+    const response = await fetch(`${anthropicBaseUrl}/v1/messages`, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
+      headers,
       body: JSON.stringify({
         model: "claude-3-5-haiku-latest",
         max_tokens: 2600,

@@ -55,6 +55,8 @@ cp .env.example .env.local
 | `SMTP_*` | Hostinger — مطلوب لـ OTP والبريد |
 | `ADMIN_EMAILS` | بريدك كأدمن، مثل `info@jordan-job.shop` |
 | `CRON_SECRET` | أي سر قوي (محلي يمكن `dev_secret_key_123`) |
+| `ANTHROPIC_API_KEY` أو `ANTHROPIC_AUTH_TOKEN` | اختياري — لتوليد نسخة CV إنجليزية بالذكاء الاصطناعي |
+| `ANTHROPIC_BASE_URL` | اختياري — لمزوّد Anthropic-compatible مثل `https://api.synterolink.com` |
 
 > Next.js يقرأ `.env.local` تلقائياً.  
 > Prisma والسكربتات (`seed`, `test:email`, …) تقرأه عبر `scripts/load-env.cjs`.
@@ -139,6 +141,10 @@ npx tsx scripts/bootstrap-admin.ts info@jordan-job.shop "YourPassword"
 
 ### 8. نشر Vercel نجح لكن قاعدة البيانات غير محدثة
 سكريبت `vercel-build` يكمل بناء Next.js حتى لو فشل `prisma migrate deploy` مؤقتاً. بعد كل نشر راجع Build Logs في Vercel وتأكد أن migrations اكتملت، أو شغّل `npm run prisma:validate` محلياً قبل النشر.
+
+### 9. زر توليد English في السيرة لا يعمل
+**السبب:** متغيرات AI غير مفعلة في بيئة التشغيل.  
+**الحل:** استخدم `ANTHROPIC_API_KEY` للرابط الرسمي، أو `ANTHROPIC_AUTH_TOKEN` مع `ANTHROPIC_BASE_URL` إذا كنت تستخدم مزوداً متوافقاً مع Anthropic. بدون المفتاح يمكن تعبئة تبويب English يدوياً، ولن تُعرض العربية في النسخة الإنجليزية غير المكتملة.
 
 ---
 
