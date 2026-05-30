@@ -517,12 +517,12 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     ...extraSections.flatMap((section) => [section.title, ...section.lines]),
   ].filter(Boolean).join(" ").length;
   const isTwoPages =
-    experiences.length > 3 ||
-    educations.length > 2 ||
-    certifications.length > 4 ||
-    skillsWithLevels.length > 8 ||
-    extraSections.length > 3 ||
-    cvTextLength > 1400;
+    experiences.length > 5 ||
+    educations.length > 3 ||
+    certifications.length > 6 ||
+    skillsWithLevels.length > 16 ||
+    extraSections.length > 7 ||
+    cvTextLength > 2800;
 
   let page1Exps = experiences;
   let page2Exps: any[] = [];
@@ -717,6 +717,16 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                         </div>
                       )}
                     </dl>
+                    {qrCodeDataUrl && (
+                      <div className="mt-3 flex items-center gap-2 rounded-md border border-[#efeee8] bg-white p-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={qrCodeDataUrl} alt="QR Verification" className="h-11 w-11 rounded border border-[#eeede7] bg-white p-0.5" />
+                        <div className="min-w-0">
+                          <p className="flex items-center gap-1 text-[8.5px] font-extrabold text-[#a07f4e]"><span>✓</span> {t("سيرة موثقة")}</p>
+                          <p className="truncate text-[7.5px] font-bold text-slate-400" dir="ltr">{verifyLabel}</p>
+                        </div>
+                      </div>
+                    )}
                   </section>
                 )}
 
@@ -776,18 +786,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               </div>
 
               <div className="mt-4 border-t border-[#edece6] pt-3">
-                {pageNum === 1 && qrCodeDataUrl ? (
-                  <div className="flex items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrCodeDataUrl} alt="QR Verification" className="h-14 w-14 rounded-md border border-[#eeede7] bg-white p-0.5" />
-                    <div className="min-w-0">
-                      <p className="flex items-center gap-1 text-[9px] font-extrabold text-[#a07f4e]"><span>✓</span> {t("سيرة موثقة")}</p>
-                      <p className="truncate text-[8px] font-bold text-slate-400" dir="ltr">{verifyLabel}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-[9px] font-bold text-slate-400">{pageLabel}</div>
-                )}
+                <div className="text-[9px] font-bold text-slate-400">{pageLabel}</div>
               </div>
             </aside>
           </div>
