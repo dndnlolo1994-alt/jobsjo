@@ -616,7 +616,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                 {showSummary && summary && (
                   <section className="break-inside-avoid">
                     <SectionTitle title={t("الملخص التنفيذي")} />
-                    <p className="text-[11.3px] font-medium leading-[1.8] text-slate-600">{summary}</p>
+                    <p className="text-[11.8px] font-medium leading-[1.8] text-slate-600">{summary}</p>
                   </section>
                 )}
 
@@ -638,7 +638,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                             </span>
                           </div>
                           {exp.description && (
-                            <p className="mt-1.5 whitespace-pre-line text-[10.3px] font-medium leading-[1.7] text-slate-500">
+                            <p className="mt-1.5 whitespace-pre-line text-[10.7px] font-medium leading-[1.65] text-slate-500">
                               {exp.description}
                             </p>
                           )}
@@ -665,7 +665,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                               {edu.startDate} {dash} {edu.endDate || t("حتى الآن")}
                             </span>
                           </div>
-                          {edu.description && <p className="mt-1 text-[9.8px] font-medium leading-[1.6] text-slate-500">{edu.description}</p>}
+                          {edu.description && <p className="mt-1 text-[10.2px] font-medium leading-[1.6] text-slate-500">{edu.description}</p>}
                         </div>
                       ))}
                     </div>
@@ -695,7 +695,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("الاتصال")}
                     </h2>
-                    <dl className="space-y-2 text-[9.5px] leading-snug">
+                    <dl className="space-y-2 text-[9.8px] leading-snug">
                       {cv.phone && (
                         <div>
                           <dt className="font-bold text-[#a98c5c]">{isEn ? "Phone" : "الهاتف"}</dt>
@@ -740,7 +740,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                         const lvl = Math.min(5, Math.max(1, Number(skill.level || 4)));
                         return (
                           <div key={`${skill.name}-${idx}`} className="flex items-center justify-between gap-2">
-                            <span className="text-[9.7px] font-semibold leading-snug text-slate-600">{skill.name}</span>
+                            <span className="text-[10px] font-semibold leading-snug text-slate-600">{skill.name}</span>
                             <span className="flex shrink-0 items-center gap-[3px]" dir="ltr">
                               {[1, 2, 3, 4, 5].map((d) => (
                                 <span key={d} className={`h-[5px] w-[5px] rounded-full ${d <= lvl ? "bg-[#c0a368]" : "bg-[#e8e5dc]"}`} />
@@ -761,8 +761,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     <div className="space-y-1.5">
                       {pageCerts.map((cert, idx) => (
                         <div key={cert.id || `${cert.name}-${idx}`} className="rounded-md border border-[#efeee8] bg-white p-2">
-                          <p className="text-[9.3px] font-extrabold leading-snug text-slate-800">{cert.name}</p>
-                          <p className="mt-0.5 text-[8.2px] font-bold text-slate-400">{cert.issuer} {cert.year ? `/ ${cert.year}` : ""}</p>
+                          <p className="text-[9.6px] font-extrabold leading-snug text-slate-800">{cert.name}</p>
+                          <p className="mt-0.5 text-[8.5px] font-bold text-slate-400">{cert.issuer} {cert.year ? `/ ${cert.year}` : ""}</p>
                         </div>
                       ))}
                     </div>
@@ -776,7 +776,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     </h2>
                     <ul className="space-y-1.5">
                       {section.lines.slice(0, 5).map((line, idx) => (
-                        <li key={idx} className="flex gap-1.5 text-[9px] font-medium leading-[1.55] text-slate-500">
+                        <li key={idx} className="flex gap-1.5 text-[9.4px] font-medium leading-[1.5] text-slate-500">
                           <span className="mt-[3px] h-1 w-1 shrink-0 rounded-full bg-[#c0a368]" /> <span>{line}</span>
                         </li>
                       ))}

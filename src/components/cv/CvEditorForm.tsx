@@ -228,18 +228,53 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
 
 
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const resizePhotoForCv = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("تعذر قراءة الصورة"));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("تعذر تجهيز الصورة"));
+        img.onload = () => {
+          const maxSize = 480;
+          const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(img.width * ratio));
+          canvas.height = Math.max(1, Math.round(img.height * ratio));
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            reject(new Error("تعذر تجهيز الصورة"));
+            return;
+          }
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.84));
+        };
+        img.src = String(reader.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 3000000) {
         alert("حجم الصورة كبير جداً، يرجى اختيار صورة أصغر من 3 ميغابايت لضمان سرعة التحميل.");
+        e.target.value = "";
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhoto(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const resizedPhoto = await resizePhotoForCv(file);
+        setPhoto(resizedPhoto);
+        setMessage("تم تجهيز الصورة. اضغط حفظ كامل السيرة الذاتية لتثبيتها.");
+        setIsSuccess(true);
+      } catch (error) {
+        console.error("Photo resize failed", error);
+        alert("تعذر تجهيز الصورة. جرّب صورة JPG أو PNG أصغر.");
+      } finally {
+        e.target.value = "";
+      }
     }
   };
 
@@ -512,7 +547,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                         ) : (
                           <span className="text-xl">🧑</span>
                         )}
-                        <label className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] font-bold cursor-pointer transition-opacity">
+                        <label className="absolute inset-0 bg-black/70 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center justify-center text-[8px] font-bold cursor-pointer transition-opacity">
                           تغيير
                           <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
                         </label>
@@ -1356,7 +1391,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                     ) : (
                       <span className="text-navy-300 text-4xl">🧑</span>
                     )}
-                    <label className="absolute inset-0 bg-navy-950/70 text-white text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <label className="absolute inset-0 bg-navy-950/70 text-white text-xs font-bold flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer">
                       تغيير الصورة
                       <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
                     </label>
