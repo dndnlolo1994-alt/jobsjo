@@ -16,6 +16,7 @@ import { brandedEmailLayout } from "@/lib/emails/layout";
 import { env } from "@/lib/env";
 import { createApplicationReviewToken } from "@/lib/application-review-token";
 import { absoluteUrl } from "@/lib/seo/site";
+import { cleanEnglishText, getCvEnglishMissing, parseCvEnglishVersion } from "@/lib/cv-english";
 
 function str(form: FormData, key: string) {
   const v = form.get(key);
@@ -599,6 +600,220 @@ export async function saveCvAction(_: unknown, form: FormData) {
   } catch (error) {
     console.error("saveCvAction failed", error);
     return { ok: false, message: "تعذر حفظ السيرة الآن. حاول مرة أخرى بعد لحظات." };
+  }
+}
+
+function extractJsonObject(text: string) {
+  const cleaned = text.trim().replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+    if (start >= 0 && end > start) {
+      return JSON.parse(cleaned.slice(start, end + 1));
+    }
+    throw new Error("No JSON object found in AI response");
+  }
+}
+
+function cleanAiEnglishVersion(raw: any, cv: any, existing: any) {
+  const clean = (value: unknown) => cleanEnglishText(value);
+  const sourceExperiences = cv.experiences ?? [];
+  const sourceEducations = cv.educations ?? [];
+  const sourceSkills = cv.skills ?? [];
+  const sourceCertifications = cv.certifications ?? [];
+  const extras = raw?.extras || {};
+
+  return {
+    ...existing,
+    fullName: clean(raw?.fullName),
+    jobTitle: clean(raw?.jobTitle),
+    city: clean(raw?.city),
+    country: clean(raw?.country) || "Jordan",
+    summary: clean(raw?.summary),
+    experiences: sourceExperiences.map((src: any, idx: number) => {
+      const item = raw?.experiences?.[idx] || {};
+      return {
+        position: clean(item.position),
+        company: clean(item.company),
+        city: clean(item.city),
+        description: clean(item.description),
+        startDate: src.startDate,
+        endDate: src.endDate,
+      };
+    }),
+    educations: sourceEducations.map((src: any, idx: number) => {
+      const item = raw?.educations?.[idx] || {};
+      return {
+        degree: clean(item.degree),
+        institution: clean(item.institution),
+        city: clean(item.city),
+        description: clean(item.description),
+        startDate: src.startDate,
+        endDate: src.endDate,
+      };
+    }),
+    skills: sourceSkills.map((src: any, idx: number) => {
+      const item = raw?.skills?.[idx] || {};
+      return {
+        name: clean(item.name),
+        level: Math.min(5, Math.max(1, Number.parseInt(String(item.level ?? src.level ?? 3), 10) || 3)),
+      };
+    }),
+    certifications: sourceCertifications.map((src: any, idx: number) => {
+      const item = raw?.certifications?.[idx] || {};
+      return {
+        name: clean(item.name),
+        issuer: clean(item.issuer),
+        year: clean(item.year) || src.year || "",
+      };
+    }),
+    extras: {
+      languages: clean(extras.languages),
+      tools: clean(extras.tools),
+      achievements: clean(extras.achievements),
+      projects: clean(extras.projects),
+      volunteer: clean(extras.volunteer),
+      interests: clean(extras.interests),
+      references: clean(extras.references),
+    },
+    arExtras: existing?.arExtras || existing?.extras || {},
+  };
+}
+
+export async function generateCvEnglishAction() {
+  const user = await requireJobSeeker();
+
+  const cv = await prisma.cVProfile.findUnique({
+    where: { userId: user.id },
+    include: {
+      experiences: { orderBy: { order: "asc" } },
+      educations: { orderBy: { order: "asc" } },
+      skills: { orderBy: { order: "asc" } },
+      certifications: { orderBy: { order: "asc" } },
+    },
+  });
+
+  if (!cv) {
+    return { ok: false, message: "احفظ السيرة العربية أولاً ثم جرّب توليد النسخة الإنجليزية." };
+  }
+
+  if (!env.ANTHROPIC_API_KEY) {
+    return {
+      ok: false,
+      code: "NO_AI_KEY",
+      message: "مفتاح الترجمة الذكية غير مفعّل حالياً. يمكنك تعبئة حقول English يدوياً وحفظها بدون أن تظهر العربية داخل النسخة الإنجليزية.",
+    };
+  }
+
+  const existing = parseCvEnglishVersion(cv.englishVersion) || {};
+  const arExtras = existing.arExtras || existing.extras || {};
+  const sourcePayload = {
+    fullName: cv.fullName,
+    jobTitle: cv.jobTitle,
+    city: cv.city,
+    country: cv.country || "الأردن",
+    summary: cv.summary,
+    experiences: cv.experiences.map((item) => ({
+      position: item.position,
+      company: item.company,
+      city: item.city,
+      startDate: item.startDate,
+      endDate: item.endDate,
+      description: item.description,
+    })),
+    educations: cv.educations.map((item) => ({
+      degree: item.degree,
+      institution: item.institution,
+      city: item.city,
+      startDate: item.startDate,
+      endDate: item.endDate,
+      description: item.description,
+    })),
+    skills: cv.skills.map((item) => ({ name: item.name, level: item.level })),
+    certifications: cv.certifications.map((item) => ({ name: item.name, issuer: item.issuer, year: item.year })),
+    extras: arExtras,
+  };
+
+  const prompt = `
+Translate this Arabic CV into professional, ATS-friendly English.
+Rules:
+- Return JSON only. No markdown, no comments.
+- Do not keep Arabic text in any English field.
+- Preserve dates, years, skill levels, and list order.
+- Translate company/university names to commonly readable English when possible; transliterate proper names if needed.
+- Keep descriptions concise and professional.
+
+Required JSON shape:
+{
+  "fullName": "",
+  "jobTitle": "",
+  "city": "",
+  "country": "Jordan",
+  "summary": "",
+  "experiences": [{"position":"","company":"","city":"","description":""}],
+  "educations": [{"degree":"","institution":"","city":"","description":""}],
+  "skills": [{"name":"","level":5}],
+  "certifications": [{"name":"","issuer":"","year":""}],
+  "extras": {"languages":"","tools":"","achievements":"","projects":"","volunteer":"","interests":"","references":""}
+}
+
+Arabic CV:
+${JSON.stringify(sourcePayload)}
+`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-haiku-latest",
+        max_tokens: 2600,
+        temperature: 0.2,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      console.error("[cv-english] Anthropic failed", response.status, body.slice(0, 500));
+      return { ok: false, message: "تعذر توليد الترجمة الذكية الآن. يمكنك تعبئة النسخة الإنجليزية يدوياً ثم حفظها." };
+    }
+
+    const data = await response.json();
+    const content = Array.isArray(data?.content)
+      ? data.content.map((part: any) => (part?.type === "text" ? part.text : "")).join("\n")
+      : "";
+    const raw = extractJsonObject(content);
+    const englishVersion = cleanAiEnglishVersion(raw, cv, { ...existing, arExtras });
+    const missing = getCvEnglishMissing(englishVersion, cv);
+
+    if (missing.length > 0) {
+      return {
+        ok: false,
+        message: `الذكاء الاصطناعي لم يُنتج نسخة إنجليزية مكتملة. الحقول الناقصة: ${missing.slice(0, 6).join(", ")}. الرجاء تعديلها يدوياً.`,
+      };
+    }
+
+    await prisma.cVProfile.update({
+      where: { id: cv.id },
+      data: { englishVersion: JSON.stringify(englishVersion) },
+    });
+
+    revalidatePath("/me/cv");
+    revalidatePath("/me/cv/preview");
+    revalidatePath("/me/cv/download");
+    revalidatePath(`/cv/${user.id}`);
+    revalidatePath(`/cv/${cv.id}`);
+    return { ok: true, message: "تم توليد نسخة English احترافية. راجعها ثم اضغط حفظ كامل السيرة لتثبيت أي تعديل يدوي.", englishVersion };
+  } catch (error) {
+    console.error("[cv-english] generate failed", error);
+    return { ok: false, message: "تعذر توليد الترجمة الذكية الآن. املأ حقول English يدوياً ولن نعرض العربية داخل النسخة الإنجليزية." };
   }
 }
 

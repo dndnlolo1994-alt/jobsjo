@@ -1,6 +1,7 @@
 import QRCode from "qrcode";
 import { formatJordanPhoneDisplay } from "@/lib/phone";
 import { env } from "@/lib/env";
+import { cleanEnglishText, parseCvEnglishVersion } from "@/lib/cv-english";
 
 interface CvPreviewProps {
   cv: any;
@@ -69,68 +70,74 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
   const activeTemplate = cv.template || "modern-emerald";
 
+  const parsedVersion = parseCvEnglishVersion(cv.englishVersion);
+  const sourceExperiences = cv.experiences ?? [];
+  const sourceEducations = cv.educations ?? [];
+  const sourceSkills = cv.skills ?? [];
+  const sourceCertifications = cv.certifications ?? [];
+
   let fullName = cv.fullName;
   let jobTitle = cv.jobTitle;
   let summary = cv.summary;
-  let experiences = cv.experiences ?? [];
-  let educations = cv.educations ?? [];
-  let skills = cv.skills ?? [];
-  let certifications = cv.certifications ?? [];
-  let parsedVersion: any = null;
+  let experiences = sourceExperiences;
+  let educations = sourceEducations;
+  let skills = sourceSkills;
+  let certifications = sourceCertifications;
+  let displayCity = cv.city;
+  let displayCountry = t("الأردن");
 
-  if (cv.englishVersion) {
-    try {
-      parsedVersion = JSON.parse(cv.englishVersion);
-    } catch (e) {}
+  if (isEn) {
+    const eng = parsedVersion || {};
+    fullName = cleanEnglishText(eng.fullName, "English name missing");
+    jobTitle = cleanEnglishText(eng.jobTitle, "Job title translation missing");
+    summary = cleanEnglishText(eng.summary, "English professional summary is not ready yet.");
+    displayCity = cleanEnglishText(eng.city, "");
+    displayCountry = cleanEnglishText(eng.country, "Jordan");
+
+    experiences = sourceExperiences.map((src: any, idx: number) => {
+      const ex = eng.experiences?.[idx] || {};
+      return {
+        ...src,
+        position: cleanEnglishText(ex.position, "Position translation missing"),
+        company: cleanEnglishText(ex.company, "Company translation missing"),
+        description: cleanEnglishText(ex.description, ""),
+        city: cleanEnglishText(ex.city, ""),
+        startDate: src.startDate,
+        endDate: src.endDate,
+      };
+    });
+    educations = sourceEducations.map((src: any, idx: number) => {
+      const ed = eng.educations?.[idx] || {};
+      return {
+        ...src,
+        degree: cleanEnglishText(ed.degree, "Degree translation missing"),
+        institution: cleanEnglishText(ed.institution, "Institution translation missing"),
+        description: cleanEnglishText(ed.description, ""),
+        city: cleanEnglishText(ed.city, ""),
+        startDate: src.startDate,
+        endDate: src.endDate,
+      };
+    });
+    skills = sourceSkills.map((src: any, idx: number) => {
+      const skill = eng.skills?.[idx] || {};
+      return {
+        ...src,
+        name: cleanEnglishText(skill.name, ""),
+        level: skill.level || src.level,
+      };
+    }).filter((skill: any) => skill.name);
+    certifications = sourceCertifications.map((src: any, idx: number) => {
+      const cert = eng.certifications?.[idx] || {};
+      return {
+        ...src,
+        name: cleanEnglishText(cert.name, "Certificate translation missing"),
+        issuer: cleanEnglishText(cert.issuer, ""),
+        year: cert.year || src.year,
+      };
+    });
   }
 
-  if (isEn && parsedVersion) {
-    try {
-      const eng = parsedVersion;
-      if (eng.fullName) fullName = eng.fullName;
-      if (eng.jobTitle) jobTitle = eng.jobTitle;
-      if (eng.summary) summary = eng.summary;
-      if (eng.experiences?.length > 0) {
-        experiences = eng.experiences.map((ex: any, idx: number) => ({
-          ...cv.experiences?.[idx],
-          position: ex.position || cv.experiences?.[idx]?.position,
-          company: ex.company || cv.experiences?.[idx]?.company,
-          description: ex.description || cv.experiences?.[idx]?.description,
-          city: ex.city || cv.experiences?.[idx]?.city,
-          startDate: ex.startDate || cv.experiences?.[idx]?.startDate,
-          endDate: ex.endDate || cv.experiences?.[idx]?.endDate,
-        }));
-      }
-      if (eng.educations?.length > 0) {
-        educations = eng.educations.map((ed: any, idx: number) => ({
-          ...cv.educations?.[idx],
-          degree: ed.degree || cv.educations?.[idx]?.degree,
-          institution: ed.institution || cv.educations?.[idx]?.institution,
-          description: ed.description || cv.educations?.[idx]?.description,
-          city: ed.city || cv.educations?.[idx]?.city,
-          startDate: ed.startDate || cv.educations?.[idx]?.startDate,
-          endDate: ed.endDate || cv.educations?.[idx]?.endDate,
-        }));
-      }
-      if (eng.skills?.length > 0) {
-        skills = eng.skills.map((skill: any, idx: number) => ({
-          ...cv.skills?.[idx],
-          name: skill.name || cv.skills?.[idx]?.name,
-          level: skill.level || cv.skills?.[idx]?.level,
-        }));
-      }
-      if (eng.certifications?.length > 0) {
-        certifications = eng.certifications.map((cert: any, idx: number) => ({
-          ...cv.certifications?.[idx],
-          name: cert.name || cv.certifications?.[idx]?.name,
-          issuer: cert.issuer || cv.certifications?.[idx]?.issuer,
-          year: cert.year || cv.certifications?.[idx]?.year,
-        }));
-      }
-    } catch (e) {}
-  }
-
-  const extras = parsedVersion?.extras ?? {};
+  const extras = isEn ? parsedVersion?.extras ?? {} : parsedVersion?.arExtras ?? parsedVersion?.extras ?? {};
   const clampText = (value: unknown, max = 650) => {
     const text = String(value || "").trim();
     return text.length > max ? `${text.slice(0, max).trim()}...` : text;
@@ -142,6 +149,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     String(value || "")
       .split(/\r?\n/)
       .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => (isEn ? cleanEnglishText(line) : line))
       .filter(Boolean)
       .slice(0, 8);
   const extraSections = [
@@ -156,7 +165,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
   const allSkills = Array.from(
     new Map(
-      [...(skills ?? []).map((s: any) => s.name), ...userSkills]
+      [...(skills ?? []).map((s: any) => s.name), ...(isEn ? [] : userSkills)]
         .map((skill) => String(skill || "").trim())
         .filter(Boolean)
         .map((skill) => [skill.toLowerCase(), skill])
@@ -190,7 +199,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
                 {cv.email && <span>{cv.email}</span>}
                 {cv.phone && <span>{formatJordanPhoneDisplay(cv.phone)}</span>}
-                {cv.city && <span>{cv.city}, {t("الأردن")}</span>}
+                {displayCity && <span>{displayCity}, {displayCountry}</span>}
                 {cv.linkedin && <span dir="ltr">{compactUrl(cv.linkedin)}</span>}
                 {cv.website && <span dir="ltr">{compactUrl(cv.website)}</span>}
               </div>
@@ -297,7 +306,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               <ul className="text-[11px] text-navy-700 space-y-2 break-all">
                 {cv.phone && <li>📞 {formatJordanPhoneDisplay(cv.phone)}</li>}
                 {cv.email && <li>✉ {cv.email}</li>}
-                {cv.city && <li>📍 {cv.city}, {t("الأردن")}</li>}
+                {displayCity && <li>📍 {displayCity}, {displayCountry}</li>}
                 {cv.linkedin && <li className="font-semibold" dir="ltr">in {compactUrl(cv.linkedin)}</li>}
                 {cv.website && <li className="font-semibold" dir="ltr">🔗 {compactUrl(cv.website)}</li>}
               </ul>
@@ -411,7 +420,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-slate-400 mt-3">
                 {cv.phone && <span>📞 {formatJordanPhoneDisplay(cv.phone)}</span>}
                 {cv.email && <span>✉ {cv.email}</span>}
-                {cv.city && <span>📍 {cv.city}</span>}
+                {displayCity && <span>📍 {displayCity}</span>}
                 {cv.linkedin && <span dir="ltr">in {compactUrl(cv.linkedin)}</span>}
                 {cv.website && <span dir="ltr">🔗 {compactUrl(cv.website)}</span>}
               </div>
@@ -512,7 +521,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   // Default Template: Modern Emerald
   const skillItems = [
     ...(skills ?? []).map((s: any) => ({ name: String(s.name || s).trim(), level: s.level || 4 })),
-    ...userSkills.map((s: any) => ({ name: String(s).trim(), level: 4 }))
+    ...(isEn ? [] : userSkills).map((s: any) => ({ name: String(s).trim(), level: 4 }))
   ].filter(s => s.name);
   const skillsWithLevels = Array.from(
     new Map(skillItems.map((s) => [s.name.toLowerCase(), s])).values()
@@ -577,7 +586,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
     // عنوان قسم هادئ: شرطة ذهبية ناعمة + عنوان حِبري + خيط رفيع
     const SectionTitle = ({ title }: { title: string }) => (
-      <div className="mb-3 flex items-center gap-2.5">
+      <div className="mb-2 flex items-center gap-2.5">
         <span className="h-[2px] w-5 shrink-0 rounded-full bg-[#c0a368]" />
         <h2 className="shrink-0 text-[12.5px] font-extrabold text-slate-800">{title}</h2>
         <span className="h-px flex-1 bg-[#edece6]" />
@@ -586,16 +595,16 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
     return (
       <div
-        className="cv-print relative mx-auto mb-8 flex min-h-[1123px] w-[794px] max-w-none flex-col border border-[#eeede7] bg-[#fdfcfa] text-slate-700 shadow-card"
+        className="cv-print relative mx-auto mb-8 flex h-[1123px] w-[794px] max-w-none flex-col overflow-hidden border border-[#eeede7] bg-[#fdfcfa] text-slate-700 shadow-card"
         dir={isEn ? "ltr" : "rtl"}
         key={pageNum}
       >
-        <div className="flex flex-1 flex-col p-7">
+        <div className="flex flex-1 flex-col p-6">
           {/* ترويسة فاتحة هادئة — div وليس header كي تُطبع دائماً. المجاني بدون صورة (سادة) */}
-          <div className="cv-header mb-4 flex items-start justify-between gap-6 border-b border-[#edece6] pb-4">
+          <div className="cv-header mb-3 flex items-start justify-between gap-5 border-b border-[#edece6] pb-3">
             <div className="min-w-0">
               <div className="mb-2 text-[8px] font-bold uppercase tracking-[0.3em] text-[#b3a380]" dir="ltr">Curriculum Vitae</div>
-              <h1 className="break-words text-[35px] font-extrabold leading-[1.05] text-slate-800">{fullName}</h1>
+              <h1 className="break-words text-[32px] font-extrabold leading-[1.05] text-slate-800">{fullName}</h1>
               <div className="mt-2 flex flex-wrap items-center gap-2.5">
                 <span className="h-[2px] w-7 rounded-full bg-[#c0a368]" />
                 <p className="text-[14px] font-bold text-[#a07f4e]">{jobTitle || t("باحث عن عمل")}</p>
@@ -605,27 +614,27 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
             {pageNum === 1 && showPhoto && (
               <div className="shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={cv.photo} alt={fullName} className="h-[92px] w-[92px] rounded-2xl object-cover ring-1 ring-[#e7e3d8]" />
+                <img src={cv.photo} alt={fullName} className="h-[82px] w-[82px] rounded-2xl object-cover ring-1 ring-[#e7e3d8]" />
               </div>
             )}
           </div>
 
-          <div className="grid flex-1 grid-cols-[1fr_218px] gap-6">
+          <div className="grid flex-1 grid-cols-[1fr_210px] gap-5">
             <main className="min-w-0">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {showSummary && summary && (
                   <section className="break-inside-avoid">
                     <SectionTitle title={t("الملخص التنفيذي")} />
-                    <p className="text-[11.8px] font-medium leading-[1.8] text-slate-600">{summary}</p>
+                    <p className="text-[11.2px] font-medium leading-[1.55] text-slate-600">{summary}</p>
                   </section>
                 )}
 
                 {pageExps.length > 0 && (
                   <section>
                     <SectionTitle title={t("الخبرات العملية")} />
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       {pageExps.map((exp, idx) => (
-                        <div key={exp.id || `${exp.position}-${idx}`} className="break-inside-avoid border-b border-[#f1f0ea] pb-3 last:border-b-0">
+                        <div key={exp.id || `${exp.position}-${idx}`} className="break-inside-avoid border-b border-[#f1f0ea] pb-2 last:border-b-0">
                           <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                               <h3 className="text-[13px] font-extrabold leading-snug text-slate-800">{exp.position}</h3>
@@ -638,7 +647,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                             </span>
                           </div>
                           {exp.description && (
-                            <p className="mt-1.5 whitespace-pre-line text-[10.7px] font-medium leading-[1.65] text-slate-500">
+                            <p className="mt-1 whitespace-pre-line text-[10.1px] font-medium leading-[1.45] text-slate-500">
                               {exp.description}
                             </p>
                           )}
@@ -651,7 +660,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                 {pageEdus.length > 0 && (
                   <section>
                     <SectionTitle title={t("التعليم والمؤهلات")} />
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       {pageEdus.map((edu, idx) => (
                         <div key={edu.id || `${edu.degree}-${idx}`} className="break-inside-avoid">
                           <div className="flex items-start justify-between gap-4">
@@ -665,7 +674,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                               {edu.startDate} {dash} {edu.endDate || t("حتى الآن")}
                             </span>
                           </div>
-                          {edu.description && <p className="mt-1 text-[10.2px] font-medium leading-[1.6] text-slate-500">{edu.description}</p>}
+                          {edu.description && <p className="mt-1 text-[9.8px] font-medium leading-[1.45] text-slate-500">{edu.description}</p>}
                         </div>
                       ))}
                     </div>
@@ -689,13 +698,13 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
             </main>
 
             <aside className="flex flex-col border-s border-[#edece6] ps-4">
-              <div className="flex-1 space-y-3">
+              <div className="flex-1 space-y-2.5">
                 {pageNum === 1 && (
                   <section className="break-inside-avoid">
                     <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("الاتصال")}
                     </h2>
-                    <dl className="space-y-1.5 text-[9.8px] leading-snug">
+                    <dl className="space-y-1.5 text-[9.2px] leading-snug">
                       {cv.phone && (
                         <div>
                           <dt className="font-bold text-[#a98c5c]">{isEn ? "Phone" : "الهاتف"}</dt>
@@ -708,10 +717,10 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                           <dd className="break-all font-semibold text-slate-600" dir="ltr">{cv.email}</dd>
                         </div>
                       )}
-                      {cv.city && (
+                      {displayCity && (
                         <div>
                           <dt className="font-bold text-[#a98c5c]">{isEn ? "Location" : "الموقع"}</dt>
-                          <dd className="font-semibold text-slate-600">{cv.city}, {t("الأردن")}</dd>
+                          <dd className="font-semibold text-slate-600">{displayCity}, {displayCountry}</dd>
                         </div>
                       )}
                       {cv.website && (
@@ -740,7 +749,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                         const lvl = Math.min(5, Math.max(1, Number(skill.level || 4)));
                         return (
                           <div key={`${skill.name}-${idx}`} className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-semibold leading-snug text-slate-600">{skill.name}</span>
+                            <span className="text-[9.5px] font-semibold leading-snug text-slate-600">{skill.name}</span>
                             <span className="flex shrink-0 items-center gap-[3px]" dir="ltr">
                               {[1, 2, 3, 4, 5].map((d) => (
                                 <span key={d} className={`h-[5px] w-[5px] rounded-full ${d <= lvl ? "bg-[#c0a368]" : "bg-[#e8e5dc]"}`} />
@@ -761,7 +770,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     <div className="space-y-1">
                       {pageCerts.map((cert, idx) => (
                         <div key={cert.id || `${cert.name}-${idx}`} className="rounded-md border border-[#efeee8] bg-white p-1.5">
-                          <p className="text-[9.6px] font-extrabold leading-snug text-slate-800">{cert.name}</p>
+                          <p className="text-[9.2px] font-extrabold leading-snug text-slate-800">{cert.name}</p>
                           <p className="mt-0.5 text-[8.5px] font-bold text-slate-400">{cert.issuer} {cert.year ? `/ ${cert.year}` : ""}</p>
                         </div>
                       ))}
@@ -776,7 +785,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
                     </h2>
                     <ul className="space-y-1">
                       {section.lines.slice(0, 5).map((line, idx) => (
-                        <li key={idx} className="flex gap-1.5 text-[9.4px] font-medium leading-[1.5] text-slate-500">
+                        <li key={idx} className="flex gap-1.5 text-[9px] font-medium leading-[1.35] text-slate-500">
                           <span className="mt-[3px] h-1 w-1 shrink-0 rounded-full bg-[#c0a368]" /> <span>{line}</span>
                         </li>
                       ))}

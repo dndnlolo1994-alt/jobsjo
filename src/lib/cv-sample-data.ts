@@ -96,7 +96,65 @@ export const cvSampleData = {
     },
   ],
   englishVersion: JSON.stringify({
+    fullName: "Sara Ahmad Nabulsi",
+    jobTitle: "Customer Service and Sales Specialist",
+    city: "Amman",
+    country: "Jordan",
+    summary:
+      "Customer service and sales specialist with over 4 years of experience in telecom and retail in Jordan. Skilled in client communication, request follow-up, problem solving, and improving customer experience through organized and fast service.",
+    experiences: [
+      {
+        position: "Customer Service Supervisor",
+        company: "Zain Jordan",
+        city: "Amman",
+        description:
+          "Managed customer requests and resolved service and package inquiries professionally.\nTrained new team members on communication standards and reduced response time through clearer follow-up workflows.",
+      },
+      {
+        position: "Showroom Sales Representative",
+        company: "SmartBuy Electronics",
+        city: "Amman",
+        description:
+          "Welcomed customers, explained products and services clearly, and helped them choose suitable solutions.\nMet monthly sales targets while maintaining a positive in-store customer experience.",
+      },
+      {
+        position: "Order Follow-up Coordinator",
+        company: "Local Services Company",
+        city: "Irbid",
+        description:
+          "Organized open customer requests, followed up with internal teams, and documented recurring notes to improve service quality.",
+      },
+    ],
+    educations: [
+      {
+        degree: "Bachelor's Degree in Business Administration",
+        institution: "The University of Jordan",
+        city: "Amman",
+        description: "Very good GPA with focus on sales management and consumer behavior.",
+      },
+    ],
+    skills: [
+      { name: "Customer Service and Communication", level: 5 },
+      { name: "Problem Solving and Conflict Resolution", level: 5 },
+      { name: "Sales and Persuasion Skills", level: 4 },
+      { name: "Time Management and Follow-up", level: 4 },
+      { name: "Microsoft Office", level: 4 },
+      { name: "Accurate Data Entry", level: 4 },
+      { name: "Team Collaboration", level: 5 },
+    ],
+    certifications: [
+      { name: "ICDL Computer Skills Certificate", issuer: "Accredited Training Center", year: "2021" },
+      { name: "Customer Service Excellence Course", issuer: "Professional Training Academy", year: "2022" },
+      { name: "CRM Fundamentals", issuer: "Professional Learning Platform", year: "2023" },
+    ],
     extras: {
+      languages: "Arabic: Native\nEnglish: Very good",
+      tools: "Microsoft Office\nGoogle Workspace\nCRM systems\nOrder tracking and follow-up",
+      achievements:
+        "Improved customer satisfaction through accurate follow-up\nCompleted tasks on time with low error rates\nContributed to improving customer communication quality",
+      references: "Available upon request",
+    },
+    arExtras: {
       languages: "العربية: ممتاز\nالإنجليزية: جيد جداً",
       tools: "Microsoft Office\nGoogle Workspace\nأنظمة خدمة العملاء CRM\nإدارة الطلبات والمتابعة",
       achievements:

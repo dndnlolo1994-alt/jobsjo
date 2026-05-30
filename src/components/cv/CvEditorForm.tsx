@@ -2,7 +2,8 @@
 
 import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { saveCvAction } from "@/lib/actions/platform";
+import { generateCvEnglishAction, saveCvAction } from "@/lib/actions/platform";
+import { getCvEnglishMissing, hasArabicText } from "@/lib/cv-english";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 const SUPPORT_PHONE_DISPLAY = "0790565018";
@@ -104,25 +105,31 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
       return {
         fullName: parsedEnglishVersion.fullName || "",
         jobTitle: parsedEnglishVersion.jobTitle || "",
+        city: parsedEnglishVersion.city || "",
+        country: parsedEnglishVersion.country || "Jordan",
         summary: parsedEnglishVersion.summary || "",
         experiences: parsedEnglishVersion.experiences || [],
         educations: parsedEnglishVersion.educations || [],
         skills: parsedEnglishVersion.skills || [],
         certifications: parsedEnglishVersion.certifications || [],
+        extras: parsedEnglishVersion.extras || {},
       };
     }
     return {
       fullName: "",
       jobTitle: "",
+      city: "",
+      country: "Jordan",
       summary: "",
       experiences: [],
       educations: [],
       skills: [],
-      certifications: []
+      certifications: [],
+      extras: {},
     };
   });
 
-  const [extraInfo, setExtraInfo] = useState<any>(() => parsedEnglishVersion?.extras ?? {
+  const [extraInfo, setExtraInfo] = useState<any>(() => parsedEnglishVersion?.arExtras ?? parsedEnglishVersion?.extras ?? {
     languages: "العربية: ممتاز\nالإنجليزية: جيد جداً",
     tools: "Microsoft Office\nGoogle Workspace\nأنظمة خدمة العملاء CRM",
     achievements: "تحسين رضا العملاء من خلال المتابعة الدقيقة\nإنجاز المهام ضمن الوقت المحدد وبأخطاء قليلة",
@@ -136,6 +143,8 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
   const [isPending, setIsPending] = useState(false);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationMessage, setTranslationMessage] = useState("");
 
   // Experience entry temp state
   const [tempExp, setTempExp] = useState({ position: "", company: "", city: "", startDate: "", endDate: "", description: "" });
@@ -146,84 +155,59 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
   // Cert temp state
   const [tempCert, setTempCert] = useState({ name: "", issuer: "", year: "" });
 
-  const handleAutoTranslate = () => {
-    const arName = (document.getElementsByName("fullName")[0] as HTMLInputElement)?.value || defaultFullName;
-    const arJobTitle = (document.getElementsByName("jobTitle")[0] as HTMLInputElement)?.value || "";
-    const arSummary = (document.getElementsByName("summary")[0] as HTMLInputElement)?.value || "";
+  const buildCvFormData = () => {
+    const formData = new FormData();
+    formData.append("fullName", fullName);
+    formData.append("jobTitle", jobTitle);
+    formData.append("email", email);
+    formData.append("phone", phone);
+    formData.append("city", city);
+    formData.append("website", website);
+    formData.append("linkedin", linkedin);
+    formData.append("summary", summary);
+    formData.append("photo", photo);
+    formData.append("template", template);
+    formData.append("experiencesJson", JSON.stringify(experiences));
+    formData.append("educationsJson", JSON.stringify(educations));
+    formData.append("skillsJson", JSON.stringify(skills));
+    formData.append("certificationsJson", JSON.stringify(certifications));
+    formData.append("englishVersion", JSON.stringify({ ...englishVersion, extras: englishVersion.extras || {}, arExtras: extraInfo }));
+    return formData;
+  };
 
-    const dict: Record<string, string> = {
-      "محمد": "Mohammad", "أحمد": "Ahmad", "عمر": "Omar", "سارة": "Sara", "خالد": "Khaled",
-      "محاسب": "Accountant", "مهندس": "Engineer", "برمجيات": "Software", "مطور": "Developer",
-      "كاشير": "Cashier", "مبيعات": "Sales", "خدمة عملاء": "Customer Service", "سائق": "Driver",
-      "معلم": "Teacher", "مدرس": "Teacher", "طبيب": "Doctor", "ممرض": "Nurse", "صيدلاني": "Pharmacist",
-      "مدير": "Manager", "أمين مستودع": "Warehouse Keeper", "طباخ": "Cook", "شيف": "Chef",
-      "عمان": "Amman", "عمّان": "Amman", "إربد": "Irbid", "اربد": "Irbid", "الزرقاء": "Zarqa",
-      "العقبة": "Aqaba", "السلط": "Salt", "مادبا": "Madaba", "الكرك": "Karak", "معان": "Ma'an",
-      "بكالوريوس": "Bachelor's Degree", "ماجستير": "Master's Degree", "دبلوم": "Diploma",
-      "ثانوية": "High School", "مدرسة": "School", "جامعة": "University", "كلية": "College",
-      "شركة": "Company", "البنك": "Bank", "بنك": "Bank", "مستشفى": "Hospital", "مركز": "Center"
-    };
+  const handleAutoTranslate = async () => {
+    if (isTranslating || isPending) return;
+    setIsTranslating(true);
+    setTranslationMessage("");
+    setMessage("يتم حفظ العربية أولاً ثم توليد نسخة English...");
+    setIsSuccess(false);
 
-    const translateText = (text: string) => {
-      if (!text) return "";
-      let t = text;
-      Object.keys(dict).forEach((key) => {
-        t = t.replace(new RegExp(key, "g"), dict[key]);
-      });
-      return t;
-    };
+    try {
+      const saveRes = await saveCvAction(null, buildCvFormData());
+      if (!saveRes.ok) {
+        setTranslationMessage(saveRes.message || "تعذر حفظ العربية قبل الترجمة.");
+        setIsSuccess(false);
+        return;
+      }
 
-    const translatedName = translateText(arName);
-    const translatedTitle = translateText(arJobTitle);
-    const translatedSummary = translateText(arSummary);
-
-    const translatedExps = experiences.map((exp, idx) => {
-      const existing = englishVersion.experiences?.[idx] || {};
-      return {
-        position: existing.position || translateText(exp.position),
-        company: existing.company || translateText(exp.company),
-        description: existing.description || (exp.description ? translateText(exp.description) : "")
-      };
-    });
-
-    const translatedEdus = educations.map((edu, idx) => {
-      const existing = englishVersion.educations?.[idx] || {};
-      return {
-        degree: existing.degree || translateText(edu.degree),
-        institution: existing.institution || translateText(edu.institution),
-        description: existing.description || (edu.description ? translateText(edu.description) : "")
-      };
-    });
-
-    const translatedSkills = skills.map((skill, idx) => {
-      const existing = englishVersion.skills?.[idx] || {};
-      return {
-        name: existing.name || translateText(skill.name),
-        level: existing.level || skill.level,
-      };
-    });
-
-    const translatedCerts = certifications.map((cert, idx) => {
-      const existing = englishVersion.certifications?.[idx] || {};
-      return {
-        name: existing.name || translateText(cert.name),
-        issuer: existing.issuer || translateText(cert.issuer || ""),
-        year: existing.year || cert.year,
-      };
-    });
-
-    setEnglishVersion({
-      ...englishVersion,
-      fullName: englishVersion.fullName || translatedName,
-      jobTitle: englishVersion.jobTitle || translatedTitle,
-      summary: englishVersion.summary || translatedSummary,
-      experiences: translatedExps,
-      educations: translatedEdus,
-      skills: translatedSkills,
-      certifications: translatedCerts,
-    });
-
-    alert("تم توليد ترجمة تقريبية للبيانات بالإنجليزية! يرجى مراجعة وتدقيق الاسم والمصطلحات وتصحيحها إذا وجد أي خطأ.");
+      const res = await generateCvEnglishAction();
+      if (res.ok && res.englishVersion) {
+        setEnglishVersion(res.englishVersion);
+        setTranslationMessage(res.message || "تم توليد النسخة الإنجليزية. راجعها ثم اضغط حفظ كامل السيرة.");
+        setMessage("تم توليد النسخة الإنجليزية. اضغط حفظ كامل السيرة لتثبيت أي تعديل يدوي.");
+        setIsSuccess(true);
+        router.refresh();
+      } else {
+        setTranslationMessage(res.message || "تعذر توليد الترجمة الذكية. يمكنك تعبئة English يدوياً.");
+        setIsSuccess(false);
+      }
+    } catch (error) {
+      console.error("English translation failed", error);
+      setTranslationMessage("تعذر توليد الترجمة الآن. يمكنك تعبئة English يدوياً ثم الحفظ.");
+      setIsSuccess(false);
+    } finally {
+      setIsTranslating(false);
+    }
   };
 
 
@@ -363,22 +347,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
     setMessage("");
     setIsSuccess(false);
 
-    const formData = new FormData();
-    formData.append("fullName", fullName);
-    formData.append("jobTitle", jobTitle);
-    formData.append("email", email);
-    formData.append("phone", phone);
-    formData.append("city", city);
-    formData.append("website", website);
-    formData.append("linkedin", linkedin);
-    formData.append("summary", summary);
-    formData.append("photo", photo);
-    formData.append("template", template);
-    formData.append("experiencesJson", JSON.stringify(experiences));
-    formData.append("educationsJson", JSON.stringify(educations));
-    formData.append("skillsJson", JSON.stringify(skills));
-    formData.append("certificationsJson", JSON.stringify(certifications));
-    formData.append("englishVersion", JSON.stringify({ ...englishVersion, extras: extraInfo }));
+    const formData = buildCvFormData();
 
     try {
       const timeoutResult = new Promise<{ ok: false; message: string }>((resolve) => {
@@ -404,6 +373,19 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
       setIsPending(false);
     }
   };
+
+  const englishMissing = getCvEnglishMissing(englishVersion, { experiences, educations, skills });
+  const englishHasArabic = hasArabicText(JSON.stringify({
+    fullName: englishVersion.fullName,
+    jobTitle: englishVersion.jobTitle,
+    city: englishVersion.city,
+    summary: englishVersion.summary,
+    experiences: englishVersion.experiences,
+    educations: englishVersion.educations,
+    skills: englishVersion.skills,
+    certifications: englishVersion.certifications,
+    extras: englishVersion.extras,
+  }));
 
   const tabs = [
     { id: "basic", name: "البيانات الأساسية", icon: "👤" },
@@ -1911,10 +1893,30 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
               <button
                 type="button"
                 onClick={handleAutoTranslate}
-                className="px-4 py-2 bg-navy-800 hover:bg-navy-900 text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
+                disabled={isTranslating || isPending}
+                className="px-4 py-2 bg-navy-800 hover:bg-navy-900 disabled:opacity-60 text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
               >
-                🌐 توليد ترجمة تلقائية ذكية
+                {isTranslating ? "جاري الترجمة..." : "🌐 توليد/تحديث الترجمة"}
               </button>
+            </div>
+
+            <div className={`rounded-xl border p-4 text-xs leading-6 ${
+              englishMissing.length === 0 && !englishHasArabic
+                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                : "border-amber-200 bg-amber-50 text-amber-900"
+            }`}>
+              <strong>{englishMissing.length === 0 && !englishHasArabic ? "نسخة English جاهزة للمعاينة والتنزيل." : "النسخة الإنجليزية تحتاج مراجعة."}</strong>
+              {englishHasArabic && <p className="mt-1">يوجد نص عربي داخل حقول English. لن يظهر داخل PDF الإنجليزي، لكن الأفضل تعديله هنا.</p>}
+              {englishMissing.length > 0 && (
+                <p className="mt-1">حقول ناقصة: {englishMissing.slice(0, 10).join(", ")}{englishMissing.length > 10 ? "..." : ""}</p>
+              )}
+              {translationMessage && <p className="mt-1 font-bold">{translationMessage}</p>}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a className="btn-outline text-[11px] py-1.5 px-3" href="/me/cv/preview?lang=ar" target="_blank">معاينة عربي</a>
+                <a className="btn-outline text-[11px] py-1.5 px-3" href="/me/cv/preview?lang=en" target="_blank">English preview</a>
+                <a className="btn-primary text-[11px] py-1.5 px-3" href="/me/cv/download?lang=ar" target="_blank">تنزيل عربي</a>
+                <a className="btn-primary text-[11px] py-1.5 px-3" href="/me/cv/download?lang=en" target="_blank">Download English</a>
+              </div>
             </div>
             
             <div className="grid sm:grid-cols-2 gap-4">
@@ -1934,6 +1936,24 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                   value={englishVersion.jobTitle || ""}
                   onChange={(e) => setEnglishVersion({ ...englishVersion, jobTitle: e.target.value })}
                   placeholder="e.g. Software Engineer / Accountant"
+                />
+              </div>
+              <div>
+                <label className="label text-xs font-bold text-[#8b7340]">المدينة بالإنجليزية (City)</label>
+                <input
+                  className="input text-sm border-[#c0a368]/30"
+                  value={englishVersion.city || ""}
+                  onChange={(e) => setEnglishVersion({ ...englishVersion, city: e.target.value })}
+                  placeholder="e.g. Amman / Irbid"
+                />
+              </div>
+              <div>
+                <label className="label text-xs font-bold text-[#8b7340]">الدولة بالإنجليزية (Country)</label>
+                <input
+                  className="input text-sm border-[#c0a368]/30"
+                  value={englishVersion.country || "Jordan"}
+                  onChange={(e) => setEnglishVersion({ ...englishVersion, country: e.target.value })}
+                  placeholder="Jordan"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -1967,7 +1987,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                               value={engExp.position || ""}
                               onChange={(e) => {
                                 const newExps = [...(englishVersion.experiences || [])];
-                                newExps[idx] = { ...engExp, position: e.target.value, company: engExp.company || exp.company };
+                                newExps[idx] = { ...engExp, position: e.target.value };
                                 setEnglishVersion({ ...englishVersion, experiences: newExps });
                               }}
                               placeholder="Position in English"
@@ -1980,10 +2000,23 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                               value={engExp.company || ""}
                               onChange={(e) => {
                                 const newExps = [...(englishVersion.experiences || [])];
-                                newExps[idx] = { ...engExp, company: e.target.value, position: engExp.position || exp.position };
+                                newExps[idx] = { ...engExp, company: e.target.value };
                                 setEnglishVersion({ ...englishVersion, experiences: newExps });
                               }}
                               placeholder="Company in English"
+                            />
+                          </div>
+                          <div>
+                            <label className="label text-xs text-[color:var(--muted)]">المدينة بالإنجليزية (City)</label>
+                            <input
+                              className="input text-xs"
+                              value={engExp.city || ""}
+                              onChange={(e) => {
+                                const newExps = [...(englishVersion.experiences || [])];
+                                newExps[idx] = { ...engExp, city: e.target.value };
+                                setEnglishVersion({ ...englishVersion, experiences: newExps });
+                              }}
+                              placeholder="City in English"
                             />
                           </div>
                           <div className="sm:col-span-2">
@@ -2027,7 +2060,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                               value={engEdu.degree || ""}
                               onChange={(e) => {
                                 const newEdus = [...(englishVersion.educations || [])];
-                                newEdus[idx] = { ...engEdu, degree: e.target.value, institution: engEdu.institution || edu.institution };
+                                newEdus[idx] = { ...engEdu, degree: e.target.value };
                                 setEnglishVersion({ ...englishVersion, educations: newEdus });
                               }}
                               placeholder="Degree in English"
@@ -2040,10 +2073,23 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                               value={engEdu.institution || ""}
                               onChange={(e) => {
                                 const newEdus = [...(englishVersion.educations || [])];
-                                newEdus[idx] = { ...engEdu, institution: e.target.value, degree: engEdu.degree || edu.degree };
+                                newEdus[idx] = { ...engEdu, institution: e.target.value };
                                 setEnglishVersion({ ...englishVersion, educations: newEdus });
                               }}
                               placeholder="Institution in English"
+                            />
+                          </div>
+                          <div>
+                            <label className="label text-xs text-[color:var(--muted)]">المدينة بالإنجليزية (City)</label>
+                            <input
+                              className="input text-xs"
+                              value={engEdu.city || ""}
+                              onChange={(e) => {
+                                const newEdus = [...(englishVersion.educations || [])];
+                                newEdus[idx] = { ...engEdu, city: e.target.value };
+                                setEnglishVersion({ ...englishVersion, educations: newEdus });
+                              }}
+                              placeholder="City in English"
                             />
                           </div>
                         </div>
@@ -2097,7 +2143,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                             value={engCert.name || ""}
                             onChange={(e) => {
                               const newCerts = [...(englishVersion.certifications || [])];
-                              newCerts[idx] = { ...engCert, name: e.target.value, issuer: engCert.issuer || cert.issuer, year: cert.year };
+                              newCerts[idx] = { ...engCert, name: e.target.value, year: cert.year };
                               setEnglishVersion({ ...englishVersion, certifications: newCerts });
                             }}
                             placeholder="Certificate name in English"
@@ -2107,7 +2153,7 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                             value={engCert.issuer || ""}
                             onChange={(e) => {
                               const newCerts = [...(englishVersion.certifications || [])];
-                              newCerts[idx] = { ...engCert, issuer: e.target.value, name: engCert.name || cert.name, year: cert.year };
+                              newCerts[idx] = { ...engCert, issuer: e.target.value, year: cert.year };
                               setEnglishVersion({ ...englishVersion, certifications: newCerts });
                             }}
                             placeholder="Issuer in English"
@@ -2119,6 +2165,36 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
                 </div>
               </div>
             )}
+
+            <div className="space-y-4 pt-4 border-t border-navy-50">
+              <h4 className="font-bold text-navy-900 text-sm">معلومات إضافية بالإنجليزية (Sidebar extras)</h4>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {[
+                  ["languages", "Languages", "Arabic: Native\nEnglish: Very good"],
+                  ["tools", "Tools", "Microsoft Office\nGoogle Workspace\nCRM systems"],
+                  ["achievements", "Achievements", "Improved customer satisfaction through accurate follow-up"],
+                  ["projects", "Projects", "Customer request tracking dashboard"],
+                  ["volunteer", "Volunteer Work", "Volunteer customer support coordinator"],
+                  ["interests", "Professional Interests", "Sales operations\nCustomer experience"],
+                  ["references", "References", "Available upon request"],
+                ].map(([key, label, placeholder]) => (
+                  <div key={key} className={key === "references" ? "sm:col-span-2" : ""}>
+                    <label className="label text-xs text-[color:var(--muted)]">{label}</label>
+                    <textarea
+                      className="input text-xs min-h-20"
+                      value={englishVersion.extras?.[key] || ""}
+                      onChange={(e) =>
+                        setEnglishVersion({
+                          ...englishVersion,
+                          extras: { ...(englishVersion.extras || {}), [key]: e.target.value },
+                        })
+                      }
+                      placeholder={placeholder}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
