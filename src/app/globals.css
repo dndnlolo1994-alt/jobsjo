@@ -501,6 +501,51 @@ h1, h2, h3, h4, h5, h6 {
   top: 0;
 }
 
+/* ================================================================
+   DARK-MODE READABILITY SAFETY NET
+   The UI was authored light-first using hardcoded `navy` utilities.
+   In OS dark mode those stay dark-on-dark and become unreadable.
+   Remap navy text/background/border utilities to readable values
+   everywhere EXCEPT the printable CV (.cv-print), which always
+   renders on white paper and must keep its original dark ink.
+   ================================================================ */
+@media (prefers-color-scheme: dark) {
+  .text-navy-400 { color: #8b93a4; }
+  .text-navy-500 { color: #aab2c0; }
+  .text-navy-600 { color: #b9c1cd; }
+  .text-navy-700 { color: #d6dae3; }
+  .text-navy-800 { color: #e6e8ee; }
+  .text-navy-900 { color: #eef0f4; }
+  .text-navy-950 { color: #f4f5f8; }
+
+  .bg-navy-50, .bg-navy-100, .bg-navy-200 { background-color: rgba(255, 255, 255, 0.045); }
+  .bg-navy-50\/30, .bg-navy-50\/70 { background-color: rgba(255, 255, 255, 0.035); }
+  .hover\:bg-navy-50:hover,
+  .hover\:bg-navy-100:hover,
+  .hover\:bg-navy-100\/50:hover { background-color: rgba(255, 255, 255, 0.08); }
+  .hover\:text-navy-700:hover,
+  .hover\:text-navy-950:hover { color: #ffffff; }
+
+  .border-navy-100,
+  .border-navy-150,
+  .border-navy-200,
+  .border-navy-300 { border-color: rgba(255, 255, 255, 0.10); }
+
+  /* Restore the exact navy palette for the printable/preview CV */
+  .cv-print .text-navy-400, .cv-print.text-navy-400 { color: #506e93; }
+  .cv-print .text-navy-500, .cv-print.text-navy-500 { color: #324c70; }
+  .cv-print .text-navy-600, .cv-print.text-navy-600 { color: #243a57; }
+  .cv-print .text-navy-700, .cv-print.text-navy-700 { color: #1a2c43; }
+  .cv-print .text-navy-800, .cv-print.text-navy-800 { color: #121f30; }
+  .cv-print .text-navy-900, .cv-print.text-navy-900 { color: #0a1320; }
+  .cv-print .text-navy-950, .cv-print.text-navy-950 { color: #060c17; }
+  .cv-print .bg-navy-50, .cv-print.bg-navy-50 { background-color: #f1f4f9; }
+  .cv-print .bg-navy-100 { background-color: #dce4ee; }
+  .cv-print .border-navy-100,
+  .cv-print .border-navy-200,
+  .cv-print .border-navy-300 { border-color: #dce4ee; }
+}
+
 /* Reduced Motion preferences */
 @media (prefers-reduced-motion: reduce) {
   html {
