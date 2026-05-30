@@ -55,7 +55,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   // Generate QR Code dynamically, pointing to the real public verification page.
   const siteBase = env.SITE_URL.replace(/\/$/, "");
   const verifyId = cv.userId || cv.id;
-  const hasPublicQr = Boolean(cv.qrEnabled && (isPlus || cv.paymentStatus === "PAID" || cv.paymentStatus === "WAIVED"));
+  const hasPublicQr = cv.qrEnabled !== false;
   const verifyUrl = `${siteBase}/cv/${verifyId}`;
   const verifyLabel = `${siteBase.replace(/^https?:\/\//, "")}/cv`;
   let qrCodeDataUrl = "";
@@ -131,6 +131,13 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   }
 
   const extras = parsedVersion?.extras ?? {};
+  const clampText = (value: unknown, max = 650) => {
+    const text = String(value || "").trim();
+    return text.length > max ? `${text.slice(0, max).trim()}...` : text;
+  };
+  summary = clampText(summary, 760);
+  experiences = (experiences ?? []).map((item: any) => ({ ...item, description: clampText(item.description, 430) }));
+  educations = (educations ?? []).map((item: any) => ({ ...item, description: clampText(item.description, 220) }));
   const toLines = (value?: string | null) =>
     String(value || "")
       .split(/\r?\n/)
@@ -569,7 +576,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
     return (
       <div
-        className="cv-print mx-auto mb-8 flex h-[1123px] max-h-[1123px] min-h-[1123px] max-w-[794px] flex-col overflow-hidden border border-[#eeede7] bg-[#fdfcfa] text-slate-700 shadow-card"
+        className="cv-print mx-auto mb-8 flex min-h-[1123px] w-[794px] max-w-none flex-col border border-[#eeede7] bg-[#fdfcfa] text-slate-700 shadow-card"
         dir={isEn ? "ltr" : "rtl"}
         key={pageNum}
       >
@@ -593,8 +600,8 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
             )}
           </div>
 
-          <div className="grid flex-1 grid-cols-[1fr_228px] gap-7 overflow-hidden">
-            <main className="min-w-0 overflow-hidden">
+          <div className="grid flex-1 grid-cols-[1fr_218px] gap-6">
+            <main className="min-w-0">
               <div className="space-y-5">
                 {showSummary && summary && (
                   <section className="break-inside-avoid">
@@ -671,7 +678,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               </div>
             </main>
 
-            <aside className="flex flex-col overflow-hidden border-s border-[#edece6] ps-6">
+            <aside className="flex flex-col border-s border-[#edece6] ps-5">
               <div className="flex-1 space-y-4">
                 {pageNum === 1 && (
                   <section className="break-inside-avoid">

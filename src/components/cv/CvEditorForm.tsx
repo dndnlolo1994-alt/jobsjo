@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { saveCvAction } from "@/lib/actions/platform";
 import { WHATSAPP_NUMBER } from "@/lib/constants";
 
@@ -19,6 +20,7 @@ interface CvEditorFormProps {
 }
 
 export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false, billingStatus = "UNPAID", isPlus = false, siteUrl = "" }: CvEditorFormProps) {
+  const router = useRouter();
   // QR points to the real public verification page on the live domain.
   const qrBase = (siteUrl || "").replace(/\/$/, "");
   const qrVerifyId = cv?.userId || cv?.id || "verify";
@@ -343,10 +345,16 @@ export function CvEditorForm({ cv, defaultEmail, defaultFullName, isPaid = false
     formData.append("englishVersion", JSON.stringify({ ...englishVersion, extras: extraInfo }));
 
     try {
-      const res = await saveCvAction(null, formData);
+      const timeoutResult = new Promise<{ ok: false; message: string }>((resolve) => {
+        window.setTimeout(() => {
+          resolve({ ok: false, message: "الحفظ أخذ وقتاً أطول من المعتاد. جرّب مرة أخرى، وإذا بقيت المشكلة تواصل معنا عبر واتساب." });
+        }, 25000);
+      });
+      const res = await Promise.race([saveCvAction(null, formData), timeoutResult]);
       if (res.ok) {
         setIsSuccess(true);
-        setMessage(res.message || "تم حفظ السيرة الذاتية بنجاح");
+        setMessage(res.message || "تم حفظ السيرة الذاتية بنجاح. يمكنك فتح المعاينة الآن.");
+        router.refresh();
         setTimeout(() => setIsSuccess(false), 4000);
       } else {
         setIsSuccess(false);

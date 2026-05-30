@@ -46,7 +46,9 @@ export default async function CvDownloadPage({ searchParams }: { searchParams: P
         </div>
         <PrintButton />
       </div>
-      <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} isPlus={seeker?.plan === "PLUS"} />
+      <div className="overflow-x-auto pb-4">
+        <CvPreview cv={cv} userSkills={fromCsv(seeker?.skills)} lang={lang} isPlus={seeker?.plan === "PLUS"} />
+      </div>
     </section>
   );
 }
