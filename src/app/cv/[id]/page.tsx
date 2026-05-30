@@ -101,8 +101,8 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
           {/* Cover Accent Gradient */}
           <div className="h-32 md:h-40 w-full relative" style={{ background: "var(--gradient-hero)" }}>
             <div className="absolute right-6 top-6">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-full shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8b7340] bg-[#f8f5ec] border border-[#e0d9c5] px-3.5 py-1.5 rounded-full shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-[#c0a368] animate-pulse" />
                 {isVerifiedPublicCv ? "سيرة موثّقة ومفعلة" : "معاينة خاصة بصاحب الحساب"}
               </span>
             </div>
@@ -135,9 +135,9 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
           </div>
 
           <div className="px-6 md:px-10 pb-5 grid sm:grid-cols-3 gap-3">
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-3 text-center">
-              <span className="block text-[11px] text-emerald-700 font-bold">حالة الصفحة</span>
-              <strong className="text-sm text-emerald-900">{isVerifiedPublicCv ? "مفعلة عبر QR" : "معاينة خاصة"}</strong>
+            <div className="rounded-2xl border border-[#e0d9c5] bg-[#f8f5ec]/50 p-3 text-center">
+              <span className="block text-[11px] text-[#8b7340] font-bold">حالة الصفحة</span>
+              <strong className="text-sm text-[#6b5a30]">{isVerifiedPublicCv ? "مفعلة عبر QR" : "معاينة خاصة"}</strong>
             </div>
             <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-3 text-center">
               <span className="block text-[11px] text-blue-700 font-bold">قابلية التحديث</span>
@@ -360,7 +360,7 @@ export default async function CvVerifyPage({ params }: { params: Promise<{ id: s
         {/* ── Verification Stamp Footer ── */}
         <div className="mt-12 text-center text-xs text-gray-400 space-y-2 border-t border-gray-200/50 dark:border-gray-800/50 pt-6">
           <div className="flex items-center justify-center gap-1.5">
-            <span className="text-base text-emerald-500">🛡️</span>
+            <span className="text-base text-[#c0a368]">🛡️</span>
             <span className="font-bold text-gray-500 dark:text-gray-400">تحقق رقمي موثق</span>
           </div>
           <p className="max-w-md mx-auto leading-relaxed">

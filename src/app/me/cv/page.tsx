@@ -36,10 +36,10 @@ export default async function MyCvPage() {
       <p className="section-sub">اكتب بياناتك، خبراتك، تعليمك، مهاراتك، ارفع صورتك، واختر القالب المناسب لتنزيلها PDF.</p>
 
       {isPlus && (
-        <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 shadow-sm">
+        <div className="mb-6 rounded-2xl border border-[#e0d9c5] bg-[#f8f5ec]/70 p-4 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="inline-flex items-center rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-extrabold text-emerald-800">
+              <div className="inline-flex items-center rounded-full border border-[#e0d9c5] bg-white px-3 py-1 text-xs font-extrabold text-[#8b7340]">
                 Plus مفعل{plusUntil ? ` حتى ${plusUntil}` : ""}
               </div>
               <h2 className="mt-2 text-lg font-extrabold text-navy-950">صفحتك التعريفية والـ CV جاهزين للتعديل بأي لحظة</h2>
@@ -62,7 +62,7 @@ export default async function MyCvPage() {
           <div>
             <h2 className="font-bold text-navy-900 text-sm">تنزيل السيرة الذاتية PDF</h2>
             <p className="text-xs text-navy-500 mt-1">
-              حالة الرسوم: <strong className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">{BILLING_STATUS_LABEL[billing.status]}</strong>
+              حالة الرسوم: <strong className="text-[#8b7340] bg-[#f8f5ec] px-2 py-0.5 rounded">{BILLING_STATUS_LABEL[billing.status]}</strong>
             </p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -78,7 +78,7 @@ export default async function MyCvPage() {
             <h2 className="font-bold text-navy-900 text-lg">تنزيل PDF</h2>
             <p className="mt-2 text-sm text-navy-600 leading-6">
               رسوم تنزيل السيرة الذاتية الاحترافية بصيغة PDF هي 2 دينار أردني.
-              الحالة الحالية: <strong className="text-emerald-700 bg-emerald-50 px-2 py-1 rounded">{BILLING_STATUS_LABEL[billing.status]}</strong>
+              الحالة الحالية: <strong className="text-[#8b7340] bg-[#f8f5ec] px-2 py-1 rounded">{BILLING_STATUS_LABEL[billing.status]}</strong>
             </p>
             <div className="grid gap-2 mt-5">
               <Link className="btn-outline text-sm" href="/me/cv/preview?lang=ar">👁 معاينة عربي</Link>
