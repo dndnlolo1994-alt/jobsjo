@@ -32,6 +32,10 @@ export async function sendApplicationConfirmation(opts: SeekerEmailOptions) {
   const typeStr = JOB_TYPE_LABEL[opts.jobType] || opts.jobType;
   const salaryStr = opts.salary || "غير محدد / طبقاً للمقابلة";
   const boardUrl = `${env.SITE_URL}/me/applications/board`;
+  const contactEmail = env.COMPANY_EMAIL || env.CONTACT_EMAIL || emailSignature.email;
+  const whatsapp = env.PLATFORM_WHATSAPP || emailSignature.whatsapp;
+  const whatsappDisplay = whatsapp === emailSignature.whatsapp ? emailSignature.phoneDisplay : `+${whatsapp}`;
+  const whatsappUrl = `https://wa.me/${whatsapp}`;
 
   const subject = `تم استلام طلبك — ${opts.jobTitle} في ${opts.companyName}`;
 
@@ -99,6 +103,11 @@ export async function sendApplicationConfirmation(opts: SeekerEmailOptions) {
           <p style="margin: 0;">هذا إشعار تلقائي لتأكيد استلام طلبك. الرجاء عدم الرد على هذه الرسالة.</p>
           <p style="margin: 4px 0 0 0;">جوبز الأردن — منصة التوظيف المحلية الموثوقة وباني السيرة الذاتية مجاناً.</p>
           <p style="margin: 8px 0 0 0; color:#334155;">${emailSignature.name} — ${emailSignature.title}</p>
+          <p style="margin: 4px 0 0 0;">
+            <a href="mailto:${contactEmail}" style="color:#059669;text-decoration:none;font-weight:bold;">${contactEmail}</a>
+            <span style="color:#94a3b8;"> | </span>
+            <a href="${whatsappUrl}" style="color:#059669;text-decoration:none;font-weight:bold;" dir="ltr">${whatsappDisplay}</a>
+          </p>
           <p style="margin: 4px 0 0 0;"><a href="${env.SITE_URL}" style="color: #059669; text-decoration: none; font-weight: bold;">www.jordan-job.shop</a></p>
         </div>
       </div>
@@ -143,6 +152,10 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
   const notifier = getNotifier();
   const dateStr = formatDateArabic(opts.appliedAt);
   const siteUrl = env.SITE_URL;
+  const contactEmail = env.COMPANY_EMAIL || env.CONTACT_EMAIL || emailSignature.email;
+  const whatsapp = env.PLATFORM_WHATSAPP || emailSignature.whatsapp;
+  const whatsappDisplay = whatsapp === emailSignature.whatsapp ? emailSignature.phoneDisplay : `+${whatsapp}`;
+  const whatsappUrl = `https://wa.me/${whatsapp}`;
 
   const subject = `⚡ متقدم جديد على وظيفة "${opts.jobTitle}" — جوبز الأردن`;
 
@@ -276,7 +289,9 @@ export async function sendNewApplicationAlert(opts: EmployerEmailOptions) {
       <div style="font-size:16px;font-weight:900;color:#ffffff;margin-bottom:6px;">جوبز الأردن</div>
       <div style="font-size:11px;color:#64748b;line-height:1.7;">
         هذا إشعار تلقائي أُرسل من منصة جوبز الأردن بإشراف ${emailSignature.name} — ${emailSignature.title}. للتواصل أو الاستفسار:
-        <a href="mailto:info@jordan-job.shop" style="color:#4F79FF;text-decoration:none;">info@jordan-job.shop</a>
+        <a href="mailto:${contactEmail}" style="color:#4F79FF;text-decoration:none;font-weight:bold;">${contactEmail}</a>
+        &nbsp;|&nbsp;
+        <a href="${whatsappUrl}" style="color:#4F79FF;text-decoration:none;font-weight:bold;" dir="ltr">${whatsappDisplay}</a>
         <br/>
         <a href="${siteUrl}" style="color:#4F79FF;text-decoration:none;font-weight:bold;">www.jordan-job.shop</a>
         &nbsp;·&nbsp; جميع الحقوق محفوظة © 2026

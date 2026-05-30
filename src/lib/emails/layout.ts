@@ -4,6 +4,8 @@ export const emailSignature = {
   name: "محمد الشمايلة",
   title: "صاحب منصة Jordan Jobs / وظائف الأردن",
   email: "info@jordan-job.shop",
+  phoneDisplay: "+962 79 056 5018",
+  whatsapp: "962790565018",
 };
 
 type BrandedEmailOptions = {
@@ -17,6 +19,10 @@ type BrandedEmailOptions = {
 
 export function brandedEmailLayout({ preheader, title, subtitle, bodyHtml, ctaLabel, ctaHref }: BrandedEmailOptions) {
   const siteUrl = env.SITE_URL;
+  const contactEmail = env.COMPANY_EMAIL || env.CONTACT_EMAIL || emailSignature.email;
+  const whatsapp = env.PLATFORM_WHATSAPP || emailSignature.whatsapp;
+  const whatsappDisplay = whatsapp === emailSignature.whatsapp ? emailSignature.phoneDisplay : `+${whatsapp}`;
+  const whatsappUrl = `https://wa.me/${whatsapp}`;
 
   return `<!doctype html>
 <html lang="ar" dir="rtl">
@@ -45,15 +51,30 @@ export function brandedEmailLayout({ preheader, title, subtitle, bodyHtml, ctaLa
           ` : ""}
         </div>
 
-        <div style="border-top:1px solid #e5e7eb;background:#f8fafc;padding:22px 28px;">
-          <div style="font-size:13px;color:#334155;line-height:1.8;">
-            مع الاحترام،<br />
-            <strong style="font-size:15px;color:#0f172a;">${emailSignature.name}</strong><br />
-            <span style="color:#64748b;">${emailSignature.title}</span><br />
-            <a href="mailto:${emailSignature.email}" style="color:#1B4FDB;text-decoration:none;font-weight:800;">${emailSignature.email}</a>
-            <span style="color:#94a3b8;"> | </span>
-            <a href="${siteUrl}" style="color:#1B4FDB;text-decoration:none;font-weight:800;">www.jordan-job.shop</a>
+        <div style="border-top:1px solid #e5e7eb;background:#f8fafc;padding:24px 28px;">
+          <div style="border:1px solid #e0d9c5;border-radius:18px;background:#ffffff;padding:18px;">
+            <div style="font-size:12px;font-weight:900;color:#8b7340;letter-spacing:.2px;margin-bottom:8px;">تواصل رسمي من إدارة وظائف الأردن</div>
+            <div style="font-size:15px;color:#0f172a;line-height:1.8;">
+              مع الاحترام،<br />
+              <strong style="font-size:18px;color:#0f172a;">${emailSignature.name}</strong><br />
+              <span style="color:#475569;font-weight:700;">${emailSignature.title}</span>
+            </div>
+            <div style="margin-top:14px;border-top:1px solid #eef2f7;padding-top:14px;display:block;font-size:13px;line-height:2;">
+              <div>
+                <span style="display:inline-block;min-width:86px;color:#64748b;font-weight:800;">الإيميل:</span>
+                <a href="mailto:${contactEmail}" style="color:#1B4FDB;text-decoration:none;font-weight:900;">${contactEmail}</a>
+              </div>
+              <div>
+                <span style="display:inline-block;min-width:86px;color:#64748b;font-weight:800;">واتساب:</span>
+                <a href="${whatsappUrl}" style="color:#047857;text-decoration:none;font-weight:900;" dir="ltr">${whatsappDisplay}</a>
+              </div>
+              <div>
+                <span style="display:inline-block;min-width:86px;color:#64748b;font-weight:800;">الموقع:</span>
+                <a href="${siteUrl}" style="color:#1B4FDB;text-decoration:none;font-weight:900;">www.jordan-job.shop</a>
+              </div>
+            </div>
           </div>
+          <p style="margin:14px 0 0;text-align:center;color:#94a3b8;font-size:11px;line-height:1.7;">هذه رسالة رسمية من منصة وظائف الأردن. إذا احتجت مساعدة، تواصل معنا عبر الإيميل أو واتساب أعلاه.</p>
         </div>
       </div>
     </div>
