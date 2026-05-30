@@ -185,7 +185,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               <img src={cv.photo} alt={fullName} className="w-20 h-20 rounded-lg object-cover border border-slate-300" />
             )}
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900">{fullName}</h1>
+              <h1 className="text-3xl font-bold text-slate-900">{fullName}</h1>
               <p className="text-lg text-slate-600 font-medium mt-1">{jobTitle || t("باحث عن عمل")}</p>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
                 {cv.email && <span>{cv.email}</span>}
@@ -207,14 +207,14 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
         {summary && (
           <section className="mb-6">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1 mb-2">{t("النبذة المهنية")}</h2>
+            <h2 className="text-sm font-bold uppercase text-slate-800 border-b border-slate-200 pb-1 mb-2">{t("النبذة المهنية")}</h2>
             <p className="text-xs text-slate-700 leading-6">{summary}</p>
           </section>
         )}
 
         {experiences?.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1 mb-3">{t("الخبرات العملية")}</h2>
+            <h2 className="text-sm font-bold uppercase text-slate-800 border-b border-slate-200 pb-1 mb-3">{t("الخبرات العملية")}</h2>
             <div className="space-y-4">
               {experiences.map((e: any) => (
                 <div key={e.id} className="break-inside-avoid">
@@ -232,7 +232,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
         {educations?.length > 0 && (
           <section className="mb-6">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1 mb-3">{t("التعليم والدراسة")}</h2>
+            <h2 className="text-sm font-bold uppercase text-slate-800 border-b border-slate-200 pb-1 mb-3">{t("التعليم والدراسة")}</h2>
             <div className="space-y-3">
               {educations.map((e: any) => (
                 <div key={e.id} className="break-inside-avoid">
@@ -251,7 +251,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
         <div className="grid grid-cols-2 gap-6">
           {allSkills.length > 0 && (
             <section className="break-inside-avoid">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1 mb-2">{t("المهارات")}</h2>
+              <h2 className="text-sm font-bold uppercase text-slate-800 border-b border-slate-200 pb-1 mb-2">{t("المهارات")}</h2>
               <div className="flex flex-wrap gap-1.5">
                 {allSkills.map((s) => (
                   <span className="px-2 py-1 rounded bg-slate-100 text-[10px] font-semibold text-slate-700" key={s}>{s}</span>
@@ -262,7 +262,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
           {certifications?.length > 0 && (
             <section className="break-inside-avoid">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1 mb-2">{t("الشهادات والدورات")}</h2>
+              <h2 className="text-sm font-bold uppercase text-slate-800 border-b border-slate-200 pb-1 mb-2">{t("الشهادات والدورات")}</h2>
               <div className="space-y-2">
                 {certifications.map((c: any) => (
                   <div key={c.id} className="text-xs">
@@ -406,7 +406,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               <div className="w-24 h-24 rounded-full bg-white border-2 border-amber-500 shadow" />
             ))}
             <div className="text-center sm:text-right">
-              <h1 className="text-3xl font-extrabold tracking-wide text-amber-500">{fullName}</h1>
+              <h1 className="text-3xl font-extrabold text-amber-500">{fullName}</h1>
               <p className="text-lg text-slate-300 font-semibold mt-1">{jobTitle || t("باحث عن عمل")}</p>
               <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-slate-400 mt-3">
                 {cv.phone && <span>📞 {formatJordanPhoneDisplay(cv.phone)}</span>}
@@ -428,7 +428,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
         <div className="p-8 space-y-6">
           {summary && (
             <section className="break-inside-avoid">
-              <h2 className="text-sm font-extrabold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <h2 className="text-sm font-extrabold text-amber-700 uppercase mb-2 flex items-center gap-2">
                 <span>✦</span> {t("الملخص التنفيذي")}
               </h2>
               <p className="text-xs text-slate-700 leading-6">{summary}</p>
@@ -439,7 +439,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
             <div className="space-y-6">
               {experiences?.length > 0 && (
                 <section>
-                  <h2 className="text-sm font-extrabold text-amber-700 uppercase tracking-wider border-b-2 border-amber-200 pb-1 mb-3 flex items-center gap-2">
+                  <h2 className="text-sm font-extrabold text-amber-700 uppercase border-b-2 border-amber-200 pb-1 mb-3 flex items-center gap-2">
                     <span>✦</span> {t("الخبرة المهنية")}
                   </h2>
                   <div className="space-y-4">
@@ -459,7 +459,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
               {educations?.length > 0 && (
                 <section>
-                  <h2 className="text-sm font-extrabold text-amber-700 uppercase tracking-wider border-b-2 border-amber-200 pb-1 mb-3 flex items-center gap-2">
+                  <h2 className="text-sm font-extrabold text-amber-700 uppercase border-b-2 border-amber-200 pb-1 mb-3 flex items-center gap-2">
                     <span>✦</span> {t("التعليم والمؤهلات")}
                   </h2>
                   <div className="space-y-3">
@@ -480,7 +480,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
             <div className="space-y-6">
               {allSkills.length > 0 && (
                 <section className="break-inside-avoid">
-                  <h2 className="text-sm font-extrabold text-amber-700 uppercase tracking-wider border-b-2 border-amber-200 pb-1 mb-2">{t("المهارات")}</h2>
+                  <h2 className="text-sm font-extrabold text-amber-700 uppercase border-b-2 border-amber-200 pb-1 mb-2">{t("المهارات")}</h2>
                   <div className="flex flex-wrap gap-1">
                     {allSkills.map((s) => (
                       <span className="px-2 py-1 rounded bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-700" key={s}>{s}</span>
@@ -491,7 +491,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
               {certifications?.length > 0 && (
                 <section className="break-inside-avoid">
-                  <h2 className="text-sm font-extrabold text-amber-700 uppercase tracking-wider border-b-2 border-amber-200 pb-1 mb-2">{t("الشهادات")}</h2>
+                  <h2 className="text-sm font-extrabold text-amber-700 uppercase border-b-2 border-amber-200 pb-1 mb-2">{t("الشهادات")}</h2>
                   <div className="space-y-2">
                     {certifications.map((c: any) => (
                       <div key={c.id} className="text-xs">
@@ -510,10 +510,13 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
   }
 
   // Default Template: Modern Emerald
-  const skillsWithLevels = [
-    ...(skills ?? []).map((s: any) => ({ name: s.name || s, level: s.level || 4 })),
-    ...userSkills.map((s: any) => ({ name: s, level: 4 }))
+  const skillItems = [
+    ...(skills ?? []).map((s: any) => ({ name: String(s.name || s).trim(), level: s.level || 4 })),
+    ...userSkills.map((s: any) => ({ name: String(s).trim(), level: 4 }))
   ].filter(s => s.name);
+  const skillsWithLevels = Array.from(
+    new Map(skillItems.map((s) => [s.name.toLowerCase(), s])).values()
+  );
 
   const cvTextLength = [
     summary,
@@ -576,7 +579,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     const SectionTitle = ({ title }: { title: string }) => (
       <div className="mb-3 flex items-center gap-2.5">
         <span className="h-[2px] w-5 shrink-0 rounded-full bg-[#c0a368]" />
-        <h2 className="shrink-0 text-[12.5px] font-extrabold tracking-tight text-slate-800">{title}</h2>
+        <h2 className="shrink-0 text-[12.5px] font-extrabold text-slate-800">{title}</h2>
         <span className="h-px flex-1 bg-[#edece6]" />
       </div>
     );
@@ -592,7 +595,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
           <div className="cv-header mb-6 flex items-start justify-between gap-6 border-b border-[#edece6] pb-5">
             <div className="min-w-0">
               <div className="mb-2 text-[8px] font-bold uppercase tracking-[0.3em] text-[#b3a380]" dir="ltr">Curriculum Vitae</div>
-              <h1 className="break-words text-[35px] font-extrabold leading-[1.05] tracking-tight text-slate-800">{fullName}</h1>
+              <h1 className="break-words text-[35px] font-extrabold leading-[1.05] text-slate-800">{fullName}</h1>
               <div className="mt-2 flex flex-wrap items-center gap-2.5">
                 <span className="h-[2px] w-7 rounded-full bg-[#c0a368]" />
                 <p className="text-[14px] font-bold text-[#a07f4e]">{jobTitle || t("باحث عن عمل")}</p>
@@ -689,7 +692,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
               <div className="flex-1 space-y-4">
                 {pageNum === 1 && (
                   <section className="break-inside-avoid">
-                    <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold tracking-tight text-slate-800">
+                    <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("الاتصال")}
                     </h2>
                     <dl className="space-y-2 text-[9.5px] leading-snug">
@@ -729,7 +732,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
                 {pageSkills.length > 0 && (
                   <section className="break-inside-avoid">
-                    <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold tracking-tight text-slate-800">
+                    <h2 className="mb-2.5 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("المهارات")}
                     </h2>
                     <div className="space-y-2">
@@ -752,7 +755,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
                 {pageCerts.length > 0 && pageNum === 1 && (
                   <section className="break-inside-avoid">
-                    <h2 className="mb-2 flex items-center gap-1.5 text-[10.5px] font-extrabold tracking-tight text-slate-800">
+                    <h2 className="mb-2 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {t("الشهادات")}
                     </h2>
                     <div className="space-y-1.5">
@@ -768,7 +771,7 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
 
                 {pageExtras.map((section) => (
                   <section key={section.title} className="break-inside-avoid">
-                    <h2 className="mb-2 flex items-center gap-1.5 text-[10.5px] font-extrabold tracking-tight text-slate-800">
+                    <h2 className="mb-2 flex items-center gap-1.5 text-[10.5px] font-extrabold text-slate-800">
                       <span className="h-[2px] w-4 rounded-full bg-[#c0a368]" /> {section.title}
                     </h2>
                     <ul className="space-y-1.5">
