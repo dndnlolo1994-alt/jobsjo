@@ -154,7 +154,14 @@ export async function CvPreview({ cv, userSkills = [], lang, isPlus = false }: C
     { title: t("المراجع"), lines: toLines(extras.references) },
   ].filter((section) => section.lines.length > 0);
 
-  const allSkills = Array.from(new Set([...(skills ?? []).map((s: any) => s.name), ...userSkills].filter(Boolean)));
+  const allSkills = Array.from(
+    new Map(
+      [...(skills ?? []).map((s: any) => s.name), ...userSkills]
+        .map((skill) => String(skill || "").trim())
+        .filter(Boolean)
+        .map((skill) => [skill.toLowerCase(), skill])
+    ).values()
+  );
   const compactUrl = (value?: string | null) => {
     if (!value) return "";
     try {
