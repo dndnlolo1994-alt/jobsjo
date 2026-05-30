@@ -144,6 +144,48 @@ export default async function PricingPage() {
         </p>
       </div>
 
+      <div className="mb-10 overflow-hidden rounded-2xl border border-emerald-500/20 bg-slate-950 shadow-2xl shadow-slate-950/10">
+        <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="p-5 sm:p-7 lg:p-8">
+            <span className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[11px] font-extrabold text-emerald-300">
+              سيرة PDF + QR + صفحة شخصية
+            </span>
+            <h2 className="mt-4 text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+              بسعر رمزي امتلك سيرة احترافية موثقة وجاهزة للمشاركة
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm font-medium leading-8 text-slate-300">
+              أنشئ سيرتك مرة واحدة، نزّلها PDF بتنسيق مرتب، وضع عليها رمز QR يفتح صفحتك الشخصية مباشرة. صاحب العمل لا يحتاج حساب ولا خطوات إضافية: يمسح الرمز أو يفتح الرابط ويشاهد ملفك وخبراتك ومهاراتك في صفحة واضحة وحديثة.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                ["PDF مرتب", "تصميم A4 احترافي جاهز للإرسال والطباعة"],
+                ["QR موثق", "رابط مباشر لصفحتك العامة بدون تسجيل دخول"],
+                ["تحديث فوري", "أي تعديل تحفظه يظهر في PDF وصفحة QR"],
+              ].map(([title, body]) => (
+                <div key={title} className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
+                  <h3 className="text-sm font-extrabold text-white">{title}</h3>
+                  <p className="mt-1 text-[11px] font-medium leading-5 text-slate-300">{body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="border-t border-white/10 bg-[#07110f] p-5 sm:p-7 lg:border-t-0 lg:border-r">
+            <div className="rounded-xl border border-amber-400/25 bg-amber-400/10 p-4">
+              <p className="text-xs font-extrabold text-amber-200">الفكرة ببساطة</p>
+              <p className="mt-2 text-sm font-bold leading-8 text-white">
+                بدل ما ترسل ملف عادي فقط، ترسل سيرة أنيقة وفيها QR. صاحب العمل يفتح الصفحة العامة ويشوف بياناتك منظمة، وصورتك، وخبراتك، ومهاراتك، والشهادات، ورابط السيرة الموثق.
+              </p>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href="/register" className="btn-primary text-xs">ابدأ الآن</Link>
+              <Link href="/cv/sample" className="btn-outline border-white/20 bg-white/5 text-xs text-white hover:bg-white/10" target="_blank">
+                مشاهدة مثال كامل
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Seeker Plans Section */}
       <div className="mb-14 rounded-[28px] border border-emerald-500/15 bg-slate-950 p-5 shadow-2xl shadow-slate-950/10 sm:p-7 lg:p-8">
         <div className="border-r-4 border-emerald-400 pr-3 mb-7">
@@ -220,7 +262,7 @@ export default async function PricingPage() {
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3 mb-4">
               <h4 className="font-extrabold text-white text-base sm:text-lg leading-snug">
                 هكذا ستبدو سيرتك بعد التفعيل
-                <span className="block text-emerald-300/90 text-xs font-bold mt-0.5">مثال حقيقي من باني السيرة — Plus مع صورة</span>
+                <span className="block text-emerald-300/90 text-xs font-bold mt-0.5">مثال غني من باني السيرة — صفحة كاملة مع صورة وQR</span>
               </h4>
               <Link
                 href="/cv/sample"
@@ -236,7 +278,7 @@ export default async function PricingPage() {
             </CvPricingFrame>
 
             <p className="text-xs text-slate-300 mt-3 text-center leading-relaxed">
-              الصفحة كاملة في الإطار — رأس أخضر، صورة شخصية، خبرات، مهارات، شهادات، QR موثق. نفس ملف PDF بعد التفعيل.
+              نفس القالب الذي ينزل PDF بعد التفعيل: بيانات حقيقية موزعة يمين ويسار، خبرات، مهارات، شهادات، وإضافات مهنية بدون تكسير أو تداخل.
             </p>
           </div>
         </div>

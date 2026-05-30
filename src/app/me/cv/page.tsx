@@ -38,6 +38,19 @@ export default async function MyCvPage() {
       <h1 className="section-title">باني السيرة الذاتية الاحترافي</h1>
       <p className="section-sub">اكتب بياناتك، خبراتك، تعليمك، مهاراتك، ارفع صورتك، واختر القالب المناسب لتنزيلها PDF.</p>
 
+      <div className="mb-6 rounded-2xl border border-emerald-500/15 bg-emerald-50/70 p-4 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-950/20">
+        <div className="grid gap-3 text-sm leading-7 text-emerald-950 dark:text-emerald-50 md:grid-cols-[1.2fr_0.8fr] md:items-center">
+          <p>
+            بسعر رمزي تحصل على سيرة PDF احترافية مع رمز QR يفتح صفحتك الشخصية مباشرة. أي تعديل تحفظه هنا ينعكس على السيرة، رابط QR، وصفحتك العامة بدون أن يحتاج صاحب العمل إلى حساب.
+          </p>
+          <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-extrabold">
+            <span className="rounded-lg bg-white px-2 py-2 text-emerald-800 shadow-sm dark:bg-slate-900 dark:text-emerald-200">PDF مرتب</span>
+            <span className="rounded-lg bg-white px-2 py-2 text-emerald-800 shadow-sm dark:bg-slate-900 dark:text-emerald-200">QR مباشر</span>
+            <span className="rounded-lg bg-white px-2 py-2 text-emerald-800 shadow-sm dark:bg-slate-900 dark:text-emerald-200">صفحة شخصية</span>
+          </div>
+        </div>
+      </div>
+
       {isPlus && (
         <div className="mb-6 rounded-2xl border border-[#e0d9c5] bg-[#f8f5ec]/70 p-4 shadow-sm dark:border-[#c0a368]/30 dark:bg-[#1f1a10]/70">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
